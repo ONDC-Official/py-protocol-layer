@@ -1,0 +1,16 @@
+version: '2.1'
+services:
+  postgres:
+    image: postgres:11.6
+    container_name: flask-db
+    volumes:
+      - flask-dbdata:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
+    environment:
+      - POSTGRES_USER=flask
+      - POSTGRES_PASSWORD=flask
+      - POSTGRES_SSLMODE=prefer
+
+volumes:
+  flask-dbdata:
