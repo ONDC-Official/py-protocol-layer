@@ -16,7 +16,8 @@ docutils==0.15.2
 durationpy==0.5
 Flask==1.1.2
 Flask-Bcrypt==0.7.1
-flask-restplus==0.13.0
+flask-restx==0.5.1
+flask-expects-json==1.7.0
 Flask-S3==0.3.3
 funcy==1.14
 future==0.18.2
@@ -70,3 +71,4 @@ flask-executor==0.10.0
 openpyxl==3.0.9
 kafka-python==2.0.2
 python-snappy==0.6.0
+gunicorn

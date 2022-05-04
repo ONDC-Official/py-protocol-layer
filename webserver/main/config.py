@@ -28,8 +28,6 @@ class Config:
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_POOL_SIZE = 1
-    PROPOGATE_EXCEPTIONS = True
-    JWT_ERROR_MESSAGE_KEY = "message"
 
 
 class DevelopmentConfig(Config):
@@ -38,6 +36,9 @@ class DevelopmentConfig(Config):
     DEBUG = True
     ENV = True
     # SQLALCHEMY_DATABASE_URI = "postgresql://flask:flask@localhost:5433/flask"
+    SQLALCHEMY_DATABASE_URI = "postgresql://dataorc:xoo8Wum2udae7uoy@localhost:5432/fm_dashboard"
+    DOMAIN = "http://localhost:9900"
+
 
 
 class TestingConfig(Config):
@@ -55,22 +56,35 @@ class ProductionConfig(Config):
     # uncomment the line below to use postgres
     # SQLALCHEMY_DATABASE_URI = postgres_local_base
     JWT_COOKIE_CSRF_PROTECT = False
+    MMI_CLIENT_ID = os.getenv("MMI_CLIENT_ID")
+    MMI_CLIENT_SECRET = os.getenv("MMI_CLIENT_SECRET")
+    MMI_ADVANCE_API_KEY = os.getenv("MMI_ADVANCE_API_KEY")
 
-    
+
+class LightConfig(Config):
+    DEBUG = False
+    # uncomment the line below to use postgres
+    # SQLALCHEMY_DATABASE_URI = postgres_local_base
+    JWT_COOKIE_CSRF_PROTECT = False
+    ZENDRIVE_API_KEY = os.getenv("ZENDRIVE_API_KEY")
+    sign_up_approvers = ["navdeep@dataorc.in", "mayur@dataorc.in", "shrey@dataorc.in"]
+    SES = {
+        "from_email": "no-reply@whatsapp.dataorc.in",
+        "region": "ap-south-1",
+    }
+
+
 config_by_name = dict(
     dev=DevelopmentConfig,
     test=TestingConfig,
     prod=ProductionConfig,
     light=LightConfig,
-    trip_metadata_dev=TripMetadataDevelopmentConfig,
-    trip_metadata_prod=TripMetadataProductionConfig,
-    prod_redshift_local_tunnel=ProdRedshiftLocalTunnel
 )
 
 key = Config.SECRET_KEY
 
 
-def get_config_value_for_name(config_name, default=None, env_param_name=None):
+def get_config_by_name(config_name, default=None, env_param_name=None):
     config_env = os.getenv(env_param_name or "ENV")
     config_value = default
     if config_env:
@@ -79,14 +93,14 @@ def get_config_value_for_name(config_name, default=None, env_param_name=None):
 
 
 def get_email_config_value_for_name(config_name):
-    email_config_value = get_config_value_for_name("SES") or {}
+    email_config_value = get_config_by_name("SES") or {}
     config = email_config_value.get(config_name)
     return config
 
 
 if __name__ == '__main__':
     os.environ["ENV"] = "light"
-    print(get_config_value_for_name("DOMAIN"))
+    print(get_config_by_name("DOMAIN"))
 
     os.environ["ENV"] = "prod"
     print(get_email_config_value_for_name("from_email"))

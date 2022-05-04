@@ -1,7 +1,8 @@
 import os
-from flask_restplus import Api as BaseAPI
 
-from main.routes.login import login_namespace
+from flask_restx import Api as BaseAPI
+
+from main.routes.search import search_namespace
 
 
 class Api(BaseAPI):
@@ -16,13 +17,14 @@ class Api(BaseAPI):
     def base_path(self):
         return ''
 
+
 api = Api(
-    title='FairMatic API',
+    title='ONDC API',
     version='1.0',
-    description='Rest api for fairmatic dashboard project',
+    description='Rest api for ONDC dashboard project',
     doc='/swagger/' if os.getenv("ENV") != None else False
 )
 
 # api.render_root()
 
-api.add_namespace(login_namespace, path='/v1/api')
+api.add_namespace(search_namespace, path='/protocol')
