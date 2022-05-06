@@ -1,6 +1,8 @@
 import os
 
 from flask_restx import Api as BaseAPI
+from jsonschema import ValidationError
+from werkzeug.exceptions import BadRequest
 
 from main.routes.search import search_namespace
 
@@ -26,5 +28,15 @@ api = Api(
 )
 
 # api.render_root()
+
+
+@api.errorhandler(BadRequest)
+def bad_request(error):
+    if isinstance(error.description, ValidationError):
+        original_error = error.description
+        return {'error': str(original_error), 'message': original_error.message}, 400
+    # handle other "Bad Request"-errors
+    return str(error), 400
+
 
 api.add_namespace(search_namespace, path='/protocol')
