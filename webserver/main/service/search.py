@@ -10,7 +10,7 @@ def add_search_catalogues(search_catalogues):
     if is_write_successful:
         return get_ack_response(ack=True)
     else:
-        return get_ack_response(ack=False, error=DatabaseError.OnWriteError.value)
+        return get_ack_response(ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
 
 
 def get_catalogues_for_message_id(**kwargs):

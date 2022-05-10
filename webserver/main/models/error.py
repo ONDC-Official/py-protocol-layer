@@ -1,31 +1,39 @@
 from enum import Enum
 
 
+class BaseError(Enum):
+    CONTEXT_ERROR = "CONTEXT-ERROR"
+    CORE_ERROR = "CORE-ERROR"
+    DOMAIN_ERROR = "DOMAIN-ERROR"
+    POLICY_ERROR = "POLICY-ERROR"
+    JSON_SCHEMA_ERROR = "JSON-SCHEMA-ERROR"
+
+
 class DatabaseError(Enum):
-    OnWriteError = {
+    ON_WRITE_ERROR = {
         "code": "BAP_006",
         "message": "Error when writing to DB",
     }
-    OnReadError = {
+    ON_READ_ERROR = {
         "code": "BAP_007",
         "message": "Error when reading from DB",
     }
-    NotFoundError = {
+    NOT_FOUND_ERROR = {
         "code": "BAP_008",
         "message": "No message with the given ID",
     }
-    OnDeleteError = {
+    ON_DELETE_ERROR = {
         "code": "BAP_009",
         "message": "Error when deleting from DB",
     }
 
 
 class RegistryLookupError(Enum):
-    RegistryError = {
+    REGISTRY_ERROR = {
         "code": "BAP_001",
         "message": "Error when writing to DB",
     }
-    NoSubscribersFoundError = {
+    NO_SUBSCRIBERS_FOUND_ERROR = {
         "code": "BAP_002",
         "message": "Error when reading from DB",
     }

@@ -1,9 +1,13 @@
 def get_ack_response(ack=True, error=None):
-    return {
+    resp = {
         "context": None,
         "message":
             {
-                "ack": "ACK" if ack else "NACK"
-            },
-        "error": error,
+                "ack":
+                    {
+                        "status": "ACK" if ack else "NACK"
+                    }
+            }
     }
+    resp.update({"error": error}) if error else None
+    return resp

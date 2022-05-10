@@ -39,4 +39,9 @@ def bad_request(error):
     return str(error), 400
 
 
+@api.errorhandler(ValidationError)
+def bad_request(error):
+    return {'error': str(error), 'message': error.message}, 400
+
+
 api.add_namespace(search_namespace, path='/protocol')
