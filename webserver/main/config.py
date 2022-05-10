@@ -26,8 +26,6 @@ class Config:
     JWT_QUERY_STRING_NAME = "token"
     # Set the secret key to sign the JWTs with
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_POOL_SIZE = 1
 
 
 class DevelopmentConfig(Config):
@@ -36,9 +34,18 @@ class DevelopmentConfig(Config):
     DEBUG = True
     ENV = True
     # SQLALCHEMY_DATABASE_URI = "postgresql://flask:flask@localhost:5433/flask"
-    SQLALCHEMY_DATABASE_URI = "postgresql://dataorc:xoo8Wum2udae7uoy@localhost:5432/fm_dashboard"
-    DOMAIN = "http://localhost:9900"
-
+    MONGO_DATABASE_HOST = "localhost"
+    MONGO_DATABASE_PORT = 27017
+    MONGO_DATABASE_NAME = "sandbox_bap"
+    BAP_DOMAIN = "nic2004:52110"
+    BAP_CITY_CODE = "std:080"
+    BAP_COUNTRY_CODE = "IND"
+    BAP_ID = "box.beckn.org"
+    BAP_URL = "http://localhost:9002/protocol/v1"
+    BAP_TTL = "20"
+    BECKN_SECURITY_ENABLED = False
+    BAP_PRIVATE_KEY = "some-key"
+    BAP_KEY_ID = "default-key"
 
 
 class TestingConfig(Config):
