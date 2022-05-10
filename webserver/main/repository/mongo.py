@@ -6,7 +6,7 @@ def collection_insert_one(mongo_collection, catalog):
         mongo_collection.insert_one(catalog)
         return True
     except:
-        raise Exception("DatabaseError.OnWriteError")
+        return False
 
 
 def collection_find_all(mongo_collection, query_object, sort_field=None, sort_order=pymongo.ASCENDING):
