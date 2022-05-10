@@ -7,7 +7,6 @@ def collection_insert_one(mongo_collection, catalog):
     try:
         log(f"Inserting entry to collection {mongo_collection.name}")
         mongo_collection.insert_one(catalog)
-        raise Exception("jaja")
         log(f"Entry inserted to collection {mongo_collection.name} successfully!")
         return True
     except:
