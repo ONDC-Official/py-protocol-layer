@@ -718,7 +718,7 @@
         ],
         "description": "Send catalog",
         "requestBody": {
-          "description": "Sellers provide their catalog in response to buyer search",
+          "description": "Sellers provide their catalog in response to buyer search<br> In case of large catalogs, seller apps can page their catalog response and send multiple on_search responses for a single search request",
           "content": {
             "application/json": {
               "schema": {
@@ -2282,6 +2282,7 @@
             "$ref": "#/components/schemas/Time"
           },
           "tax_number": {
+            "description": "GST number",
             "type": "string"
           },
           "created_at": {
@@ -2405,7 +2406,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
+            "type": ["string", "integer"],
             "description": "Unique id of the category"
           },
           "parent_category_id": {
@@ -2538,7 +2539,7 @@
             "description": "This is a unique value which persists during a request / callback cycle"
           },
           "timestamp": {
-            "type": "string",
+            "type": ["string", "integer"],
             "format": "date-time",
             "description": "Time of request generation in RFC3339 format"
           },
@@ -2547,8 +2548,8 @@
             "description": "The encryption public key of the sender"
           },
           "ttl": {
-            "type": "string",
-            "description": "Timestamp for which this message holds valid in ISO8601 durations format<br> Value for search, select, init, confirm, status, track, cancel, update, rating, support is 'PT30S' which is 30 seconds"
+            "type": ["string", "integer"],
+            "description": "Timestamp for which this message holds valid in ISO8601 durations format<br> Outer limit for ttl for search, select, init, confirm, status, track, cancel, update, rating, support is 'PT30S' which is 30 seconds<br> Different buyer apps can change this to meet their UX requirements, but it shouldn't exceed this outer limit"
           }
         },
         "required": [
@@ -2580,7 +2581,7 @@
       },
       "DecimalValue": {
         "description": "Describes a decimal value",
-        "type": "string",
+        "type": ["string", "number"],
         "pattern": "[+-]?([0-9]*[.])?[0-9]+"
       },
       "Descriptor": {
@@ -2650,7 +2651,8 @@
         "description": "Codification of domain for ONDC",
         "type": "string",
         "enum": [
-          "nic2004:52110"
+          "nic2004:52110",
+          "nic2021:52110"
         ]
       },
       "Duration": {
@@ -2994,7 +2996,7 @@
         "properties": {
           "id": {
             "description": "This is the most unique identifier of a service item. An example of an Item ID could be the SKU of a product.",
-            "type": "string",
+            "type": ["string", "integer"],
             "format": "#/components/schemas/Item/properties/id"
           },
           "parent_item_id": {
@@ -3052,6 +3054,10 @@
           "./ondc-time_to_ship": {
             "description": "time from order confirmation by which item ready to ship in ISO8601 durations format e.g. 'PT2H' indicates item ready to ship in 2 hrs",
             "type": "string"
+          },
+          "./ondc-available_on_cod": {
+            "description": "whether the catalog item is available on COD",
+            "type": "boolean"
           },
           "./ondc-statutory_reqs_packaged_commodities": {
             "type": "object",
@@ -3187,8 +3193,7 @@
         },
         "required": [
           "id",
-          "category_id",
-          "fulfillment_id"
+          "price"
         ]
       },
       "Language": {
@@ -3571,7 +3576,8 @@
             ]
           },
           "./ondc-return_window": {
-            "$ref": "#/components/schemas/DecimalValue"
+            "description": "return window for the item in ISO8601 durations format e.g. 'PT24H' indicates 24 hour return window",
+            "type": "string"
           },
           "./ondc-return_window_status": {
             "type": "string",
@@ -3601,7 +3607,8 @@
             ]
           },
           "./ondc-settlement_window": {
-            "$ref": "#/components/schemas/DecimalValue"
+            "description": "return window for the item in ISO8601 durations format e.g. 'PT24H' indicates 24 hour return window",
+            "type": "string"
           },
           "./ondc-settlement_window_status": {
             "type": "string",
@@ -3755,7 +3762,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
+            "type": ["string", "integer"],
             "description": "Id of the provider"
           },
           "descriptor": {
@@ -4081,7 +4088,7 @@
             "type": "string"
           },
           "timestamp": {
-            "type": "string",
+            "type": ["string", "integer"],
             "format": "date-time"
           },
           "duration": {

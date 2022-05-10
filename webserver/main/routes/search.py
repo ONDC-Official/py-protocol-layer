@@ -1,4 +1,4 @@
-from flask import g, request
+from flask import g
 from flask_expects_json import expects_json
 from flask_restx import Namespace, Resource, reqparse
 
@@ -15,6 +15,11 @@ class AddSearchCatalogues(Resource):
     @expects_json(path_schema)
     def post(self):
         return add_search_catalogues(g.data)
+        # data = request.get_json()
+        # if data['context'].get('core_version') and type(data['message'].get('catalog')) == dict:
+        #     return add_search_catalogues(data)
+        # else:
+        #     return {"error": "core_version absent"}, 400
 
 
 @search_namespace.route("/response/v1/on_search")
