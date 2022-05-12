@@ -3,14 +3,25 @@ import pymongo
 from main.logger.custom_logging import log, log_error
 
 
-def collection_insert_one(mongo_collection, catalog):
+def collection_insert_one(mongo_collection, entry):
     try:
         log(f"Inserting entry to collection {mongo_collection.name}")
-        mongo_collection.insert_one(catalog)
+        mongo_collection.insert_one(entry)
         log(f"Entry inserted to collection {mongo_collection.name} successfully!")
         return True
     except:
         log_error(f"Entry insertion to collection {mongo_collection.name} failed!")
+        return False
+
+
+def collection_insert_many(mongo_collection, entries):
+    try:
+        log(f"Inserting entries to collection {mongo_collection.name}")
+        mongo_collection.insert_many(entries)
+        log(f"Entries inserted to collection {mongo_collection.name} successfully!")
+        return True
+    except:
+        log_error(f"Entries insertion to collection {mongo_collection.name} failed!")
         return False
 
 
