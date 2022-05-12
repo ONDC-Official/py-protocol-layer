@@ -71,4 +71,6 @@ flask-executor==0.10.0
 openpyxl==3.0.9
 kafka-python==2.0.2
 python-snappy==0.6.0
-gunicorn
+gunicorn==20.1.0
+pymongo==4.1.1
+flask-expects-json==1.7.0
