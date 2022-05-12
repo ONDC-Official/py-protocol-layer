@@ -14,6 +14,8 @@ GPS = 'gps'
 LOCATION_ID = 'location_id'
 CATEGORY_ID = 'category_id'
 FULFILLMENT_ID = 'fulfillment_id'
+PRICE = 'price'
+RATING = 'rating'
 
 
 #######################

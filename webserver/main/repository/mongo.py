@@ -25,11 +25,12 @@ def collection_insert_many(mongo_collection, entries):
         return False
 
 
-def collection_find_all(mongo_collection, query_object, sort_field=None, sort_order=pymongo.ASCENDING):
+def collection_find_all(mongo_collection, query_object, sort_field=None, sort_order=pymongo.ASCENDING,
+                        skip=0, limit=10):
     log(f"Getting entries from collection {mongo_collection.name}")
     catalogue_objects = mongo_collection.find(query_object)
     if sort_field:
-        catalogue_objects = catalogue_objects.sort(sort_field, sort_order)
+        catalogue_objects = catalogue_objects.sort(sort_field, sort_order).skip(skip).limit(limit)
     catalogues = [dict(c) for c in catalogue_objects]
     for c in catalogues:
         c.pop('_id')

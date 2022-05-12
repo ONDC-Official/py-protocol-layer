@@ -1,3 +1,5 @@
+import pymongo
+
 from main.models import get_mongo_collection
 from main.models.error import DatabaseError
 from main.repository import mongo
@@ -82,9 +84,41 @@ def add_search_catalogues(bpp_response):
         return get_ack_response(ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
 
 
+def get_query_object(**kwargs):
+    query_object = {"context.message_id": kwargs['message_id']}
+    if kwargs['price_min']:
+        query_object.update({'price.value': {'$gte': kwargs['price_min']}})
+    if kwargs['price_max']:
+        query_object.update({'price.value': {'$lte': kwargs['price_max']}})
+    if kwargs['rating']:
+        query_object.update({'rating.value': {'$gte': kwargs['rating']}})
+    if kwargs['provider_id']:
+        query_object.update({'provider_details.id': kwargs['provider_id']})
+    if kwargs['category_id']:
+        query_object.update({'category_id': kwargs['category_id']})
+    if kwargs['fulfillment_id']:
+        query_object.update({'fulfillment_id': kwargs['fulfillment_id']})
+    return query_object
+
+
+def get_sort_field_and_order(**kwargs):
+    if kwargs['sort_field'] == 'price':
+        sort_field = 'price.value'
+    elif kwargs['sort_field'] == 'rating':
+        sort_field = 'rating.value'
+    else:
+        sort_field = None
+    sort_order = pymongo.ASCENDING if kwargs['sort_order'] == 'asc' else pymongo.DESCENDING
+    return sort_field, sort_order
+
+
 def get_catalogues_for_message_id(**kwargs):
-    message_id = kwargs['message_id']
     search_collection = get_mongo_collection('on_search_items')
-    query_object = {"context.message_id": message_id}
-    catalogs = mongo.collection_find_all(search_collection, query_object)
+    query_object = get_query_object(**kwargs)
+    sort_field, sort_order = get_sort_field_and_order(**kwargs)
+    page_number = kwargs['page_number']
+    limit = kwargs['limit']
+    skip = page_number * limit
+    catalogs = mongo.collection_find_all(search_collection, query_object, sort_field, sort_order,
+                                         skip=skip, limit=limit)
     return catalogs
