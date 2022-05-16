@@ -1,6 +1,6 @@
 import json
 import os
-f = open(f"{os.getcwd()}/schemas/schema.json")
+f = open(f"{os.getcwd()}/main/schemas/schema.json")
 json_schema = json.load(f)
 
 
