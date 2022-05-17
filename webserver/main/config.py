@@ -26,6 +26,14 @@ class Config:
     JWT_QUERY_STRING_NAME = "token"
     # Set the secret key to sign the JWTs with
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+    BAP_DOMAIN = "nic2004:52110"
+    BAP_CITY_CODE = "std:080"
+    BAP_COUNTRY_CODE = "IND"
+    BAP_ID = "box.beckn.org"
+    BAP_TTL = "20"
+    BECKN_SECURITY_ENABLED = False
+    BAP_PRIVATE_KEY = "some-key"
+    BAP_KEY_ID = "default-key"
 
 
 class DevelopmentConfig(Config):
@@ -34,18 +42,10 @@ class DevelopmentConfig(Config):
     DEBUG = True
     ENV = True
     # SQLALCHEMY_DATABASE_URI = "postgresql://flask:flask@localhost:5433/flask"
+    BAP_URL = "http://localhost:9002/protocol/v1"
     MONGO_DATABASE_HOST = "localhost"
     MONGO_DATABASE_PORT = 27017
     MONGO_DATABASE_NAME = "sandbox_bap"
-    BAP_DOMAIN = "nic2004:52110"
-    BAP_CITY_CODE = "std:080"
-    BAP_COUNTRY_CODE = "IND"
-    BAP_ID = "box.beckn.org"
-    BAP_URL = "http://localhost:9002/protocol/v1"
-    BAP_TTL = "20"
-    BECKN_SECURITY_ENABLED = False
-    BAP_PRIVATE_KEY = "some-key"
-    BAP_KEY_ID = "default-key"
 
 
 class TestingConfig(Config):
@@ -66,6 +66,10 @@ class ProductionConfig(Config):
     MMI_CLIENT_ID = os.getenv("MMI_CLIENT_ID")
     MMI_CLIENT_SECRET = os.getenv("MMI_CLIENT_SECRET")
     MMI_ADVANCE_API_KEY = os.getenv("MMI_ADVANCE_API_KEY")
+    BAP_URL = os.getenv("BAP_URL", "http://localhost:9002/protocol/v1")
+    MONGO_DATABASE_HOST = os.getenv("MONGO_DATABASE_HOST", "mongo")
+    MONGO_DATABASE_PORT = int(os.getenv("MONGO_DATABASE_PORT", 27017))
+    MONGO_DATABASE_NAME = os.getenv("MONGO_DATABASE_NAME", "sandbox_bap")
 
 
 class LightConfig(Config):
