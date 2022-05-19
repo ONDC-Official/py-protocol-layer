@@ -78,11 +78,6 @@ class LightConfig(Config):
     # SQLALCHEMY_DATABASE_URI = postgres_local_base
     JWT_COOKIE_CSRF_PROTECT = False
     ZENDRIVE_API_KEY = os.getenv("ZENDRIVE_API_KEY")
-    sign_up_approvers = ["navdeep@dataorc.in", "mayur@dataorc.in", "shrey@dataorc.in"]
-    SES = {
-        "from_email": "no-reply@whatsapp.dataorc.in",
-        "region": "ap-south-1",
-    }
 
 
 config_by_name = dict(
