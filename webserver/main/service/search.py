@@ -95,10 +95,13 @@ def add_search_catalogues(bpp_response):
 
 def get_query_object(**kwargs):
     query_object = {"context.message_id": kwargs['message_id']}
-    if kwargs['price_min']:
+    if kwargs['price_min'] and kwargs['price_max']:
+        query_object.update({'price.value': {'$gte': kwargs['price_min'], '$lte': kwargs['price_max']}})
+    elif kwargs['price_min']:
         query_object.update({'price.value': {'$gte': kwargs['price_min']}})
-    if kwargs['price_max']:
+    elif kwargs['price_max']:
         query_object.update({'price.value': {'$lte': kwargs['price_max']}})
+
     if kwargs['rating']:
         query_object.update({'rating.value': {'$gte': kwargs['rating']}})
     if kwargs['provider_id']:
