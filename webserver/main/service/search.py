@@ -1,7 +1,7 @@
 import pymongo
 
 from main.models import get_mongo_collection
-from main.models.error import DatabaseError
+from main.models.error import DatabaseError, RegistryLookupError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main import constant
@@ -82,9 +82,13 @@ def flatten_catalog_into_item_entries(catalog, context):
 
 def add_search_catalogues(bpp_response):
     context = bpp_response[constant.CONTEXT]
+    if constant.MESSAGE not in bpp_response:
+        return get_ack_response(ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
     catalog = bpp_response[constant.MESSAGE][constant.CATALOG]
     items = flatten_catalog_into_item_entries(catalog, context)
 
+    if len(items) == 0:
+        return get_ack_response(ack=True)
     search_collection = get_mongo_collection('on_search_items')
     is_successful = mongo.collection_insert_many(search_collection, items)
     if is_successful:
