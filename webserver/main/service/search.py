@@ -50,10 +50,20 @@ def enrich_context_bpp_id_and_descriptor_into_items(context, bpp_id, bpp_descrip
 
 
 def cast_price_and_rating_to_float(item):
-    if item.get(constant.PRICE) and item[constant.PRICE]['value']:
+    if item.get(constant.PRICE) and item[constant.PRICE].get('value'):
         item[constant.PRICE]['value'] = float(item[constant.PRICE]['value'])
-    if item.get(constant.RATING) and item[constant.RATING]['value']:
+    if item.get(constant.RATING) and item[constant.RATING].get('value'):
         item[constant.RATING]['value'] = float(item[constant.RATING]['value'])
+    return item
+
+
+def cast_provider_category_fulfillment_id_to_string(item):
+    if item.get(constant.PROVIDER_DETAILS) and item[constant.PROVIDER_DETAILS].get('id'):
+        item[constant.PROVIDER_DETAILS]['id'] = str(item[constant.PROVIDER_DETAILS]['id'])
+    if item.get(constant.CATEGORY_ID):
+        item[constant.CATEGORY_ID] = str(item[constant.CATEGORY_ID])
+    if item.get(constant.FULFILLMENT_ID):
+        item[constant.FULFILLMENT_ID] = str(item[constant.FULFILLMENT_ID])
     return item
 
 
@@ -75,6 +85,7 @@ def flatten_catalog_into_item_entries(catalog, context):
             [enrich_fulfillment_details_into_items(bpp_fulfillments, i) for i in provider_items]
             [enrich_context_bpp_id_and_descriptor_into_items(context, bpp_id, bpp_descriptor, i) for i in provider_items]
             [cast_price_and_rating_to_float(i) for i in provider_items]
+            [cast_provider_category_fulfillment_id_to_string(i) for i in provider_items]
             item_entries.extend(provider_items)
 
     return item_entries
