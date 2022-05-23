@@ -31,11 +31,12 @@ def collection_find_all(mongo_collection, query_object, sort_field=None, sort_or
     catalogue_objects = mongo_collection.find(query_object)
     if sort_field:
         catalogue_objects = catalogue_objects.sort(sort_field, sort_order).skip(skip).limit(limit)
+    count = mongo_collection.count_documents(query_object)
     catalogues = [dict(c) for c in catalogue_objects]
     for c in catalogues:
         c.pop('_id')
     log(f"Got entries from collection {mongo_collection.name} successfully")
-    return catalogues
+    return {'count': count, 'data': catalogues}
 
 
 def collection_find_one(mongo_collection, query_object):
