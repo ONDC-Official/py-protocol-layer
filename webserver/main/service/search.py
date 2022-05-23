@@ -108,12 +108,12 @@ def get_query_object(**kwargs):
 
     if kwargs['rating']:
         query_object.update({'rating.value': {'$gte': kwargs['rating']}})
-    if kwargs['provider_id']:
-        query_object.update({'provider_details.id': kwargs['provider_id']})
-    if kwargs['category_id']:
-        query_object.update({'category_id': kwargs['category_id']})
-    if kwargs['fulfillment_id']:
-        query_object.update({'fulfillment_id': kwargs['fulfillment_id']})
+    if kwargs['provider_ids']:
+        query_object.update({'provider_details.id': {'$in': [x.strip() for x in kwargs['provider_ids']]}})
+    if kwargs['category_ids']:
+        query_object.update({'category_id': {'$in': [x.strip() for x in kwargs['category_ids']]}})
+    if kwargs['fulfillment_ids']:
+        query_object.update({'fulfillment_id': {'$in': [x.strip() for x in kwargs['fulfillment_ids']]}})
     return query_object
 
 
