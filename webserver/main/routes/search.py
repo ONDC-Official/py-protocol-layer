@@ -41,7 +41,7 @@ class GetCataloguesForMessageId(Resource):
         parser.add_argument("fulfillmentIds", dest="fulfillment_ids", type=lambda x: x.split(","), required=False)
         parser.add_argument("sortField", dest="sort_field", required=False, choices=[constant.PRICE, constant.RATING])
         parser.add_argument("sortOrder", dest="sort_order", required=False, choices=['asc', 'desc'])
-        parser.add_argument("pageNumber", dest="page_number", type=int, default=0)
+        parser.add_argument("pageNumber", dest="page_number", type=int, default=1)
         parser.add_argument("limit", dest="limit", required=False, type=int, default=10)
         return parser.parse_args()
 

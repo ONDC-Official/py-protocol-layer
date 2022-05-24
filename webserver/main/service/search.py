@@ -143,7 +143,7 @@ def get_catalogues_for_message_id(**kwargs):
     search_collection = get_mongo_collection('on_search_items')
     query_object = get_query_object(**kwargs)
     sort_field, sort_order = get_sort_field_and_order(**kwargs)
-    page_number = kwargs['page_number']
+    page_number = kwargs['page_number'] - 1
     limit = kwargs['limit']
     skip = page_number * limit
     catalogs = mongo.collection_find_all(search_collection, query_object, sort_field, sort_order,
