@@ -1,10 +1,12 @@
 import os
 
+from flask import g, request
 from flask_restx import Api as BaseAPI
 from jsonschema import ValidationError
 from werkzeug.exceptions import BadRequest
 
 from main.routes.search import search_namespace
+from main.utils.original_schema_utils import validate_data_with_original_schema
 
 
 class Api(BaseAPI):
@@ -33,6 +35,7 @@ api = Api(
 @api.errorhandler(BadRequest)
 def bad_request(error):
     if isinstance(error.description, ValidationError):
+        validate_data_with_original_schema(request.get_json(), '/on_search', passing_in_python_protocol=False)
         original_error = error.description
         return {'error': str(original_error), 'message': original_error.message}, 400
     # handle other "Bad Request"-errors
