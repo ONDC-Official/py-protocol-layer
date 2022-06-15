@@ -148,4 +148,4 @@ def get_catalogues_for_message_id(**kwargs):
     skip = page_number * limit
     catalogs = mongo.collection_find_all(search_collection, query_object, sort_field, sort_order,
                                          skip=skip, limit=limit)
-    return catalogs
+    return catalogs if catalogs else {"error": DatabaseError.ON_READ_ERROR.value}
