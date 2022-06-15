@@ -5,6 +5,7 @@ from flask_restx import Api as BaseAPI
 from jsonschema import ValidationError
 from werkzeug.exceptions import BadRequest
 
+from main.routes.init import init_namespace
 from main.routes.search import search_namespace
 from main.utils.original_schema_utils import validate_data_with_original_schema
 
@@ -48,3 +49,4 @@ def bad_request(error):
 
 
 api.add_namespace(search_namespace, path='/protocol')
+api.add_namespace(init_namespace, path='/protocol')
