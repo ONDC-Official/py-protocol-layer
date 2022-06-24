@@ -1,5 +1,6 @@
 import pymongo
 
+from main.constant import ID
 from main.logger.custom_logging import log, log_error
 
 
@@ -30,7 +31,10 @@ def collection_find_all(mongo_collection, query_object, sort_field=None, sort_or
     try:
         log(f"Getting entries from collection {mongo_collection.name}")
         catalogue_objects = mongo_collection.find(query_object)
-        catalogue_objects = catalogue_objects.sort(sort_field, sort_order) if sort_field else catalogue_objects
+        if sort_field:
+            secondary_sort_field, secondary_sort_order = ID, pymongo.ASCENDING
+            catalogue_objects = catalogue_objects.sort([(sort_field, sort_order),
+                                                        (secondary_sort_field, secondary_sort_order)])
         catalogue_objects = catalogue_objects.skip(skip).limit(limit)
         count = mongo_collection.count_documents(query_object)
         catalogues = [dict(c) for c in catalogue_objects]
