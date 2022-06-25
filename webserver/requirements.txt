@@ -27,7 +27,6 @@ itsdangerous==2.1.2
 Jinja2==3.1.2
 jmespath==1.0.1
 jsonschema==4.6.0
-kappa==0.7.0
 MarkupSafe==2.1.1
 pip-tools==6.6.2
 py==1.11.0
