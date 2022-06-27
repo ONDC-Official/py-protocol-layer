@@ -2296,8 +2296,7 @@
         },
         "required": [
           "name",
-          "phone",
-          "tax_number"
+          "phone"
         ]
       },
       "Cancellation": {
@@ -3514,7 +3513,6 @@
               "type": "string"
             },
             "required": [
-              "currency"
             ]
           },
           "type": {
