@@ -2185,11 +2185,11 @@
             "description": "Street name or number"
           },
           "locality": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Name of the locality, apartments"
           },
           "ward": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Name or number of the ward if applicable"
           },
           "city": {
@@ -2785,7 +2785,8 @@
             "enum": [
               "Pickup",
               "Delivery",
-              "home-delivery"
+              "home-delivery",
+              "HOME-DELIVERY"
             ]
           },
           "provider_id": {
@@ -2979,7 +2980,7 @@
             "type": "object",
             "properties": {
               "count": {
-                "type": "integer",
+                "type": ["string","integer"],
                 "minimum": 0
               },
               "measure": {
@@ -3245,8 +3246,7 @@
       },
       "Name": {
         "type": "string",
-        "description": "Describes the name of a person in format: ./{given_name}/{honorific_prefix}/{first_name}/{middle_name}/{last_name}/{honorific_suffix}",
-        "pattern": "^\\./[^/]+/[^/]*/[^/]*/[^/]*/[^/]*/[^/]*$"
+        "description": "Describes the name of a person in format: ./{given_name}/{honorific_prefix}/{first_name}/{middle_name}/{last_name}/{honorific_suffix}"
       },
       "Offer": {
         "description": "Describes an offer",
@@ -3324,7 +3324,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
+            "type": ["number" ,"string"],
             "description": "Hash of order object without id<br> Will be created by buyer app in confirm API"
           },
           "state": {
@@ -3336,7 +3336,8 @@
               "Updated",
               "Returned",
               "Replaced",
-              "Cancelled"
+              "Cancelled",
+              "Active"
             ]
           },
           "provider": {
@@ -4130,7 +4131,8 @@
             "type": "string",
             "enum": [
               "active",
-              "inactive"
+              "inactive",
+              "Active"
             ]
           }
         }
