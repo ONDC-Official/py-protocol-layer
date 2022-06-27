@@ -26,4 +26,10 @@ def get_bpp_response_for_message_id(request_type, **kwargs):
     search_collection = get_mongo_collection(request_type)
     query_object = get_query_object(**kwargs)
     bpp_response = mongo.collection_find_all(search_collection, query_object)
-    return bpp_response if bpp_response else {"error": DatabaseError.ON_READ_ERROR.value}
+    if bpp_response:
+        if bpp_response['count'] > 0:
+            return bpp_response['data']
+        else:
+            return {"error": DatabaseError.NOT_FOUND_ERROR.value}
+    else:
+        return {"error": DatabaseError.ON_READ_ERROR.value}
