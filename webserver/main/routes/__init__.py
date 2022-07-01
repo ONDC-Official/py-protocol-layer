@@ -5,6 +5,7 @@ from flask_restx import Api as BaseAPI
 from jsonschema import ValidationError
 from werkzeug.exceptions import BadRequest
 
+from main.logger.custom_logging import log
 from main.routes.cancel import cancel_namespace
 from main.routes.cancellation_reasons import cancellation_reasons_namespace
 from main.routes.confirm import confirm_namespace
@@ -44,7 +45,8 @@ api = Api(
 @api.errorhandler(BadRequest)
 def bad_request(error):
     if isinstance(error.description, ValidationError):
-        validate_data_with_original_schema(request.get_json(), '/on_search', passing_in_python_protocol=False)
+        # validate_data_with_original_schema(request.get_json(), '/on_search', passing_in_python_protocol=False)
+        log(f"data: {request.get_json()} \n error: {error.description}")
         original_error = error.description
         return {'error': str(original_error), 'message': original_error.message}, 400
     # handle other "Bad Request"-errors
