@@ -52,8 +52,8 @@ def enrich_context_bpp_id_and_descriptor_into_items(context, bpp_id, bpp_descrip
 def cast_price_and_rating_to_float(item):
     if item.get(constant.PRICE) and item[constant.PRICE].get('value'):
         item[constant.PRICE]['value'] = float(item[constant.PRICE]['value'])
-    if item.get(constant.RATING) and item[constant.RATING].get('value'):
-        item[constant.RATING]['value'] = float(item[constant.RATING]['value'])
+    if item.get(constant.RATING):
+        item[constant.RATING] = float(item[constant.RATING])
     return item
 
 
