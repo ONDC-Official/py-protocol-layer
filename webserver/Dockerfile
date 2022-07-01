@@ -14,7 +14,7 @@ WORKDIR /dataorc/app
 
 RUN virtualenv -p python3.7 restapi
 
-COPY . .
+COPY requirements.txt .
 
 RUN restapi/bin/pip3 install --no-cache-dir -r requirements.txt
 
@@ -39,6 +39,8 @@ COPY flask_server_supervisor.conf /etc/supervisor/conf.d/flask_server_supervisor
 COPY supervisord.conf /etc/supervisor.conf
 
 RUN printenv >> /etc/environment
+
+COPY . .
 
 # CMD ["supervisord", "-c", "/etc/supervisor.conf"]
 RUN virtualenv -p python3.7 restapi
