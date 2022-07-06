@@ -46,6 +46,7 @@ class DevelopmentConfig(Config):
     MONGO_DATABASE_HOST = "localhost"
     MONGO_DATABASE_PORT = 27017
     MONGO_DATABASE_NAME = "sandbox_bap"
+    CLIENT_WEBHOOK_ENDPOINT = os.getenv("CLIENT_WEBHOOK_ENDPOINT", "http://localhost:3001/clientApis/response")
 
 
 class TestingConfig(Config):

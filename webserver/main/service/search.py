@@ -5,6 +5,7 @@ from main.models.error import DatabaseError, RegistryLookupError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main import constant
+from main.utils.webhook_utils import post_count_response_to_client
 
 
 def enrich_provider_details_into_items(provider, item):
@@ -103,6 +104,13 @@ def add_search_catalogues(bpp_response):
     search_collection = get_mongo_collection('on_search_items')
     is_successful = mongo.collection_insert_many(search_collection, items)
     if is_successful:
+        message_id = bpp_response[constant.CONTEXT]["message_id"]
+        post_count_response_to_client("on_search",
+                                      {
+                                          "messageId": message_id,
+                                          "count": mongo.collection_get_count(search_collection,
+                                                                              {"context.message_id": message_id})
+                                      })
         return get_ack_response(ack=True)
     else:
         return get_ack_response(ack=False, error=DatabaseError.ON_WRITE_ERROR.value)

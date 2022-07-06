@@ -52,3 +52,8 @@ def collection_find_one(mongo_collection, query_object):
     catalog.pop('_id')
     return catalog
 
+
+def collection_get_count(mongo_collection, query_object):
+    count = mongo_collection.count_documents(query_object)
+    return count
+
