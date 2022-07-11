@@ -71,6 +71,7 @@ class ProductionConfig(Config):
     MONGO_DATABASE_HOST = os.getenv("MONGO_DATABASE_HOST", "mongo")
     MONGO_DATABASE_PORT = int(os.getenv("MONGO_DATABASE_PORT", 27017))
     MONGO_DATABASE_NAME = os.getenv("MONGO_DATABASE_NAME", "sandbox_bap")
+    CLIENT_WEBHOOK_ENDPOINT = os.getenv("CLIENT_WEBHOOK_ENDPOINT", "http://localhost:3001/clientApis/response")
 
 
 class LightConfig(Config):
