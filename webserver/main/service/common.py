@@ -3,6 +3,7 @@ from main.models.error import DatabaseError, RegistryLookupError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main import constant
+from main.utils.webhook_utils import post_count_response_to_client
 
 
 def add_bpp_response(bpp_response, request_type):
@@ -12,6 +13,12 @@ def add_bpp_response(bpp_response, request_type):
     collection_name = get_mongo_collection(request_type)
     is_successful = mongo.collection_insert_one(collection_name, bpp_response)
     if is_successful:
+        message_id = bpp_response[constant.CONTEXT]["message_id"]
+        post_count_response_to_client(request_type,
+                                      {
+                                          "messageId": message_id,
+                                          "count": 1
+                                      })
         return get_ack_response(ack=True)
     else:
         return get_ack_response(ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
