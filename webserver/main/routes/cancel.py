@@ -3,12 +3,24 @@ from flask_expects_json import expects_json
 from flask_restx import Namespace, Resource, reqparse
 from jsonschema import validate
 
-from main import constant
-from main.service.common import add_bpp_response, get_bpp_response_for_message_id
-from main.utils.original_schema_utils import validate_data_with_original_schema
+from main.service.common import add_bpp_response, get_bpp_response_for_message_id, bpp_post_call
 from main.utils.schema_utils import get_json_schema_for_given_path, get_json_schema_for_response
 
 cancel_namespace = Namespace('cancel', description='Cancel Namespace')
+
+
+@cancel_namespace.route("/cancel")
+class BPPCancel(Resource):
+    def create_parser_with_args(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("url", required=True)
+        parser.add_argument("data", type=dict, required=True)
+        parser.add_argument('Authorization', location='headers')
+        return parser.parse_args()
+
+    def post(self):
+        args = self.create_parser_with_args()
+        return bpp_post_call('cancel', **args)
 
 
 @cancel_namespace.route("/v1/on_cancel")

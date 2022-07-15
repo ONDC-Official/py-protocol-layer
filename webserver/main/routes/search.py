@@ -4,11 +4,25 @@ from flask_restx import Namespace, Resource, reqparse
 from jsonschema import validate
 
 from main import constant
-from main.service.search import add_search_catalogues, get_catalogues_for_message_id
+from main.service.search import add_search_catalogues, get_catalogues_for_message_id, gateway_search
 from main.utils.original_schema_utils import validate_data_with_original_schema
 from main.utils.schema_utils import get_json_schema_for_given_path, get_json_schema_for_response
 
 search_namespace = Namespace('search', description='Search Namespace')
+
+
+@search_namespace.route("/search")
+class GatewaySearch(Resource):
+    def create_parser_with_args(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("url", required=True)
+        parser.add_argument("data", type=dict, required=True)
+        parser.add_argument('Authorization', location='headers')
+        return parser.parse_args()
+
+    def post(self):
+        args = self.create_parser_with_args()
+        return gateway_search(**args)
 
 
 @search_namespace.route("/v1/on_search")

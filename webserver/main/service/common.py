@@ -3,7 +3,7 @@ from main.models.error import DatabaseError, RegistryLookupError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main import constant
-from main.utils.webhook_utils import post_count_response_to_client
+from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_or_bpp
 
 
 def add_bpp_response(bpp_response, request_type):
@@ -40,3 +40,10 @@ def get_bpp_response_for_message_id(request_type, **kwargs):
             return {"error": DatabaseError.NOT_FOUND_ERROR.value}
     else:
         return {"error": DatabaseError.ON_READ_ERROR.value}
+
+
+def bpp_post_call(request_type, **kwargs):
+    uri = f"{kwargs['url']}{request_type}"
+    payload = kwargs['data']
+    return post_on_bg_or_bpp(uri, payload=payload, headers={'Authorization': kwargs['Authorization']})
+

@@ -1,3 +1,5 @@
+import json
+
 import pymongo
 
 from main.models import get_mongo_collection
@@ -5,7 +7,7 @@ from main.models.error import DatabaseError, RegistryLookupError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main import constant
-from main.utils.webhook_utils import post_count_response_to_client
+from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_or_bpp
 
 
 def enrich_provider_details_into_items(provider, item):
@@ -114,6 +116,12 @@ def add_search_catalogues(bpp_response):
         return get_ack_response(ack=True)
     else:
         return get_ack_response(ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
+
+
+def gateway_search(**kwargs):
+    uri = f"{kwargs['url']}search"
+    payload = kwargs['data']
+    return post_on_bg_or_bpp(uri, payload=payload, headers={'Authorization': kwargs['Authorization']})
 
 
 def get_query_object(**kwargs):
