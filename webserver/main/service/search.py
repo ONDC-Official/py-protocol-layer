@@ -109,7 +109,8 @@ def add_search_catalogues(bpp_response):
                                       {
                                           "messageId": message_id,
                                           "count": mongo.collection_get_count(search_collection,
-                                                                              {"context.message_id": message_id})
+                                                                              {"context.message_id": message_id}),
+                                          "filters": get_filters_out_of_items(items)
                                       })
         return get_ack_response(ack=True)
     else:
