@@ -5,6 +5,7 @@ from jsonschema import validate
 
 from main import constant
 from main.service.search import add_search_catalogues, get_catalogues_for_message_id, gateway_search
+from main.utils.decorators import validate_auth_header
 from main.utils.original_schema_utils import validate_data_with_original_schema
 from main.utils.schema_utils import get_json_schema_for_given_path, get_json_schema_for_response
 
@@ -22,6 +23,7 @@ class GatewaySearch(Resource):
 class AddSearchCatalogues(Resource):
     path_schema = get_json_schema_for_given_path('/on_search')
 
+    # @validate_auth_header
     @expects_json(path_schema)
     def post(self):
         resp = add_search_catalogues(g.data)

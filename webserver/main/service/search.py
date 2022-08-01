@@ -5,7 +5,7 @@ from main.models.error import DatabaseError, RegistryLookupError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main import constant
-from main.service.common import fetch_subscriber_url_from_lookup
+from main.utils.lookup_utils import fetch_subscriber_url_from_lookup
 from main.utils.cryptic_utils import create_authorisation_header
 from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_or_bpp
 

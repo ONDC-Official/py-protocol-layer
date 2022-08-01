@@ -69,13 +69,14 @@ def create_authorisation_header(request_body, created=None, expires=None):
     return header
 
 
-def verify_authorisation_header(auth_header, request_body, created=None, expires=None):
+def verify_authorisation_header(auth_header, request_body, created=None, expires=None, public_key=None):
     created = int(datetime.datetime.now().timestamp()) if created is None else created
     expires = int((datetime.datetime.now() + datetime.timedelta(hours=1)).timestamp()) if expires is None else expires
     header_parts = get_filter_dictionary_or_operation(auth_header.replace("Signature ", ""))
     signing_key = create_signing_string(hash_message(json.dumps(request_body, separators=(',', ':'))),
                                         created=created, expires=expires)
-    return verify_response(header_parts['signature'], signing_key, public_key=get_config_by_name("BAP_PUBLIC_KEY"))
+    public_key = get_config_by_name("BAP_PUBLIC_KEY") if public_key is None else public_key
+    return verify_response(header_parts['signature'], signing_key, public_key=public_key)
 
 
 def generate_key_pairs():
@@ -93,4 +94,5 @@ if __name__ == '__main__':
     # os.environ["BAP_PRIVATE_KEY"] = private_key1
     # os.environ["BAP_PUBLIC_KEY"] = public_key1
     auth_header1 = create_authorisation_header(request_body1)
+    print(auth_header1)
     print(verify_authorisation_header(auth_header1, request_body1))
