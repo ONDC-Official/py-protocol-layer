@@ -29,12 +29,12 @@ class Config:
     DOMAIN = "nic2004:52110"
     CITY_CODE = "std:080"
     COUNTRY_CODE = "IND"
-    BAP_ID = "buyer-app.ondc.org"
     BAP_TTL = "20"
     BECKN_SECURITY_ENABLED = False
-    BAP_PRIVATE_KEY = "some-key"
-    BAP_KEY_ID = "default-key"
-    BPP_UNIQUE_KEY_ID = 207
+    BAP_PRIVATE_KEY = os.getenv("BAP_PRIVATE_KEY", "some-key")
+    BAP_PUBLIC_KEY = os.getenv("BAP_PUBLIC_KEY", "some-key")
+    BAP_ID = os.getenv("BAP_ID", "buyer-app.ondc.org")
+    BAP_UNIQUE_KEY_ID = os.getenv("BAP_UNIQUE_KEY_ID", "207")
     REGISTRY_BASE_URL = "https://pilot-gateway-1.beckn.nsdl.co.in"
 
 

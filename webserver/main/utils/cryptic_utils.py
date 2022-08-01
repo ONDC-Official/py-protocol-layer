@@ -1,30 +1,24 @@
 import base64
 import datetime
-import os
 import re
-import json
 
-import fire as fire
 import nacl.encoding
 import nacl.hash
+import json
 from nacl.bindings import crypto_sign_ed25519_sk_to_seed
 from nacl.signing import SigningKey, VerifyKey
 
-request_body_json = {"context":{"domain":"nic2004:60212","country":"IND","city":"Kochi","action":"search","core_version":"0.9.1","bap_id":"bap.stayhalo.in","bap_uri":"https://8f9f-49-207-209-131.ngrok.io/protocol/","transaction_id":"e6d9f908-1d26-4ff3-a6d1-3af3d3721054","message_id":"a2fe6d52-9fe4-4d1a-9d0b-dccb8b48522d","timestamp":"2022-01-04T09:17:55.971Z","ttl":"P1M"},"message":{"intent":{"fulfillment":{"start":{"location":{"gps":"10.108768, 76.347517"}},"end":{"location":{"gps":"10.102997, 76.353480"}}}}}}
+from main.config import get_config_by_name
 
 
 def hash_message(msg: str):
-    HASHER = nacl.hash.blake2b
-    digest = HASHER(bytes(msg, 'utf-8'), digest_size=64, encoder=nacl.encoding.Base64Encoder)
+    hasher = nacl.hash.blake2b
+    digest = hasher(bytes(msg, 'utf-8'), digest_size=64, encoder=nacl.encoding.Base64Encoder)
     digest_str = digest.decode("utf-8")
     return digest_str
 
 
 def create_signing_string(digest_base64, created=None, expires=None):
-    if created is None:
-        created = int(datetime.datetime.now().timestamp())
-    if expires is None:
-        expires = int((datetime.datetime.now() + datetime.timedelta(hours=1)).timestamp())
     signing_string = f"""(created): {created}
 (expires): {expires}
 digest: BLAKE-512={digest_base64}"""
@@ -61,25 +55,27 @@ def get_filter_dictionary_or_operation(filter_string):
     return filter_dictionary_or_operation
 
 
-def create_authorisation_header(request_body=request_body_json,
-                                created="1641287875", expires="1641291475"):
+def create_authorisation_header(request_body, created=None, expires=None):
+    created = int(datetime.datetime.now().timestamp()) if created is None else created
+    expires = int((datetime.datetime.now() + datetime.timedelta(hours=1)).timestamp()) if expires is None else expires
     signing_key = create_signing_string(hash_message(json.dumps(request_body, separators=(',', ':'))),
                                         created=created, expires=expires)
-    signature = sign_response(signing_key, private_key=os.getenv("BPP_PRIVATE_KEY"))
+    signature = sign_response(signing_key, private_key=get_config_by_name("BAP_PRIVATE_KEY"))
 
-    subscriber_id = "buyer-app.ondc.org"
-    unique_key_id = "207"
+    subscriber_id = get_config_by_name("BAP_ID")
+    unique_key_id = get_config_by_name("BAP_UNIQUE_KEY_ID")
     header = f'Signature keyId="{subscriber_id}|{unique_key_id}|ed25519",algorithm="ed25519",created=' \
              f'"{created}",expires="{expires}",headers="(created) (expires) digest",signature="{signature}"'
     return header
 
 
-def verify_authorisation_header(auth_header, request_body=request_body_json, created="1641287875", expires="1641291475"):
+def verify_authorisation_header(auth_header, request_body, created=None, expires=None):
+    created = int(datetime.datetime.now().timestamp()) if created is None else created
+    expires = int((datetime.datetime.now() + datetime.timedelta(hours=1)).timestamp()) if expires is None else expires
     header_parts = get_filter_dictionary_or_operation(auth_header.replace("Signature ", ""))
     signing_key = create_signing_string(hash_message(json.dumps(request_body, separators=(',', ':'))),
                                         created=created, expires=expires)
-
-    return verify_response(header_parts['signature'], signing_key, public_key=os.getenv("BPP_PUBLIC_KEY"))
+    return verify_response(header_parts['signature'], signing_key, public_key=get_config_by_name("BAP_PUBLIC_KEY"))
 
 
 def generate_key_pairs():
@@ -91,13 +87,10 @@ def generate_key_pairs():
 
 if __name__ == '__main__':
     request_body1 = {"context":{"domain":"nic2004:60212","country":"IND","city":"Kochi","action":"search","core_version":"0.9.1","bap_id":"bap.stayhalo.in","bap_uri":"https://8f9f-49-207-209-131.ngrok.io/protocol/","transaction_id":"e6d9f908-1d26-4ff3-a6d1-3af3d3721054","message_id":"a2fe6d52-9fe4-4d1a-9d0b-dccb8b48522d","timestamp":"2022-01-04T09:17:55.971Z","ttl":"P1M"},"message":{"intent":{"fulfillment":{"start":{"location":{"gps":"10.108768, 76.347517"}},"end":{"location":{"gps":"10.102997, 76.353480"}}}}}}
-    # os.environ["BPP_PRIVATE_KEY"] = "lP3sHA+9gileOkXYJXh4Jg8tK0gEEMbf9yCPnFpbldhrAY+NErqL9WD+Vav7TE5tyVXGXBle9ONZi2W7o144eQ=="
-    # os.environ["BPP_PUBLIC_KEY"] = "awGPjRK6i/Vg/lWr+0xObclVxlwZXvTjWYtlu6NeOHk="
+    # os.environ["BAP_PRIVATE_KEY"] = "lP3sHA+9gileOkXYJXh4Jg8tK0gEEMbf9yCPnFpbldhrAY+NErqL9WD+Vav7TE5tyVXGXBle9ONZi2W7o144eQ=="
+    # os.environ["BAP_PUBLIC_KEY"] = "awGPjRK6i/Vg/lWr+0xObclVxlwZXvTjWYtlu6NeOHk="
     # private_key1, public_key1 = generate_key_pairs()
-    # os.environ["BPP_PRIVATE_KEY"] = private_key1
-    # os.environ["BPP_PUBLIC_KEY"] = public_key1
-    # auth_header = create_authorisation_header(request_body1)
-    # print(verify_authorisation_header(auth_header, request_body1))
-    fire.Fire()
-
-
+    # os.environ["BAP_PRIVATE_KEY"] = private_key1
+    # os.environ["BAP_PUBLIC_KEY"] = public_key1
+    auth_header1 = create_authorisation_header(request_body1)
+    print(verify_authorisation_header(auth_header1, request_body1))

@@ -5,6 +5,8 @@ from main.models.error import DatabaseError, RegistryLookupError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main import constant
+from main.service.common import fetch_subscriber_url_from_lookup
+from main.utils.cryptic_utils import create_authorisation_header
 from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_or_bpp
 
 
@@ -117,10 +119,12 @@ def add_search_catalogues(bpp_response):
         return get_ack_response(ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
 
 
-def gateway_search(**kwargs):
-    uri = f"{kwargs['url']}search"
-    payload = kwargs['data']
-    return post_on_bg_or_bpp(uri, payload=payload, headers={'Authorization': kwargs['Authorization']})
+def gateway_search(search_request):
+    request_type = 'search'
+    gateway_url = fetch_subscriber_url_from_lookup(request_type)
+    search_url = f"{gateway_url}{request_type}" if gateway_url.endswith("/") else f"{gateway_url}/{request_type}"
+    auth_header = create_authorisation_header(search_request)
+    return post_on_bg_or_bpp(search_url, payload=search_request, headers={'Authorization': auth_header})
 
 
 def get_query_object(**kwargs):

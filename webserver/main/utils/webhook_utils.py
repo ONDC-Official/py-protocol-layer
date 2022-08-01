@@ -37,3 +37,8 @@ def post_on_bg_or_bpp(url, payload, headers=None):
     raw_data = json.dumps(payload, separators=(',', ':'))
     response_text, status_code = requests_post(url, raw_data, headers)
     return json.loads(response_text), status_code
+
+
+def lookup_call(url, payload, headers=None):
+    response = requests.post(url, json=payload, headers=headers)
+    return json.loads(response.text), response.status_code

@@ -1,4 +1,4 @@
-from flask import g
+from flask import g, request
 from flask_expects_json import expects_json
 from flask_restx import Namespace, Resource, reqparse
 from jsonschema import validate
@@ -13,16 +13,9 @@ search_namespace = Namespace('search', description='Search Namespace')
 
 @search_namespace.route("/search")
 class GatewaySearch(Resource):
-    def create_parser_with_args(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument("url", required=True)
-        parser.add_argument("data", type=dict, required=True)
-        parser.add_argument('Authorization', location='headers')
-        return parser.parse_args()
-
     def post(self):
-        args = self.create_parser_with_args()
-        return gateway_search(**args)
+        search_request = request.get_json()
+        return gateway_search(search_request)
 
 
 @search_namespace.route("/v1/on_search")
