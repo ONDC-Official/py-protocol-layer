@@ -26,14 +26,16 @@ class Config:
     JWT_QUERY_STRING_NAME = "token"
     # Set the secret key to sign the JWTs with
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-    BAP_DOMAIN = "nic2004:52110"
-    BAP_CITY_CODE = "std:080"
-    BAP_COUNTRY_CODE = "IND"
-    BAP_ID = "box.beckn.org"
+    DOMAIN = "nic2004:52110"
+    CITY_CODE = "std:080"
+    COUNTRY_CODE = "IND"
+    BAP_ID = "buyer-app.ondc.org"
     BAP_TTL = "20"
     BECKN_SECURITY_ENABLED = False
     BAP_PRIVATE_KEY = "some-key"
     BAP_KEY_ID = "default-key"
+    BPP_UNIQUE_KEY_ID = 207
+    REGISTRY_BASE_URL = "https://pilot-gateway-1.beckn.nsdl.co.in"
 
 
 class DevelopmentConfig(Config):
@@ -46,7 +48,7 @@ class DevelopmentConfig(Config):
     MONGO_DATABASE_HOST = "localhost"
     MONGO_DATABASE_PORT = 27017
     MONGO_DATABASE_NAME = "sandbox_bap"
-    CLIENT_WEBHOOK_ENDPOINT = os.getenv("CLIENT_WEBHOOK_ENDPOINT", "http://localhost:3001/clientApis/response")
+    CLIENT_WEBHOOK_ENDPOINT = os.getenv("CLIENT_WEBHOOK_ENDPOINT", "https://616e-2409-4042-4d8d-a7b7-c127-cb03-c9c2-ecae.in.ngrok.io/clientApis/response")
 
 
 class TestingConfig(Config):

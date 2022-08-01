@@ -1,5 +1,7 @@
+from main.config import get_config_by_name
 from main.models import get_mongo_collection
 from main.models.error import DatabaseError, RegistryLookupError
+from main.models.subscriber import SubscriberType
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main import constant
@@ -46,4 +48,11 @@ def bpp_post_call(request_type, **kwargs):
     uri = f"{kwargs['url']}{request_type}"
     payload = kwargs['data']
     return post_on_bg_or_bpp(uri, payload=payload, headers={'Authorization': kwargs['Authorization']})
+
+
+def fetch_lookup(request_type, subscriber_id=None):
+    subscriber_type = SubscriberType.BG.name if request_type == 'search' else SubscriberType.BPP.name
+    payload = {"type": subscriber_type, "domain": get_config_by_name('DOMAIN')}
+    payload.update(subscriber_id) if subscriber_id else None
+    return post_on_bg_or_bpp(get_config_by_name('REGISTRY_BASE_URL'), payload=payload)
 
