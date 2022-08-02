@@ -34,8 +34,6 @@ RUN echo en_us.UTF-8 UTF-8 >> /etc/locale.gen
 
 RUN mkdir /var/log/flask_server/
 
-COPY flask_server_supervisor.conf /etc/supervisor/conf.d/flask_server_supervisor.conf
-
 COPY supervisord.conf /etc/supervisor.conf
 
 RUN printenv >> /etc/environment
