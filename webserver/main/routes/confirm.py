@@ -1,4 +1,4 @@
-from flask import g
+from flask import g, request
 from flask_expects_json import expects_json
 from flask_restx import Namespace, Resource, reqparse
 from jsonschema import validate
@@ -19,8 +19,8 @@ class BPPConfirm(Resource):
         return parser.parse_args()
 
     def post(self):
-        args = self.create_parser_with_args()
-        return bpp_post_call('confirm', **args)
+        request_payload = request.get_json()
+        return bpp_post_call('confirm', request_payload)
 
 
 @confirm_namespace.route("/v1/on_confirm")

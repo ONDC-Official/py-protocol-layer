@@ -1,4 +1,4 @@
-from flask import g
+from flask import g, request
 from flask_expects_json import expects_json
 from flask_restx import Namespace, Resource, reqparse
 from jsonschema import validate
@@ -11,16 +11,9 @@ support_namespace = Namespace('support', description='Support Namespace')
 
 @support_namespace.route("/support")
 class BPPSupport(Resource):
-    def create_parser_with_args(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument("url", required=True)
-        parser.add_argument("data", type=dict, required=True)
-        parser.add_argument('Authorization', location='headers')
-        return parser.parse_args()
-
     def post(self):
-        args = self.create_parser_with_args()
-        return bpp_post_call('support', **args)
+        request_payload = request.get_json()
+        return bpp_post_call('support', request_payload)
 
 
 @support_namespace.route("/v1/on_support")

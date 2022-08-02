@@ -3,6 +3,8 @@ from main.models.error import DatabaseError, RegistryLookupError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main import constant
+from main.utils.cryptic_utils import create_authorisation_header
+from main.utils.lookup_utils import fetch_subscriber_url_from_lookup
 from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_or_bpp
 
 
@@ -42,9 +44,11 @@ def get_bpp_response_for_message_id(request_type, **kwargs):
         return {"error": DatabaseError.ON_READ_ERROR.value}
 
 
-def bpp_post_call(request_type, **kwargs):
-    uri = f"{kwargs['url']}{request_type}"
-    payload = kwargs['data']
-    return post_on_bg_or_bpp(uri, payload=payload, headers={'Authorization': kwargs['Authorization']})
+def bpp_post_call(request_type, request_payload):
+    subscriber_id = request_payload.get('bpp_id')
+    bpp_url = fetch_subscriber_url_from_lookup(request_type, subscriber_id=subscriber_id)
+    bpp_url_with_route = f"{bpp_url}{request_type}" if bpp_url.endswith("/") else f"{bpp_url}/{request_type}"
+    auth_header = create_authorisation_header(request_payload)
+    return post_on_bg_or_bpp(bpp_url_with_route, payload=request_payload, headers={'Authorization': auth_header})
 
 

@@ -1,4 +1,4 @@
-from flask import g
+from flask import g, request
 from flask_expects_json import expects_json
 from flask_restx import Namespace, Resource, reqparse
 from jsonschema import validate
@@ -10,17 +10,11 @@ select_namespace = Namespace('select', description='Select Namespace')
 
 
 @select_namespace.route("/select")
-class BPPCancel(Resource):
-    def create_parser_with_args(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument("url", required=True)
-        parser.add_argument("data", type=dict, required=True)
-        parser.add_argument('Authorization', location='headers')
-        return parser.parse_args()
+class BPPSelect(Resource):
 
     def post(self):
-        args = self.create_parser_with_args()
-        return bpp_post_call('select', **args)
+        request_payload = request.get_json()
+        return bpp_post_call('select', request_payload)
 
 
 @select_namespace.route("/v1/on_select")

@@ -1,4 +1,4 @@
-from flask import g
+from flask import g, request
 from flask_expects_json import expects_json
 from flask_restx import Namespace, Resource, reqparse
 from jsonschema import validate
@@ -11,16 +11,9 @@ track_namespace = Namespace('track', description='Track Namespace')
 
 @track_namespace.route("/track")
 class BPPTrack(Resource):
-    def create_parser_with_args(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument("url", required=True)
-        parser.add_argument("data", type=dict, required=True)
-        parser.add_argument('Authorization', location='headers')
-        return parser.parse_args()
-
     def post(self):
-        args = self.create_parser_with_args()
-        return bpp_post_call('track', **args)
+        request_payload = request.get_json()
+        return bpp_post_call('track', request_payload)
 
 
 @track_namespace.route("/v1/on_track")
