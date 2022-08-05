@@ -27,15 +27,9 @@ class AddSearchCatalogues(Resource):
     @expects_json(path_schema)
     def post(self):
         resp = add_search_catalogues(g.data)
-        validate_data_with_original_schema(g.data, '/on_search')
         response_schema = get_json_schema_for_response('/on_search')
         validate(resp, response_schema)
         return resp
-        # data = request.get_json()
-        # if data['context'].get('core_version') and type(data['message'].get('catalog')) == dict:
-        #     return add_search_catalogues(data)
-        # else:
-        #     return {"error": "core_version absent"}, 400
 
 
 @search_namespace.route("/response/v1/on_search")

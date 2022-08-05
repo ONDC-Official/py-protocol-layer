@@ -43,5 +43,5 @@ def validate_data_with_original_schema(data, schema_path, passing_in_python_prot
 def validation_webhook(data, error, request='on_search', passing_in_python_protocol=True):
     payload = {"request": request, "error": error, "passing_in_python_protocol": passing_in_python_protocol,
                "data": data}
-    requests.post(os.getenv("WEBHOOK_URL", "https://webhook.site/05bd9e8b-a62e-4dd9-b8e8-f765eeff4a8f"),
+    requests.post(os.getenv("WEBHOOK_URL", "https://webhook.site/d8ab34d4-6fa7-42e5-a7e8-02cd8778c82e"),
                   json=json.loads(json_util.dumps(payload)))

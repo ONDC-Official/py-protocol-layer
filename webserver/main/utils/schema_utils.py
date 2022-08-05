@@ -1,7 +1,20 @@
 import json
 import os
+
+from jsonschema.exceptions import ValidationError
+
 f = open(f"{os.getcwd()}/main/schemas/schema.json")
 json_schema = json.load(f)
+
+
+def transform_json_schema_error(e: ValidationError):
+    absolute_path = list(e.absolute_path)
+    path_in_str = ""
+    for x in absolute_path:
+        path_in_str += f"['{x}']" if type(x) == str else f"[{x}]"
+    message = e.message
+    final_message = f"Validation error: {message} for path: {path_in_str}"
+    return final_message
 
 
 def get_json_schema_for_given_path(path, request_type='post'):

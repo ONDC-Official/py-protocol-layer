@@ -6,6 +6,8 @@ from jsonschema import ValidationError
 from werkzeug.exceptions import BadRequest
 
 from main.logger.custom_logging import log
+from main.models.error import BaseError
+from main.repository.ack_response import get_ack_response
 from main.routes.cancel import cancel_namespace
 from main.routes.cancellation_reasons import cancellation_reasons_namespace
 from main.routes.confirm import confirm_namespace
@@ -17,6 +19,7 @@ from main.routes.status import status_namespace
 from main.routes.support import support_namespace
 from main.routes.track import track_namespace
 from main.utils.original_schema_utils import validate_data_with_original_schema
+from main.utils.schema_utils import transform_json_schema_error
 
 
 class Api(BaseAPI):
@@ -45,12 +48,13 @@ api = Api(
 @api.errorhandler(BadRequest)
 def bad_request(error):
     if isinstance(error.description, ValidationError):
-        # validate_data_with_original_schema(request.get_json(), '/on_search', passing_in_python_protocol=False)
-        log(f"data: {request.get_json()} \n error: {error.description}")
-        original_error = error.description
-        return {'error': str(original_error), 'message': original_error.message}, 400
+        # validate_data_with_original_schema(request.get_json(), '/on_select', passing_in_python_protocol=False)
+        # log(f"data: {request.get_json()} \n error: {error.description}")
+        error_message = transform_json_schema_error(error.description)
+        return get_ack_response(ack=False,
+                                error={"type": BaseError.JSON_SCHEMA_ERROR.value, "message": error_message}), 400
     # handle other "Bad Request"-errors
-    return str(error), 400
+    return str(error), 500
 
 
 @api.errorhandler(ValidationError)
