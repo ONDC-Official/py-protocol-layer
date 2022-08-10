@@ -8,3 +8,10 @@ class SubscriberType(Enum):
     LREG = "LREG",
     CREG = "CREG",
     RREG = "RREG"
+
+
+subscriber_type_mapping = {
+    "BG": "gateway",
+    "BAP": "buyerApp",
+    "BPP": "sellerApp",
+}

@@ -1,6 +1,7 @@
 import base64
 import datetime
 import re
+import uuid
 
 import nacl.encoding
 import nacl.hash
@@ -9,6 +10,7 @@ from nacl.bindings import crypto_sign_ed25519_sk_to_seed
 from nacl.signing import SigningKey, VerifyKey
 
 from main.config import get_config_by_name
+from main.models.subscriber import subscriber_type_mapping
 
 
 def hash_message(msg: str):
@@ -84,6 +86,30 @@ def generate_key_pairs():
     private_key = base64.b64encode(signing_key._signing_key).decode()
     public_key = base64.b64encode(bytes(signing_key.verify_key)).decode()
     return private_key, public_key
+
+
+def sign_registry_request(request):
+    req_obj = []
+    req_obj.append(request.get('country')) if request.get('country') else None
+    req_obj.append(request.get('domain')) if request.get('domain') else None
+    req_obj.append(request.get('type')) if request.get('type') else None
+    req_obj.append(request.get('city')) if request.get('city') else None
+    req_obj.append(request.get('subscriber_id')) if request.get('subscriber_id') else None
+
+    signing_string = "|".join(req_obj)
+    return sign_response(signing_string, private_key=get_config_by_name("BAP_PRIVATE_KEY"))
+
+
+def format_registry_request(request):
+    request['type'] = subscriber_type_mapping[request['type']]
+    signature = sign_registry_request(request)
+    return {
+        "sender_subscriber_id": get_config_by_name("BAP_ID"),
+        "request_id": str(uuid.uuid4()),
+        "timestamp": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]+"Z",
+        "search_parameters": request,
+        "signature": signature
+    }
 
 
 if __name__ == '__main__':

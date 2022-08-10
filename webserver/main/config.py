@@ -76,19 +76,31 @@ class ProductionConfig(Config):
     CLIENT_WEBHOOK_ENDPOINT = os.getenv("CLIENT_WEBHOOK_ENDPOINT", "http://localhost:3001/clientApis/response")
 
 
-class LightConfig(Config):
+class PreProductionConfig(Config):
     DEBUG = False
     # uncomment the line below to use postgres
     # SQLALCHEMY_DATABASE_URI = postgres_local_base
     JWT_COOKIE_CSRF_PROTECT = False
-    ZENDRIVE_API_KEY = os.getenv("ZENDRIVE_API_KEY")
+    MMI_CLIENT_ID = os.getenv("MMI_CLIENT_ID")
+    MMI_CLIENT_SECRET = os.getenv("MMI_CLIENT_SECRET")
+    MMI_ADVANCE_API_KEY = os.getenv("MMI_ADVANCE_API_KEY")
+    BAP_URL = os.getenv("BAP_URL", "http://localhost:9002/protocol/v1")
+    MONGO_DATABASE_HOST = os.getenv("MONGO_DATABASE_HOST", "mongo")
+    MONGO_DATABASE_PORT = int(os.getenv("MONGO_DATABASE_PORT", 27017))
+    MONGO_DATABASE_NAME = os.getenv("MONGO_DATABASE_NAME", "sandbox_bap")
+    CLIENT_WEBHOOK_ENDPOINT = os.getenv("CLIENT_WEBHOOK_ENDPOINT", "http://localhost:3001/clientApis/response")
+    REGISTRY_BASE_URL = "https://preprod.registry.ondc.org/ondc"
+    BAP_PRIVATE_KEY = os.getenv("BAP_PRIVATE_KEY", "some_key")
+    BAP_PUBLIC_KEY = os.getenv("BAP_PUBLIC_KEY", "some_key")
+    BAP_ID = os.getenv("BAP_ID", "buyer-app-preprod.ondc.org")
+    BAP_UNIQUE_KEY_ID = os.getenv("BAP_UNIQUE_KEY_ID", "96c81878-f327-457e-8835-5b35bb20f099")
 
 
 config_by_name = dict(
     dev=DevelopmentConfig,
     test=TestingConfig,
     prod=ProductionConfig,
-    light=LightConfig,
+    pre_prod=PreProductionConfig,
 )
 
 key = Config.SECRET_KEY
