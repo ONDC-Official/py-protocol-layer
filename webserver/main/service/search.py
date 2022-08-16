@@ -176,11 +176,11 @@ def get_filters_out_of_items(items):
     provider_values = [i[constant.PROVIDER_DETAILS] for i in items if 'id' in i[constant.PROVIDER_DETAILS]]
     price_values = [i[constant.PRICE]['value'] for i in items]
 
-    categories = list({v['id']: {'id': v['id'], 'name': v.get('descriptor').get('name')}
+    categories = list({v['id']: {'id': v['id'], 'name': v.get('descriptor', {}).get('name')}
                        for v in category_values}.values())
-    fulfillment = list({v['id']: {'id': v['id'], 'name': v.get('descriptor').get('name')}
+    fulfillment = list({v['id']: {'id': v['id'], 'name': v.get('descriptor', {}).get('name')}
                         for v in fulfillment_values}.values())
-    providers = list({v['id']: {'id': v['id'], 'name': v.get('descriptor').get('name')}
+    providers = list({v['id']: {'id': v['id'], 'name': v.get('descriptor', {}).get('name')}
                       for v in provider_values}.values())
     min_price = min(price_values)
     max_price = max(price_values)
