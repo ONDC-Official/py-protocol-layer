@@ -51,5 +51,3 @@ def bpp_post_call(request_type, request_payload):
     bpp_url_with_route = f"{bpp_url}{request_type}" if bpp_url.endswith("/") else f"{bpp_url}/{request_type}"
     auth_header = create_authorisation_header(request_payload)
     return post_on_bg_or_bpp(bpp_url_with_route, payload=request_payload, headers={'Authorization': auth_header})
-
-

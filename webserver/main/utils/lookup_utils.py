@@ -12,11 +12,14 @@ def fetch_subscriber_url_from_lookup(request_type, subscriber_id=None):
                "domain": get_config_by_name('DOMAIN')}
     payload.update({"subscriber_id": subscriber_id}) if subscriber_id else None
     updated_payload = format_registry_request(payload) if os.getenv("ENV") == "pre_prod" else payload
-    response, status_code = lookup_call(f"{get_config_by_name('REGISTRY_BASE_URL')}/vlookup",
+    lookup_route = "/vlookup" if os.getenv("ENV") == "pre_prod" else "/lookup"
+    response, status_code = lookup_call(f"{get_config_by_name('REGISTRY_BASE_URL')}/{lookup_route}",
                                         payload=updated_payload)
     if status_code == 200:
         if response[0].get('network_participant'):
-            return response[0].get('network_participant')[0]['subscriber_url']
+            subscriber_id = response[0]['subscriber_id']
+            subscriber_url = response[0].get('network_participant')[0]['subscriber_url']
+            return f"https://{subscriber_id}{subscriber_url}"
         else:
             return response[0]['subscriber_url']
     else:
