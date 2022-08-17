@@ -14,7 +14,7 @@ class BPPStatus(Resource):
 
     def post(self):
         request_payload = request.get_json()
-        return bpp_post_call('cancel', request_payload)
+        return bpp_post_call('status', request_payload)
 
 
 @status_namespace.route("/v1/on_status")
