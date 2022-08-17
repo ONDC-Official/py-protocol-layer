@@ -57,6 +57,14 @@ def cast_price_and_rating_to_float(item):
     return item
 
 
+def cast_price_and_rating_to_string(item):
+    if item.get(constant.PRICE) and item[constant.PRICE].get('value'):
+        item[constant.PRICE]['value'] = str(item[constant.PRICE]['value'])
+    if item.get(constant.RATING):
+        item[constant.RATING] = str(item[constant.RATING])
+    return item
+
+
 def cast_provider_category_fulfillment_id_to_string(item):
     if item.get(constant.PROVIDER_DETAILS) and item[constant.PROVIDER_DETAILS].get('id'):
         item[constant.PROVIDER_DETAILS]['id'] = str(item[constant.PROVIDER_DETAILS]['id'])
@@ -148,4 +156,32 @@ def get_catalogues_for_message_id(**kwargs):
     skip = page_number * limit
     catalogs = mongo.collection_find_all(search_collection, query_object, sort_field, sort_order,
                                          skip=skip, limit=limit)
-    return catalogs if catalogs else {"error": DatabaseError.ON_READ_ERROR.value}
+    if catalogs:
+        items = catalogs['data']
+        catalogs['data'] = [cast_price_and_rating_to_string(i) for i in items]
+        return catalogs
+    else:
+        return {"error": DatabaseError.ON_READ_ERROR.value}
+
+
+def get_filters_out_of_items(items):
+    category_values = [i[constant.CATEGORY_DETAILS] for i in items if 'id' in i[constant.CATEGORY_DETAILS]]
+    fulfillment_values = [i[constant.FULFILLMENT_DETAILS] for i in items if 'id' in i[constant.FULFILLMENT_DETAILS]]
+    provider_values = [i[constant.PROVIDER_DETAILS] for i in items if 'id' in i[constant.PROVIDER_DETAILS]]
+    price_values = [i[constant.PRICE]['value'] for i in items]
+
+    categories = list({v['id']: {'id': v['id'], 'name': v.get('descriptor', {}).get('name')}
+                       for v in category_values}.values())
+    fulfillment = list({v['id']: {'id': v['id'], 'name': v.get('descriptor', {}).get('name')}
+                        for v in fulfillment_values}.values())
+    providers = list({v['id']: {'id': v['id'], 'name': v.get('descriptor', {}).get('name')}
+                      for v in provider_values}.values())
+    min_price = min(price_values)
+    max_price = max(price_values)
+    return {
+        "categories": categories,
+        "fulfillment": fulfillment,
+        "providers": providers,
+        "minPrice": min_price,
+        "maxPrice": max_price,
+    }
