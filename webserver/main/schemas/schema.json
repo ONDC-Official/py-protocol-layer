@@ -3192,8 +3192,7 @@
           }
         },
         "required": [
-          "id",
-          "price"
+          "id"
         ]
       },
       "Language": {

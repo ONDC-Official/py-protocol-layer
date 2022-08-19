@@ -1,14 +1,20 @@
-from flask import g
+from flask import g, request
 from flask_expects_json import expects_json
 from flask_restx import Namespace, Resource, reqparse
 from jsonschema import validate
 
-from main import constant
-from main.service.common import add_bpp_response, get_bpp_response_for_message_id
-from main.utils.original_schema_utils import validate_data_with_original_schema
+from main.service.common import add_bpp_response, get_bpp_response_for_message_id, bpp_post_call
 from main.utils.schema_utils import get_json_schema_for_given_path, get_json_schema_for_response
 
 rating_namespace = Namespace('rating', description='Rating Namespace')
+
+
+@rating_namespace.route("/rating")
+class BPPRating(Resource):
+
+    def post(self):
+        request_payload = request.get_json()
+        return bpp_post_call('rating', request_payload)
 
 
 @rating_namespace.route("/v1/on_rating")

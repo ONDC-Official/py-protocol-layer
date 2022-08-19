@@ -26,14 +26,16 @@ class Config:
     JWT_QUERY_STRING_NAME = "token"
     # Set the secret key to sign the JWTs with
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-    BAP_DOMAIN = "nic2004:52110"
-    BAP_CITY_CODE = "std:080"
-    BAP_COUNTRY_CODE = "IND"
-    BAP_ID = "box.beckn.org"
+    DOMAIN = "nic2004:52110"
+    CITY_CODE = "std:080"
+    COUNTRY_CODE = "IND"
     BAP_TTL = "20"
     BECKN_SECURITY_ENABLED = False
-    BAP_PRIVATE_KEY = "some-key"
-    BAP_KEY_ID = "default-key"
+    BAP_PRIVATE_KEY = os.getenv("BAP_PRIVATE_KEY", "some-key")
+    BAP_PUBLIC_KEY = os.getenv("BAP_PUBLIC_KEY", "some-key")
+    BAP_ID = os.getenv("BAP_ID", "buyer-app.ondc.org")
+    BAP_UNIQUE_KEY_ID = os.getenv("BAP_UNIQUE_KEY_ID", "207")
+    REGISTRY_BASE_URL = "https://pilot-gateway-1.beckn.nsdl.co.in"
 
 
 class DevelopmentConfig(Config):
@@ -46,6 +48,7 @@ class DevelopmentConfig(Config):
     MONGO_DATABASE_HOST = "localhost"
     MONGO_DATABASE_PORT = 27017
     MONGO_DATABASE_NAME = "sandbox_bap"
+    CLIENT_WEBHOOK_ENDPOINT = os.getenv("CLIENT_WEBHOOK_ENDPOINT", "https://616e-2409-4042-4d8d-a7b7-c127-cb03-c9c2-ecae.in.ngrok.io/clientApis/response")
 
 
 class TestingConfig(Config):
@@ -70,21 +73,34 @@ class ProductionConfig(Config):
     MONGO_DATABASE_HOST = os.getenv("MONGO_DATABASE_HOST", "mongo")
     MONGO_DATABASE_PORT = int(os.getenv("MONGO_DATABASE_PORT", 27017))
     MONGO_DATABASE_NAME = os.getenv("MONGO_DATABASE_NAME", "sandbox_bap")
+    CLIENT_WEBHOOK_ENDPOINT = os.getenv("CLIENT_WEBHOOK_ENDPOINT", "http://localhost:3001/clientApis/response")
 
 
-class LightConfig(Config):
+class PreProductionConfig(Config):
     DEBUG = False
     # uncomment the line below to use postgres
     # SQLALCHEMY_DATABASE_URI = postgres_local_base
     JWT_COOKIE_CSRF_PROTECT = False
-    ZENDRIVE_API_KEY = os.getenv("ZENDRIVE_API_KEY")
+    MMI_CLIENT_ID = os.getenv("MMI_CLIENT_ID")
+    MMI_CLIENT_SECRET = os.getenv("MMI_CLIENT_SECRET")
+    MMI_ADVANCE_API_KEY = os.getenv("MMI_ADVANCE_API_KEY")
+    BAP_URL = os.getenv("BAP_URL", "http://localhost:9002/protocol/v1")
+    MONGO_DATABASE_HOST = os.getenv("MONGO_DATABASE_HOST", "mongo")
+    MONGO_DATABASE_PORT = int(os.getenv("MONGO_DATABASE_PORT", 27017))
+    MONGO_DATABASE_NAME = os.getenv("MONGO_DATABASE_NAME", "sandbox_bap")
+    CLIENT_WEBHOOK_ENDPOINT = os.getenv("CLIENT_WEBHOOK_ENDPOINT", "http://localhost:3001/clientApis/response")
+    REGISTRY_BASE_URL = "https://preprod.registry.ondc.org/ondc"
+    BAP_PRIVATE_KEY = os.getenv("BAP_PRIVATE_KEY", "some_key")
+    BAP_PUBLIC_KEY = os.getenv("BAP_PUBLIC_KEY", "some_key")
+    BAP_ID = os.getenv("BAP_ID", "buyer-app-preprod.ondc.org")
+    BAP_UNIQUE_KEY_ID = os.getenv("BAP_UNIQUE_KEY_ID", "96c81878-f327-457e-8835-5b35bb20f099")
 
 
 config_by_name = dict(
     dev=DevelopmentConfig,
     test=TestingConfig,
     prod=ProductionConfig,
-    light=LightConfig,
+    pre_prod=PreProductionConfig,
 )
 
 key = Config.SECRET_KEY

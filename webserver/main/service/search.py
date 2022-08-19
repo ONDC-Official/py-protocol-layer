@@ -5,6 +5,9 @@ from main.models.error import DatabaseError, RegistryLookupError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main import constant
+from main.utils.lookup_utils import fetch_subscriber_url_from_lookup
+from main.utils.cryptic_utils import create_authorisation_header
+from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_or_bpp
 
 
 def enrich_provider_details_into_items(provider, item):
@@ -103,9 +106,25 @@ def add_search_catalogues(bpp_response):
     search_collection = get_mongo_collection('on_search_items')
     is_successful = mongo.collection_insert_many(search_collection, items)
     if is_successful:
+        message_id = bpp_response[constant.CONTEXT]["message_id"]
+        post_count_response_to_client("on_search",
+                                      {
+                                          "messageId": message_id,
+                                          "count": mongo.collection_get_count(search_collection,
+                                                                              {"context.message_id": message_id}),
+                                          "filters": get_filters_out_of_items(items)
+                                      })
         return get_ack_response(ack=True)
     else:
         return get_ack_response(ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
+
+
+def gateway_search(search_request):
+    request_type = 'search'
+    gateway_url = fetch_subscriber_url_from_lookup(request_type)
+    search_url = f"{gateway_url}{request_type}" if gateway_url.endswith("/") else f"{gateway_url}/{request_type}"
+    auth_header = create_authorisation_header(search_request)
+    return post_on_bg_or_bpp(search_url, payload=search_request, headers={'Authorization': auth_header})
 
 
 def get_query_object(**kwargs):
@@ -149,3 +168,26 @@ def get_catalogues_for_message_id(**kwargs):
     catalogs = mongo.collection_find_all(search_collection, query_object, sort_field, sort_order,
                                          skip=skip, limit=limit)
     return catalogs if catalogs else {"error": DatabaseError.ON_READ_ERROR.value}
+
+
+def get_filters_out_of_items(items):
+    category_values = [i[constant.CATEGORY_DETAILS] for i in items if 'id' in i[constant.CATEGORY_DETAILS]]
+    fulfillment_values = [i[constant.FULFILLMENT_DETAILS] for i in items if 'id' in i[constant.FULFILLMENT_DETAILS]]
+    provider_values = [i[constant.PROVIDER_DETAILS] for i in items if 'id' in i[constant.PROVIDER_DETAILS]]
+    price_values = [i[constant.PRICE]['value'] for i in items]
+
+    categories = list({v['id']: {'id': v['id'], 'name': v.get('descriptor', {}).get('name')}
+                       for v in category_values}.values())
+    fulfillment = list({v['id']: {'id': v['id'], 'name': v.get('descriptor', {}).get('name')}
+                        for v in fulfillment_values}.values())
+    providers = list({v['id']: {'id': v['id'], 'name': v.get('descriptor', {}).get('name')}
+                      for v in provider_values}.values())
+    min_price = min(price_values)
+    max_price = max(price_values)
+    return {
+        "categories": categories,
+        "fulfillment": fulfillment,
+        "providers": providers,
+        "minPrice": min_price,
+        "maxPrice": max_price,
+    }
