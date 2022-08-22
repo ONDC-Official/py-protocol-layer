@@ -3,7 +3,9 @@ import os
 
 from jsonschema.exceptions import ValidationError
 
-f = open(f"{os.getcwd()}/main/schemas/schema.json")
+from main.utils.path_utils import get_project_root
+
+f = open(f"{get_project_root()}/schemas/schema.json")
 json_schema = json.load(f)
 
 

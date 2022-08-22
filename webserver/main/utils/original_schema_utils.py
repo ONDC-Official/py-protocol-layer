@@ -6,8 +6,9 @@ from bson import json_util
 from jsonschema import validate, ValidationError
 
 from main.utils.decorators import check_for_exception
+from main.utils.path_utils import get_project_root
 
-f = open(f"{os.getcwd()}/main/schemas/original_schema.json")
+f = open(f"{get_project_root()}/schemas/original_schema.json")
 original_json_schema = json.load(f)
 
 
