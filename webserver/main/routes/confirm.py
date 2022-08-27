@@ -11,12 +11,6 @@ confirm_namespace = Namespace('confirm', description='Confirm Namespace')
 
 @confirm_namespace.route("/confirm")
 class BPPConfirm(Resource):
-    def create_parser_with_args(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument("url", required=True)
-        parser.add_argument("data", type=dict, required=True)
-        parser.add_argument('Authorization', location='headers')
-        return parser.parse_args()
 
     def post(self):
         request_payload = request.get_json()
