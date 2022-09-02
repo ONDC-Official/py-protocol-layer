@@ -26,10 +26,16 @@ class Config:
     JWT_QUERY_STRING_NAME = "token"
     # Set the secret key to sign the JWTs with
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_POOL_SIZE = 1
-    PROPOGATE_EXCEPTIONS = True
-    JWT_ERROR_MESSAGE_KEY = "message"
+    DOMAIN = "nic2004:52110"
+    CITY_CODE = "std:080"
+    COUNTRY_CODE = "IND"
+    BAP_TTL = "20"
+    BECKN_SECURITY_ENABLED = False
+    BAP_PRIVATE_KEY = os.getenv("BAP_PRIVATE_KEY", "some-key")
+    BAP_PUBLIC_KEY = os.getenv("BAP_PUBLIC_KEY", "some-key")
+    BAP_ID = os.getenv("BAP_ID", "buyer-app.ondc.org")
+    BAP_UNIQUE_KEY_ID = os.getenv("BAP_UNIQUE_KEY_ID", "207")
+    REGISTRY_BASE_URL = "https://pilot-gateway-1.beckn.nsdl.co.in"
 
 
 class DevelopmentConfig(Config):
@@ -38,6 +44,11 @@ class DevelopmentConfig(Config):
     DEBUG = True
     ENV = True
     # SQLALCHEMY_DATABASE_URI = "postgresql://flask:flask@localhost:5433/flask"
+    BAP_URL = "http://localhost:9002/protocol/v1"
+    MONGO_DATABASE_HOST = "localhost"
+    MONGO_DATABASE_PORT = 27017
+    MONGO_DATABASE_NAME = "sandbox_bap"
+    CLIENT_WEBHOOK_ENDPOINT = os.getenv("CLIENT_WEBHOOK_ENDPOINT", "https://616e-2409-4042-4d8d-a7b7-c127-cb03-c9c2-ecae.in.ngrok.io/clientApis/response")
 
 
 class TestingConfig(Config):
@@ -55,22 +66,47 @@ class ProductionConfig(Config):
     # uncomment the line below to use postgres
     # SQLALCHEMY_DATABASE_URI = postgres_local_base
     JWT_COOKIE_CSRF_PROTECT = False
+    MMI_CLIENT_ID = os.getenv("MMI_CLIENT_ID")
+    MMI_CLIENT_SECRET = os.getenv("MMI_CLIENT_SECRET")
+    MMI_ADVANCE_API_KEY = os.getenv("MMI_ADVANCE_API_KEY")
+    BAP_URL = os.getenv("BAP_URL", "http://localhost:9002/protocol/v1")
+    MONGO_DATABASE_HOST = os.getenv("MONGO_DATABASE_HOST", "mongo")
+    MONGO_DATABASE_PORT = int(os.getenv("MONGO_DATABASE_PORT", 27017))
+    MONGO_DATABASE_NAME = os.getenv("MONGO_DATABASE_NAME", "sandbox_bap")
+    CLIENT_WEBHOOK_ENDPOINT = os.getenv("CLIENT_WEBHOOK_ENDPOINT", "http://localhost:3001/clientApis/response")
 
-    
+
+class PreProductionConfig(Config):
+    DEBUG = False
+    # uncomment the line below to use postgres
+    # SQLALCHEMY_DATABASE_URI = postgres_local_base
+    JWT_COOKIE_CSRF_PROTECT = False
+    MMI_CLIENT_ID = os.getenv("MMI_CLIENT_ID")
+    MMI_CLIENT_SECRET = os.getenv("MMI_CLIENT_SECRET")
+    MMI_ADVANCE_API_KEY = os.getenv("MMI_ADVANCE_API_KEY")
+    BAP_URL = os.getenv("BAP_URL", "http://localhost:9002/protocol/v1")
+    MONGO_DATABASE_HOST = os.getenv("MONGO_DATABASE_HOST", "mongo")
+    MONGO_DATABASE_PORT = int(os.getenv("MONGO_DATABASE_PORT", 27017))
+    MONGO_DATABASE_NAME = os.getenv("MONGO_DATABASE_NAME", "sandbox_bap")
+    CLIENT_WEBHOOK_ENDPOINT = os.getenv("CLIENT_WEBHOOK_ENDPOINT", "http://localhost:3001/clientApis/response")
+    REGISTRY_BASE_URL = "https://preprod.registry.ondc.org/ondc"
+    BAP_PRIVATE_KEY = os.getenv("BAP_PRIVATE_KEY", "some_key")
+    BAP_PUBLIC_KEY = os.getenv("BAP_PUBLIC_KEY", "some_key")
+    BAP_ID = os.getenv("BAP_ID", "buyer-app-preprod.ondc.org")
+    BAP_UNIQUE_KEY_ID = os.getenv("BAP_UNIQUE_KEY_ID", "96c81878-f327-457e-8835-5b35bb20f099")
+
+
 config_by_name = dict(
     dev=DevelopmentConfig,
     test=TestingConfig,
     prod=ProductionConfig,
-    light=LightConfig,
-    trip_metadata_dev=TripMetadataDevelopmentConfig,
-    trip_metadata_prod=TripMetadataProductionConfig,
-    prod_redshift_local_tunnel=ProdRedshiftLocalTunnel
+    pre_prod=PreProductionConfig,
 )
 
 key = Config.SECRET_KEY
 
 
-def get_config_value_for_name(config_name, default=None, env_param_name=None):
+def get_config_by_name(config_name, default=None, env_param_name=None):
     config_env = os.getenv(env_param_name or "ENV")
     config_value = default
     if config_env:
@@ -79,14 +115,14 @@ def get_config_value_for_name(config_name, default=None, env_param_name=None):
 
 
 def get_email_config_value_for_name(config_name):
-    email_config_value = get_config_value_for_name("SES") or {}
+    email_config_value = get_config_by_name("SES") or {}
     config = email_config_value.get(config_name)
     return config
 
 
 if __name__ == '__main__':
     os.environ["ENV"] = "light"
-    print(get_config_value_for_name("DOMAIN"))
+    print(get_config_by_name("DOMAIN"))
 
     os.environ["ENV"] = "prod"
     print(get_email_config_value_for_name("from_email"))
