@@ -23,7 +23,7 @@ class GatewaySearch(Resource):
 class AddSearchCatalogues(Resource):
     path_schema = get_json_schema_for_given_path('/on_search')
 
-    # @validate_auth_header
+    @validate_auth_header
     @expects_json(path_schema)
     def post(self):
         resp = add_search_catalogues(g.data)
