@@ -31,7 +31,10 @@ def get_bpp_public_key_from_header(auth_header):
     subscriber_type = SubscriberType.BPP.name
     payload = {"type": subscriber_type, "domain": get_config_by_name('DOMAIN'),
                "subscriber_id": header_parts['keyId'].split("|")[0]}
-    response, status_code = lookup_call(f"{get_config_by_name('REGISTRY_BASE_URL')}/lookup", payload=payload)
+    updated_payload = format_registry_request(payload) if os.getenv("ENV") == "pre_prod" else payload
+    lookup_route = "/vlookup" if os.getenv("ENV") == "pre_prod" else "/lookup"
+    response, status_code = lookup_call(f"{get_config_by_name('REGISTRY_BASE_URL')}/{lookup_route}",
+                                        payload=updated_payload)
     if status_code == 200:
         return response[0]['signing_public_key']
     else:
