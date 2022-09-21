@@ -3330,13 +3330,12 @@
             "type": "string",
             "enum": [
               "Created",
-              "Shipped",
-              "Delivered",
-              "Updated",
-              "Returned",
-              "Replaced",
+              "Accepted",
+              "In-progress",
+              "Completed",
               "Cancelled",
-              "Active"
+              "Packed",
+              "Out-for-delivery"
             ]
           },
           "provider": {
