@@ -2785,8 +2785,7 @@
             "enum": [
               "Pickup",
               "Delivery",
-              "home-delivery",
-              "HOME-DELIVERY"
+              "Delivery and Pickup"
             ]
           },
           "provider_id": {
