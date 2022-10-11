@@ -4,35 +4,33 @@ from flask_restx import Namespace, Resource, reqparse
 from jsonschema import validate
 
 from main.service.common import add_bpp_response, get_bpp_response_for_message_id, bpp_post_call
-from main.utils.decorators import validate_auth_header
 from main.utils.schema_utils import get_json_schema_for_given_path, get_json_schema_for_response
 
-confirm_namespace = Namespace('confirm', description='Confirm Namespace')
+update_namespace = Namespace('update', description='Update Namespace')
 
 
-@confirm_namespace.route("/confirm")
-class BPPConfirm(Resource):
+@update_namespace.route("/update")
+class BPPUpdate(Resource):
 
     def post(self):
         request_payload = request.get_json()
-        return bpp_post_call('confirm', request_payload)
+        return bpp_post_call('update', request_payload)
 
 
-@confirm_namespace.route("/v1/on_confirm")
-class AddConfirmResponse(Resource):
-    path_schema = get_json_schema_for_given_path('/on_confirm')
+@update_namespace.route("/v1/on_update")
+class AddUpdateResponse(Resource):
+    path_schema = get_json_schema_for_given_path('/on_update')
 
-    @validate_auth_header
     @expects_json(path_schema)
     def post(self):
-        resp = add_bpp_response(g.data, request_type='on_confirm')
-        response_schema = get_json_schema_for_response('/on_confirm')
+        resp = add_bpp_response(g.data, request_type='on_update')
+        response_schema = get_json_schema_for_response('/on_update')
         validate(resp, response_schema)
         return resp
 
 
-@confirm_namespace.route("/response/v1/on_confirm")
-class GetConfirmResponseForMessageId(Resource):
+@update_namespace.route("/response/v1/on_update")
+class GetUpdateResponseForMessageId(Resource):
 
     def create_parser_with_args(self):
         parser = reqparse.RequestParser()
@@ -41,5 +39,5 @@ class GetConfirmResponseForMessageId(Resource):
 
     def get(self):
         args = self.create_parser_with_args()
-        return get_bpp_response_for_message_id(request_type='on_confirm', **args)
+        return get_bpp_response_for_message_id(request_type='on_update', **args)
 
