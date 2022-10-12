@@ -3919,7 +3919,7 @@
             ]
           },
           "value": {
-            "type": "number"
+            "type": ["string", "number"]
           },
           "estimated_value": {
             "type": "number"
