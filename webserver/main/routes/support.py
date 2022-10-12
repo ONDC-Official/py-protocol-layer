@@ -4,7 +4,7 @@ from flask_restx import Namespace, Resource, reqparse
 from jsonschema import validate
 
 from main.service.common import add_bpp_response, get_bpp_response_for_message_id, bpp_post_call
-from main.utils.decorators import validate_auth_header
+from main.service.utils import validate_auth_header
 from main.utils.schema_utils import get_json_schema_for_given_path, get_json_schema_for_response
 
 support_namespace = Namespace('support', description='Support Namespace')

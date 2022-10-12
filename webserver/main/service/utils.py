@@ -1,16 +1,15 @@
 import hashlib
-import os
-import pathlib
 import random
 import string
 import uuid
 from datetime import datetime
 
+from flask import request
 from flask_restx import abort
-from flask_sqlalchemy import Model
-
-from main.config import Config
 from main.logger.custom_logging import log
+from main.repository.ack_response import get_ack_response
+from main.utils.cryptic_utils import verify_authorisation_header
+from main.utils.lookup_utils import get_bpp_public_key_from_header
 
 URL_SPLITTER = "?"
 
@@ -52,27 +51,18 @@ def handle_stop_iteration(func):
 
     return exception_handler
 
-def get_attrs(klass):
-    return [k for k in klass.__dict__.keys()
-            if not k.startswith('__')
-            and not k.endswith('__')]
 
+def validate_auth_header(func):
+    def wrapper(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        bg_or_bpp_public_key = get_bpp_public_key_from_header(auth_header)
+        if verify_authorisation_header(auth_header, request.get_json(), public_key=bg_or_bpp_public_key):
+            return func(*args, **kwargs)
+        abort(401, message=get_ack_response(ack=False, error={
+            "code": "10001",
+            "message": "Invalid Signature"
+        }))
 
-def update_base_model_with_dictionary(model: Model, column_dict: dict):
-    [setattr(model, key, value) for key, value in column_dict.items() if value is not None and key in get_attrs(model)]
-    return model
-
-
-def sanitize_if_signed_url_already_present(signed_url):
-    if Config.S3_PRIVATE_BUCKET in signed_url and URL_SPLITTER in signed_url:
-        return signed_url.split(URL_SPLITTER)[0].replace(f"https://{Config.S3_PRIVATE_BUCKET}.s3.amazonaws.com/", "")
-    return signed_url
-
-
-def read_sql(sql_name):
-    path = str(pathlib.Path(__file__).parent.parent.resolve())
-    sql_path = path + os.sep + "sql/redshift/selects"
-    return open(sql_path + os.sep + sql_name).read()
-
-if __name__ == '__main__':
-    print(password_hash(None))
+    wrapper.__doc__ = func.__doc__
+    wrapper.__name__ = func.__name__
+    return wrapper
