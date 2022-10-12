@@ -1,4 +1,5 @@
 import hashlib
+import json
 import random
 import string
 import uuid
@@ -58,10 +59,10 @@ def validate_auth_header(func):
         bg_or_bpp_public_key = get_bpp_public_key_from_header(auth_header)
         if verify_authorisation_header(auth_header, request.get_json(), public_key=bg_or_bpp_public_key):
             return func(*args, **kwargs)
-        abort(401, message=get_ack_response(ack=False, error={
+        return get_ack_response(ack=False, error={
             "code": "10001",
             "message": "Invalid Signature"
-        }))
+        }), 401
 
     wrapper.__doc__ = func.__doc__
     wrapper.__name__ = func.__name__
