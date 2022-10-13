@@ -57,7 +57,7 @@ def validate_auth_header(func):
     def wrapper(*args, **kwargs):
         auth_header = request.headers.get('Authorization')
         bg_or_bpp_public_key = get_bpp_public_key_from_header(auth_header)
-        if verify_authorisation_header(auth_header, request.get_json(), public_key=bg_or_bpp_public_key):
+        if verify_authorisation_header(auth_header, request.data.decode("utf-8"), public_key=bg_or_bpp_public_key):
             return func(*args, **kwargs)
         return get_ack_response(ack=False, error={
             "code": "10001",

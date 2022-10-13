@@ -71,14 +71,13 @@ def create_authorisation_header(request_body, created=None, expires=None):
     return header
 
 
-def verify_authorisation_header(auth_header, request_body, public_key):
+def verify_authorisation_header(auth_header, request_body_str, public_key):
     header_parts = get_filter_dictionary_or_operation(auth_header.replace("Signature ", ""))
     created = int(header_parts['created'])
     expires = int(header_parts['expires'])
     current_timestamp = int(datetime.datetime.now().timestamp())
     if created <= current_timestamp <= expires:
-        signing_key = create_signing_string(hash_message(json.dumps(request_body, separators=(',', ':'))),
-                                            created=created, expires=expires)
+        signing_key = create_signing_string(hash_message(request_body_str), created=created, expires=expires)
         return verify_response(header_parts['signature'], signing_key, public_key=public_key)
     else:
         return False
