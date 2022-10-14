@@ -970,8 +970,11 @@
                           "billing": {
                             "$ref": "#/components/schemas/Billing"
                           },
-                          "fulfillment": {
-                            "$ref": "#/components/schemas/Fulfillment"
+                          "fulfillments": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/Fulfillment"
+                            }
                           },
                           "quote": {
                             "$ref": "#/components/schemas/Quotation"
