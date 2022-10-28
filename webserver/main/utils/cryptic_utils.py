@@ -102,16 +102,19 @@ def sign_registry_request(request):
     return sign_response(signing_string, private_key=get_config_by_name("BAP_PRIVATE_KEY"))
 
 
-def format_registry_request(request):
+def format_registry_request_for_pre_prod(request, vlookup=False):
     request['type'] = subscriber_type_mapping[request['type']]
-    signature = sign_registry_request(request)
-    return {
-        "sender_subscriber_id": get_config_by_name("BAP_ID"),
-        "request_id": str(uuid.uuid4()),
-        "timestamp": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]+"Z",
-        "search_parameters": request,
-        "signature": signature
-    }
+    if vlookup:
+        signature = sign_registry_request(request)
+        return {
+            "sender_subscriber_id": get_config_by_name("BAP_ID"),
+            "request_id": str(uuid.uuid4()),
+            "timestamp": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]+"Z",
+            "search_parameters": request,
+            "signature": signature
+        }
+    else:
+        return request
 
 
 if __name__ == '__main__':
