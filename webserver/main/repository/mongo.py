@@ -40,6 +40,7 @@ def collection_find_all(mongo_collection, query_object, sort_field=None, sort_or
         catalogues = [dict(c) for c in catalogue_objects]
         for c in catalogues:
             c.pop('_id')
+            c.pop('created_at', None)
         log(f"Got entries from collection {mongo_collection.name} successfully")
         return {'count': count, 'data': catalogues}
     except:
@@ -50,6 +51,7 @@ def collection_find_all(mongo_collection, query_object, sort_field=None, sort_or
 def collection_find_one(mongo_collection, query_object):
     catalog = mongo_collection.find_one(query_object)
     catalog.pop('_id')
+    catalog.pop('created_at', None)
     return catalog
 
 
