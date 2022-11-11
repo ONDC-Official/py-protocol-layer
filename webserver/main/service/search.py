@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pymongo
 
 from main.models import get_mongo_collection
@@ -78,6 +80,11 @@ def cast_provider_category_fulfillment_id_to_string(item):
     return item
 
 
+def enrich_created_at_timestamp_in_item(item):
+    item["created_at"] = datetime.utcnow()
+    return item
+
+
 def flatten_catalog_into_item_entries(catalog, context):
     item_entries = []
     bpp_id = context.get(constant.BPP_ID)
@@ -99,6 +106,7 @@ def flatten_catalog_into_item_entries(catalog, context):
             [cast_provider_category_fulfillment_id_to_string(i) for i in provider_items]
             item_entries.extend(provider_items)
 
+    [enrich_created_at_timestamp_in_item(i) for i in item_entries]
     return item_entries
 
 

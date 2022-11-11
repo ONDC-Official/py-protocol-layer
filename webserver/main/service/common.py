@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from main.models import get_mongo_collection
 from main.models.error import DatabaseError, RegistryLookupError
 from main.repository import mongo
@@ -13,6 +15,7 @@ def add_bpp_response(bpp_response, request_type):
         return get_ack_response(ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
 
     collection_name = get_mongo_collection(request_type)
+    bpp_response["created_at"] = datetime.utcnow()
     is_successful = mongo.collection_insert_one(collection_name, bpp_response)
     if is_successful:
         message_id = bpp_response[constant.CONTEXT]["message_id"]
