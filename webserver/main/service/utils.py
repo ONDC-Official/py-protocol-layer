@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 import random
 import string
 import uuid
@@ -7,6 +8,8 @@ from datetime import datetime
 
 from flask import request
 from flask_restx import abort
+
+from main.config import get_config_by_name
 from main.logger.custom_logging import log
 from main.repository.ack_response import get_ack_response
 from main.utils.cryptic_utils import verify_authorisation_header
@@ -55,15 +58,18 @@ def handle_stop_iteration(func):
 
 def validate_auth_header(func):
     def wrapper(*args, **kwargs):
-        auth_header = request.headers.get('Authorization')
-        bg_or_bpp_public_key = get_bpp_public_key_from_header(auth_header)
-        if auth_header and verify_authorisation_header(auth_header, request.data.decode("utf-8"),
-                                                       public_key=bg_or_bpp_public_key):
+        if get_config_by_name("VERIFICATION_ENABLE"):
+            auth_header = request.headers.get('Authorization')
+            bg_or_bpp_public_key = get_bpp_public_key_from_header(auth_header)
+            if auth_header and verify_authorisation_header(auth_header, request.data.decode("utf-8"),
+                                                           public_key=bg_or_bpp_public_key):
+                return func(*args, **kwargs)
+            return get_ack_response(ack=False, error={
+                "code": "10001",
+                "message": "Invalid Signature"
+            }), 401
+        else:
             return func(*args, **kwargs)
-        return get_ack_response(ack=False, error={
-            "code": "10001",
-            "message": "Invalid Signature"
-        }), 401
 
     wrapper.__doc__ = func.__doc__
     wrapper.__name__ = func.__name__
