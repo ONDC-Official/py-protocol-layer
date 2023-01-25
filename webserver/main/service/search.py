@@ -3,7 +3,7 @@ from datetime import datetime
 import pymongo
 
 from main.models import get_mongo_collection
-from main.models.error import DatabaseError, RegistryLookupError
+from main.models.error import DatabaseError, RegistryLookupError, BaseError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main import constant
@@ -116,6 +116,12 @@ def add_search_catalogues(bpp_response):
         return get_ack_response(ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
     catalog = bpp_response[constant.MESSAGE][constant.CATALOG]
     items = flatten_catalog_into_item_entries(catalog, context)
+    if not check_for_quantity_in_items(items):
+        return get_ack_response(ack=False,
+                                error={"type": BaseError.JSON_SCHEMA_ERROR.value,
+                                       "code": "20000",
+                                       "message": "Validation error: 'quantity' is a required property for path: "
+                                                  "['message']['catalog']['bpp/providers'][0]['items']"})
 
     if len(items) == 0:
         return get_ack_response(ack=True)
@@ -212,3 +218,10 @@ def get_filters_out_of_items(items):
         "minPrice": min_price,
         "maxPrice": max_price,
     }
+
+
+def check_for_quantity_in_items(items):
+    flag = True
+    for i in items:
+        flag = flag and "quantity" in i
+    return flag

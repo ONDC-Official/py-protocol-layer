@@ -53,7 +53,8 @@ def bad_request(error):
         # log(f"data: {request.get_json()} \n error: {error.description}")
         error_message = transform_json_schema_error(error.description)
         return get_ack_response(ack=False,
-                                error={"type": BaseError.JSON_SCHEMA_ERROR.value, "message": error_message}), 400
+                                error={"type": BaseError.JSON_SCHEMA_ERROR.value, "code": "20000",
+                                       "message": error_message}), 400
     # handle other "Bad Request"-errors
     return str(error), 500
 

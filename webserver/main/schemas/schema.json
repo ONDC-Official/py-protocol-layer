@@ -3836,8 +3836,7 @@
                     "quantity": {
                       "$ref": "#/components/schemas/ItemQuantity"
                     }
-                  },
-                  "required": ["quantity"]
+                  }
                 }
               ]
             }
