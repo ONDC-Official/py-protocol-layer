@@ -11,9 +11,6 @@ from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_o
 
 
 def add_bpp_response(bpp_response, request_type):
-    if constant.MESSAGE not in bpp_response:
-        return get_ack_response(ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
-
     collection_name = get_mongo_collection(request_type)
     bpp_response["created_at"] = datetime.utcnow()
     is_successful = mongo.collection_insert_one(collection_name, bpp_response)

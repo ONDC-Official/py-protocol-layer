@@ -71,14 +71,16 @@ def create_authorisation_header(request_body, created=None, expires=None):
     return header
 
 
-def verify_authorisation_header(auth_header, request_body, created=None, expires=None, public_key=None):
-    created = int(datetime.datetime.now().timestamp()) if created is None else created
-    expires = int((datetime.datetime.now() + datetime.timedelta(hours=1)).timestamp()) if expires is None else expires
+def verify_authorisation_header(auth_header, request_body_str, public_key):
     header_parts = get_filter_dictionary_or_operation(auth_header.replace("Signature ", ""))
-    signing_key = create_signing_string(hash_message(json.dumps(request_body, separators=(',', ':'))),
-                                        created=created, expires=expires)
-    public_key = get_config_by_name("BAP_PUBLIC_KEY") if public_key is None else public_key
-    return verify_response(header_parts['signature'], signing_key, public_key=public_key)
+    created = int(header_parts['created'])
+    expires = int(header_parts['expires'])
+    current_timestamp = int(datetime.datetime.now().timestamp())
+    if created <= current_timestamp <= expires:
+        signing_key = create_signing_string(hash_message(request_body_str), created=created, expires=expires)
+        return verify_response(header_parts['signature'], signing_key, public_key=public_key)
+    else:
+        return False
 
 
 def generate_key_pairs():
@@ -100,16 +102,19 @@ def sign_registry_request(request):
     return sign_response(signing_string, private_key=get_config_by_name("BAP_PRIVATE_KEY"))
 
 
-def format_registry_request(request):
+def format_registry_request_for_pre_prod(request, vlookup=False):
     request['type'] = subscriber_type_mapping[request['type']]
-    signature = sign_registry_request(request)
-    return {
-        "sender_subscriber_id": get_config_by_name("BAP_ID"),
-        "request_id": str(uuid.uuid4()),
-        "timestamp": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]+"Z",
-        "search_parameters": request,
-        "signature": signature
-    }
+    if vlookup:
+        signature = sign_registry_request(request)
+        return {
+            "sender_subscriber_id": get_config_by_name("BAP_ID"),
+            "request_id": str(uuid.uuid4()),
+            "timestamp": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]+"Z",
+            "search_parameters": request,
+            "signature": signature
+        }
+    else:
+        return request
 
 
 if __name__ == '__main__':
