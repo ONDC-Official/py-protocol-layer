@@ -120,7 +120,8 @@ def add_search_catalogues(bpp_response):
         return get_ack_response(ack=False,
                                 error={"type": BaseError.JSON_SCHEMA_ERROR.value,
                                        "code": "20000",
-                                       "message": "Validation error: 'quantity' is a required property for path: "
+                                       "message": "Validation error: 'quantity' is a required property along with "
+                                                  "'available' and 'maximum' for path: "
                                                   "['message']['catalog']['bpp/providers'][0]['items']"})
 
     if len(items) == 0:
@@ -223,5 +224,5 @@ def get_filters_out_of_items(items):
 def check_for_quantity_in_items(items):
     flag = True
     for i in items:
-        flag = flag and "quantity" in i
+        flag = flag and ("quantity" in i) and ('available' in i['quantity']) and ('maximum' in i['quantity'])
     return flag
