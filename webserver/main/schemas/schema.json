@@ -269,7 +269,22 @@
                     "type": "object",
                     "properties": {
                       "order": {
-                        "$ref": "#/components/schemas/Order"
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/Order"
+                          },
+                          {
+                            "properties": {
+                              "created_at": {
+                                "$ref": "#/components/schemas/Order/properties/created_at"
+                              },
+                              "updated_at": {
+                                "$ref": "#/components/schemas/Order/properties/updated_at"
+                              }
+                            },
+                            "required": ["created_at", "updated_at"]
+                          }
+                        ]
                       }
                     },
                     "required": [
@@ -3910,7 +3925,8 @@
           "ttl": {
             "$ref": "#/components/schemas/Duration"
           }
-        }
+        },
+        "required": ["breakup"]
       },
       "Rateable": {
         "description": "If the entity can be rated or not",
