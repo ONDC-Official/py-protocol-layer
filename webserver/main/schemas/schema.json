@@ -173,12 +173,39 @@
                     "type": "object",
                     "properties": {
                       "order": {
-                        "$ref": "#/components/schemas/Order"
+                        "type": "object",
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/Order"
+                          },
+                          {
+                            "properties": {
+                              "fulfillments": {
+                                "type": "array",
+                                "items": {
+                                  "allOf": [
+                                    {
+                                      "$ref": "#/components/schemas/Fulfillment"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "id": {
+                                          "$ref": "#/components/schemas/Fulfillment/properties/id"
+                                        }
+                                      },
+                                      "required": ["id"]
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            "required": ["fulfillments"]
+                          }
+                        ]
                       }
                     },
-                    "required": [
-                      "order"
-                    ]
+                    "required": ["order"]
                   }
                 },
                 "required": [
@@ -3421,8 +3448,11 @@
           "billing": {
             "$ref": "#/components/schemas/Billing"
           },
-          "fulfillment": {
-            "$ref": "#/components/schemas/Fulfillment"
+          "fulfillments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Fulfillment"
+            }
           },
           "quote": {
             "$ref": "#/components/schemas/Quotation"
