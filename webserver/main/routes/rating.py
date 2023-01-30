@@ -12,7 +12,9 @@ rating_namespace = Namespace('rating', description='Rating Namespace')
 
 @rating_namespace.route("/rating")
 class BPPRating(Resource):
+    path_schema = get_json_schema_for_given_path('/rating')
 
+    @expects_json(path_schema)
     def post(self):
         request_payload = request.get_json()
         return bpp_post_call('rating', request_payload)

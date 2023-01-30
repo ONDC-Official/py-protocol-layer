@@ -12,6 +12,9 @@ support_namespace = Namespace('support', description='Support Namespace')
 
 @support_namespace.route("/support")
 class BPPSupport(Resource):
+    path_schema = get_json_schema_for_given_path('/support')
+
+    @expects_json(path_schema)
     def post(self):
         request_payload = request.get_json()
         return bpp_post_call('support', request_payload)

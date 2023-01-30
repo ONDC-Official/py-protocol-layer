@@ -12,7 +12,9 @@ cancel_namespace = Namespace('cancel', description='Cancel Namespace')
 
 @cancel_namespace.route("/cancel")
 class BPPCancel(Resource):
+    path_schema = get_json_schema_for_given_path('/cancel')
 
+    @expects_json(path_schema)
     def post(self):
         request_payload = request.get_json()
         return bpp_post_call('cancel', request_payload)

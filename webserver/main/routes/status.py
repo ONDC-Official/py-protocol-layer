@@ -12,7 +12,9 @@ status_namespace = Namespace('status', description='Status Namespace')
 
 @status_namespace.route("/status")
 class BPPStatus(Resource):
+    path_schema = get_json_schema_for_given_path('/status')
 
+    @expects_json(path_schema)
     def post(self):
         request_payload = request.get_json()
         return bpp_post_call('status', request_payload)

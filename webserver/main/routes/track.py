@@ -12,6 +12,9 @@ track_namespace = Namespace('track', description='Track Namespace')
 
 @track_namespace.route("/track")
 class BPPTrack(Resource):
+    path_schema = get_json_schema_for_given_path('/track')
+
+    @expects_json(path_schema)
     def post(self):
         request_payload = request.get_json()
         return bpp_post_call('track', request_payload)

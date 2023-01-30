@@ -14,6 +14,9 @@ search_namespace = Namespace('search', description='Search Namespace')
 
 @search_namespace.route("/search")
 class GatewaySearch(Resource):
+    path_schema = get_json_schema_for_given_path('/search')
+
+    @expects_json(path_schema)
     def post(self):
         search_request = request.get_json()
         return gateway_search(search_request)

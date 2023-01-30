@@ -12,7 +12,9 @@ confirm_namespace = Namespace('confirm', description='Confirm Namespace')
 
 @confirm_namespace.route("/confirm")
 class BPPConfirm(Resource):
+    path_schema = get_json_schema_for_given_path('/confirm')
 
+    @expects_json(path_schema)
     def post(self):
         request_payload = request.get_json()
         return bpp_post_call('confirm', request_payload)
