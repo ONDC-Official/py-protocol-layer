@@ -3240,6 +3240,7 @@
           }
         },
         "required": [
+          "id"
         ]
       },
       "Language": {
