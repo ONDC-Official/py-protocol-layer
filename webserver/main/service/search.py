@@ -116,13 +116,6 @@ def add_search_catalogues(bpp_response):
         return get_ack_response(ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
     catalog = bpp_response[constant.MESSAGE][constant.CATALOG]
     items = flatten_catalog_into_item_entries(catalog, context)
-    if not check_for_quantity_in_items(items):
-        return get_ack_response(ack=False,
-                                error={"type": BaseError.JSON_SCHEMA_ERROR.value,
-                                       "code": "20000",
-                                       "message": "Validation error: 'quantity' is a required property along with "
-                                                  "'available' and 'maximum' for path: "
-                                                  "['message']['catalog']['bpp/providers'][0]['items']"})
 
     if len(items) == 0:
         return get_ack_response(ack=True)
