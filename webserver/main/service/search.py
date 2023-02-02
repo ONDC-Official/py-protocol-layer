@@ -113,12 +113,12 @@ def flatten_catalog_into_item_entries(catalog, context):
 def add_search_catalogues(bpp_response):
     context = bpp_response[constant.CONTEXT]
     if constant.MESSAGE not in bpp_response:
-        return get_ack_response(ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
+        return get_ack_response(context=context, ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
     catalog = bpp_response[constant.MESSAGE][constant.CATALOG]
     items = flatten_catalog_into_item_entries(catalog, context)
 
     if len(items) == 0:
-        return get_ack_response(ack=True)
+        return get_ack_response(context=context, ack=True)
     search_collection = get_mongo_collection('on_search_items')
     is_successful = mongo.collection_insert_many(search_collection, items)
     if is_successful:
@@ -130,9 +130,9 @@ def add_search_catalogues(bpp_response):
                                                                               {"context.message_id": message_id}),
                                           "filters": get_filters_out_of_items(items)
                                       })
-        return get_ack_response(ack=True)
+        return get_ack_response(context=context, ack=True)
     else:
-        return get_ack_response(ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
+        return get_ack_response(context=context, ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
 
 
 def gateway_search(search_request):

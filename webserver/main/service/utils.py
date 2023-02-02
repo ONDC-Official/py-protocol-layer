@@ -9,6 +9,7 @@ from datetime import datetime
 from flask import request
 from flask_restx import abort
 
+from main import constant
 from main.config import get_config_by_name
 from main.logger.custom_logging import log
 from main.repository.ack_response import get_ack_response
@@ -60,11 +61,11 @@ def validate_auth_header(func):
     def wrapper(*args, **kwargs):
         if get_config_by_name("VERIFICATION_ENABLE"):
             auth_header = request.headers.get('Authorization')
-            bg_or_bpp_public_key = get_bpp_public_key_from_header(auth_header)
             if auth_header and verify_authorisation_header(auth_header, request.data.decode("utf-8"),
-                                                           public_key=bg_or_bpp_public_key):
+                                                           public_key=get_bpp_public_key_from_header(auth_header)):
                 return func(*args, **kwargs)
-            return get_ack_response(ack=False, error={
+            context = json.loads(request.data)[constant.CONTEXT]
+            return get_ack_response(context=context, ack=False, error={
                 "code": "10001",
                 "message": "Invalid Signature"
             }), 401

@@ -21,9 +21,10 @@ def add_bpp_response(bpp_response, request_type):
                                           "messageId": message_id,
                                           "count": 1
                                       })
-        return get_ack_response(ack=True)
+        return get_ack_response(context=bpp_response[constant.CONTEXT], ack=True)
     else:
-        return get_ack_response(ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
+        return get_ack_response(context=bpp_response[constant.CONTEXT], ack=False,
+                                error=DatabaseError.ON_WRITE_ERROR.value)
 
 
 def get_query_object(**kwargs):
