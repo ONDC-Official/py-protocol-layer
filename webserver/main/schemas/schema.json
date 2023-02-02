@@ -883,6 +883,25 @@
                           },
                           "quote": {
                             "$ref": "#/components/schemas/Quotation"
+                          },
+                          "fulfillments": {
+                            "type": "array",
+                            "items": {
+                              "allOf": [
+                                {
+                                  "$ref": "#/components/schemas/Fulfillment"
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "$ref": "#/components/schemas/Fulfillment/properties/id"
+                                    }
+                                  },
+                                  "required": ["id"]
+                                }
+                              ]
+                            }
                           }
                         }
                       }
