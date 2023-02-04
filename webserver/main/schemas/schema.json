@@ -863,10 +863,14 @@
                                   "properties": {
                                     "quantity": {
                                       "$ref": "#/components/schemas/ItemQuantity"
+                                    },
+                                    "fulfillment_id": {
+                                      "$ref": "#/components/schemas/Fulfillment/properties/id"
                                     }
                                   }
                                 }
-                              ]
+                              ],
+                              "required": ["fulfillment_id"]
                             }
                           },
                           "add_ons": {
