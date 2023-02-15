@@ -2853,7 +2853,8 @@
             "enum": [
               "Pickup",
               "Delivery",
-              "Delivery and Pickup"
+              "Delivery and Pickup",
+              "Reverse QC"
             ]
           },
           "provider_id": {
