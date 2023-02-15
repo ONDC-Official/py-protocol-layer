@@ -2851,9 +2851,9 @@
             "type": "string",
             "description": "This describes the type of fulfillment (\"Pickup\" - Buyer picks up from store by themselves or through their logistics provider; \"Delivery\" - seller delivers to buyer)",
             "enum": [
-              "Pickup",
+              "Self-Pickup",
               "Delivery",
-              "Delivery and Pickup",
+              "Delivery and Self-Pickup",
               "Reverse QC"
             ]
           },
