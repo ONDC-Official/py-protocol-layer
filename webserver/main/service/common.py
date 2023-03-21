@@ -1,5 +1,7 @@
 from datetime import datetime
 
+import pymongo
+
 from main.logger.custom_logging import log
 from main.models import get_mongo_collection
 from main.models.error import DatabaseError, RegistryLookupError
@@ -38,7 +40,8 @@ def get_query_object(**kwargs):
 def get_bpp_response_for_message_id(request_type, **kwargs):
     search_collection = get_mongo_collection(request_type)
     query_object = get_query_object(**kwargs)
-    bpp_response = mongo.collection_find_all(search_collection, query_object)
+    bpp_response = mongo.collection_find_all(search_collection, query_object, sort_field="created_at",
+                                             sort_order=pymongo.DESCENDING)
     if bpp_response:
         if bpp_response['count'] > 0:
             return bpp_response['data']
