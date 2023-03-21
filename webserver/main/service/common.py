@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from main.logger.custom_logging import log
 from main.models import get_mongo_collection
 from main.models.error import DatabaseError, RegistryLookupError
 from main.repository import mongo
@@ -11,6 +12,8 @@ from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_o
 
 
 def add_bpp_response(bpp_response, request_type):
+    log(f"Received {request_type} call of {bpp_response['context']['message_id']} "
+        f"for {bpp_response['context']['bpp_id']}")
     collection_name = get_mongo_collection(request_type)
     bpp_response["created_at"] = datetime.utcnow()
     is_successful = mongo.collection_insert_one(collection_name, bpp_response)

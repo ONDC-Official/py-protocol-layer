@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pymongo
 
+from main.logger.custom_logging import log
 from main.models import get_mongo_collection
 from main.models.error import DatabaseError, RegistryLookupError, BaseError
 from main.repository import mongo
@@ -111,6 +112,8 @@ def flatten_catalog_into_item_entries(catalog, context):
 
 
 def add_search_catalogues(bpp_response):
+    log(f"Received on_search call of {bpp_response['context']['message_id']} "
+        f"for {bpp_response['context']['bpp_id']}")
     context = bpp_response[constant.CONTEXT]
     if constant.MESSAGE not in bpp_response:
         return get_ack_response(context=context, ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
