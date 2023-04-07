@@ -23,7 +23,7 @@ def initialize_before_calls(app):
 
 def init_database():
     global mongo_client, mongo_db
-    if mongo_client and mongo_db:
+    if mongo_client is not None and mongo_db is not None:
         return
     database_host = get_config_by_name('MONGO_DATABASE_HOST')
     database_port = get_config_by_name('MONGO_DATABASE_PORT')
@@ -47,6 +47,7 @@ def create_ttl_index(collection_name):
 
 
 def get_mongo_collection(collection_name):
-    if not mongo_client or not mongo_db:
+    # check if database is initialized
+    if mongo_client is None or mongo_db is None:
         init_database()
     return mongo_db[collection_name]
