@@ -43,4 +43,4 @@ COPY . .
 # CMD ["supervisord", "-c", "/etc/supervisor.conf"]
 RUN virtualenv -p python3.7 restapi
 
-CMD exec /dataorc/app/restapi/bin/gunicorn -b 0.0.0.0:5555 -w 4 --no-sendfile manage:app --timeout 300
+CMD exec /dataorc/app/restapi/bin/gunicorn -b 0.0.0.0:5555 -w 8 --no-sendfile manage:app --timeout 300
