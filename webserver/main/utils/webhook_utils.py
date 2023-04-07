@@ -29,6 +29,8 @@ def post_count_response_to_client(route, payload):
         status_code = 400
     except requests.exceptions.ConnectionError:
         status_code = 500
+    except:
+        status_code = 500
     log(f"Got {status_code} for {payload} on {route}")
     return status_code
 
