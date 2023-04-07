@@ -5,6 +5,9 @@ from pymongo import MongoClient
 from main.config import get_config_by_name
 from main.logger.custom_logging import log
 
+mongo_client = None
+mongo_db = None
+
 
 class JsonObject:
     def toJSON(self):
@@ -20,6 +23,8 @@ def initialize_before_calls(app):
 
 def init_database():
     global mongo_client, mongo_db
+    if mongo_client and mongo_db:
+        return
     database_host = get_config_by_name('MONGO_DATABASE_HOST')
     database_port = get_config_by_name('MONGO_DATABASE_PORT')
     database_name = get_config_by_name('MONGO_DATABASE_NAME')
@@ -42,4 +47,6 @@ def create_ttl_index(collection_name):
 
 
 def get_mongo_collection(collection_name):
+    if not mongo_client or not mongo_db:
+        init_database()
     return mongo_db[collection_name]
