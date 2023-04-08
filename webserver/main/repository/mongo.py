@@ -2,11 +2,12 @@ import pymongo
 
 from main.constant import ID
 from main.logger.custom_logging import log, log_error
+from main.utils.decorators import MeasureTime
 
 
+@MeasureTime
 def collection_insert_one(mongo_collection, entry):
     try:
-        log(f"Inserting entry to collection {mongo_collection.name}")
         mongo_collection.insert_one(entry)
         log(f"Entry inserted to collection {mongo_collection.name} successfully!")
         return True
@@ -15,9 +16,9 @@ def collection_insert_one(mongo_collection, entry):
         return False
 
 
+@MeasureTime
 def collection_insert_many(mongo_collection, entries):
     try:
-        log(f"Inserting entries to collection {mongo_collection.name}")
         mongo_collection.insert_many(entries)
         log(f"Entries inserted to collection {mongo_collection.name} successfully!")
         return True
@@ -26,6 +27,7 @@ def collection_insert_many(mongo_collection, entries):
         return False
 
 
+@MeasureTime
 def collection_find_all(mongo_collection, query_object, sort_field=None, sort_order=pymongo.ASCENDING,
                         skip=0, limit=10):
     try:
@@ -48,6 +50,7 @@ def collection_find_all(mongo_collection, query_object, sort_field=None, sort_or
         return None
 
 
+@MeasureTime
 def collection_find_one(mongo_collection, query_object):
     catalog = mongo_collection.find_one(query_object)
     catalog.pop('_id')
@@ -55,7 +58,7 @@ def collection_find_one(mongo_collection, query_object):
     return catalog
 
 
+@MeasureTime
 def collection_get_count(mongo_collection, query_object):
     count = mongo_collection.count_documents(query_object)
     return count
-

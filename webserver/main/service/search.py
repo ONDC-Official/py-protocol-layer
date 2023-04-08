@@ -10,7 +10,7 @@ from main.repository.ack_response import get_ack_response
 from main import constant
 from main.utils.lookup_utils import fetch_subscriber_url_from_lookup
 from main.utils.cryptic_utils import create_authorisation_header
-from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_or_bpp
+from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_or_bpp, MeasureTime
 
 
 def enrich_provider_details_into_items(provider, item):
@@ -102,7 +102,8 @@ def flatten_catalog_into_item_entries(catalog, context):
             [enrich_location_details_into_items(provider_locations, i) for i in provider_items]
             [enrich_category_details_into_items(bpp_categories, i) for i in provider_items]
             [enrich_fulfillment_details_into_items(bpp_fulfillments, i) for i in provider_items]
-            [enrich_context_bpp_id_and_descriptor_into_items(context, bpp_id, bpp_descriptor, i) for i in provider_items]
+            [enrich_context_bpp_id_and_descriptor_into_items(context, bpp_id, bpp_descriptor, i) for i in
+             provider_items]
             [cast_price_and_rating_to_float(i) for i in provider_items]
             [cast_provider_category_fulfillment_id_to_string(i) for i in provider_items]
             item_entries.extend(provider_items)
@@ -138,11 +139,13 @@ def add_search_catalogues(bpp_response):
         return get_ack_response(context=context, ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
 
 
+@MeasureTime
 def gateway_search(search_request):
     request_type = 'search'
     gateway_url = fetch_subscriber_url_from_lookup(request_type)
     search_url = f"{gateway_url}{request_type}" if gateway_url.endswith("/") else f"{gateway_url}/{request_type}"
     auth_header = create_authorisation_header(search_request)
+    log(f"making request to bg or bpp with {search_request}")
     return post_on_bg_or_bpp(search_url, payload=search_request, headers={'Authorization': auth_header})
 
 
