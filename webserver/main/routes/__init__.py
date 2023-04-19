@@ -19,6 +19,8 @@ from main.routes.status import status_namespace
 from main.routes.support import support_namespace
 from main.routes.track import track_namespace
 from main.routes.update import update_namespace
+from main.routes.issue import issue_namespace
+from main.routes.issue_status import issue_status_namespace
 from main.utils.original_schema_utils import validate_data_with_original_schema
 from main.utils.schema_utils import transform_json_schema_error
 
@@ -74,3 +76,5 @@ api.add_namespace(status_namespace, path='/protocol')
 api.add_namespace(support_namespace, path='/protocol')
 api.add_namespace(track_namespace, path='/protocol')
 api.add_namespace(update_namespace, path='/protocol')
+api.add_namespace(issue_namespace, path='/protocol')
+api.add_namespace(issue_status_namespace, path='/protocol')
