@@ -17,6 +17,7 @@ def requests_post_with_retries(url, payload, headers=None):
 
 
 def requests_post(url, raw_data, headers=None):
+    print("url", url)
     response = requests.post(url, data=raw_data, headers=headers)
     return response.text, response.status_code
 
@@ -24,7 +25,8 @@ def requests_post(url, raw_data, headers=None):
 def post_count_response_to_client(route, payload):
     client_webhook_endpoint = get_config_by_name('CLIENT_WEBHOOK_ENDPOINT')
     try:
-        status_code = requests_post_with_retries(f"{client_webhook_endpoint}/{route}", payload=payload)
+        status_code = requests_post_with_retries(
+            f"{client_webhook_endpoint}/{route}", payload=payload)
     except requests.exceptions.HTTPError:
         status_code = 400
     except requests.exceptions.ConnectionError:
@@ -37,6 +39,7 @@ def post_on_bg_or_bpp(url, payload, headers={}):
     headers.update({'Content-Type': 'application/json'})
     raw_data = json.dumps(payload, separators=(',', ':'))
     response_text, status_code = requests_post(url, raw_data, headers=headers)
+    print("response_text", response_text, "status_code", status_code)
     return json.loads(response_text), status_code
 
 

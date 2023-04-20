@@ -18,6 +18,7 @@ from main.routes.select import select_namespace
 from main.routes.status import status_namespace
 from main.routes.support import support_namespace
 from main.routes.track import track_namespace
+from main.routes.issue import issue_namespace
 from main.routes.update import update_namespace
 from main.utils.original_schema_utils import validate_data_with_original_schema
 from main.utils.schema_utils import transform_json_schema_error
@@ -29,7 +30,7 @@ class Api(BaseAPI):
         if self._add_specs and self._doc:
             # Register documentation before root if enabled
             app_or_blueprint.add_url_rule(self._doc, 'doc', self.render_doc)
-        #app_or_blueprint.add_url_rule(self._doc, 'root', self.render_root)
+        # app_or_blueprint.add_url_rule(self._doc, 'root', self.render_root)
 
     @property
     def base_path(self):
@@ -74,3 +75,4 @@ api.add_namespace(status_namespace, path='/protocol')
 api.add_namespace(support_namespace, path='/protocol')
 api.add_namespace(track_namespace, path='/protocol')
 api.add_namespace(update_namespace, path='/protocol')
+api.add_namespace(issue_namespace, path='/protocol')

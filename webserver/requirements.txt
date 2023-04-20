@@ -6,15 +6,16 @@ bcrypt==3.1.4
 boto3==1.17.28
 botocore==1.20.28
 certifi==2019.11.28
-cffi==1.14.0
+cffi==1.15.1
 cfn-flip==1.2.2
 chardet==3.0.4
 click==7.1.1
-cryptography==2.8
+cryptography==40.0.2
 decorator==4.4.2
 docutils==0.15.2
 durationpy==0.5
 Flask==1.1.2
+flask_cors==3.0.10
 Flask-Bcrypt==0.7.1
 flask-restx==0.5.1
 flask-expects-json==1.7.0
@@ -68,7 +69,7 @@ xlrd==2.0.1
 flask-executor==0.10.0
 openpyxl==3.0.9
 kafka-python==2.0.2
-python-snappy==0.6.0
+python-snappy==0.6.1
 gunicorn==20.1.0
 pymongo==4.1.1
 flask-expects-json==1.7.0

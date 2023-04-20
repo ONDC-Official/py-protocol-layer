@@ -10,7 +10,7 @@ issue_namespace = Namespace('issue', description='Issue Namespace')
 
 
 @issue_namespace.route("/issue")
-class BPPSelect(Resource):
+class BPPIssue(Resource):
 
     def post(self):
         request_payload = request.get_json()
@@ -18,7 +18,7 @@ class BPPSelect(Resource):
 
 
 @issue_namespace.route("/v1/on_issue")
-class AddSelectResponse(Resource):
+class AddIssueResponse(Resource):
     path_schema = get_json_schema_for_given_path('/on_issue')
 
     @expects_json(path_schema)
@@ -40,4 +40,3 @@ class GetSelectResponseForMessageId(Resource):
     def get(self):
         args = self.create_parser_with_args()
         return get_bpp_response_for_message_id(request_type='on_issue', **args)
-
