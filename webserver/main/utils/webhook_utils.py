@@ -24,6 +24,10 @@ def requests_post(url, raw_data, headers=None):
 
 def post_count_response_to_client(route, payload):
     client_webhook_endpoint = get_config_by_name('CLIENT_WEBHOOK_ENDPOINT')
+    print(route, "issue" in route)
+    if "issue" in route:
+        client_webhook_endpoint = client_webhook_endpoint.replace("clientApi", "issueApi")
+    print(client_webhook_endpoint)
     try:
         status_code = requests_post_with_retries(
             f"{client_webhook_endpoint}/{route}", payload=payload)

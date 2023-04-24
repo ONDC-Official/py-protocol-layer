@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get update --fix-missing && apt-get install -y  python3.7 python3.7-dev python3-pip python3.7-venv supervisor virtualenv
+RUN apt-get update --fix-missing && apt-get install -y  python3.7 python3.7-dev python3-pip python3.7-venv supervisor virtualenv libpq-dev cargo build-essential libssl-dev libffi-dev
 
 RUN mkdir -p /dataorc/app
 # update pip
@@ -41,6 +41,9 @@ RUN printenv >> /etc/environment
 COPY . .
 
 # CMD ["supervisord", "-c", "/etc/supervisor.conf"]
-RUN virtualenv -p python3.7 restapi
+# RUN virtualenv -p python3.7 restapi
+
+RUN restapi/bin/pip3 install pip --upgrade
+RUN restapi/bin/pip3 install pyopenssl --upgrade
 
 CMD exec /dataorc/app/restapi/bin/gunicorn -b 0.0.0.0:5555 -w 4 --no-sendfile manage:app --timeout 300
