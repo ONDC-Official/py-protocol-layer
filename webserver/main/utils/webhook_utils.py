@@ -42,6 +42,7 @@ def post_count_response_to_client(route, payload):
 def post_on_bg_or_bpp(url, payload, headers={}):
     headers.update({'Content-Type': 'application/json'})
     raw_data = json.dumps(payload, separators=(',', ':'))
+    print("Raw data", raw_data)
     response_text, status_code = requests_post(url, raw_data, headers=headers)
     print("response_text", response_text, "status_code", status_code)
     return json.loads(response_text), status_code

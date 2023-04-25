@@ -16,6 +16,7 @@ search_namespace = Namespace('search', description='Search Namespace')
 class GatewaySearch(Resource):
     def post(self):
         search_request = request.get_json()
+        print("Search hit")
         return gateway_search(search_request)
 
 

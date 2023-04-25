@@ -130,8 +130,11 @@ def add_search_catalogues(bpp_response):
 def gateway_search(search_request):
     request_type = 'search'
     gateway_url = fetch_subscriber_url_from_lookup(request_type)
+    print("Gateway URL", gateway_url)
     search_url = f"{gateway_url}{request_type}" if gateway_url.endswith("/") else f"{gateway_url}/{request_type}"
+    print("Search URL", gateway_url)
     auth_header = create_authorisation_header(search_request)
+    print("Auth Header", auth_header)
     return post_on_bg_or_bpp(search_url, payload=search_request, headers={'Authorization': auth_header})
 
 
