@@ -2466,7 +2466,7 @@
       },
       "IssueResolution": {
         "required": [
-          "network_issue_id",
+         
           "resolution_action",
           "resolution_remarks"
         ],
@@ -2575,7 +2575,7 @@
         }
       },
       "GRO": {
-        "required": ["contact.email", "contact.phone", "gro_type"],
+        "required": [],
         "type": "object",
         "properties": {
           "person": {
