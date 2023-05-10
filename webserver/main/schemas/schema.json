@@ -2604,6 +2604,9 @@
             "type": "string",
             "description": "remarks of the result of the dispute, if applicable"
           },
+          "refund_amount": {
+            "type": "number"
+          },
           "resolution_action": {
             "type": "string",
             "description": "Indicactes the action taken while addressing the issue.\n ### Actions\n  1. resolve : indicating the issue being resolved. \n  2. reject : indicating that the issue is rejected by the respondant or the resolution provider. \n",
@@ -3488,6 +3491,9 @@
           },
           "matched": {
             "type": "boolean"
+          },
+          "quantity": {
+            "type": "number"
           },
           "related": {
             "type": "boolean"
