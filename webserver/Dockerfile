@@ -46,4 +46,4 @@ COPY . .
 RUN restapi/bin/pip3 install pip --upgrade
 RUN restapi/bin/pip3 install pyopenssl --upgrade
 
-CMD exec /dataorc/app/restapi/bin/gunicorn -b 0.0.0.0:5555 -w 4 --no-sendfile manage:app --timeout 300
+CMD exec /dataorc/app/restapi/bin/gunicorn -b 0.0.0.0:5555 -w 8 --no-sendfile manage:app --timeout 300
