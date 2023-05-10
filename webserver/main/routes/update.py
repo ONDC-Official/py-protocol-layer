@@ -11,7 +11,9 @@ update_namespace = Namespace('update', description='Update Namespace')
 
 @update_namespace.route("/update")
 class BPPUpdate(Resource):
+    path_schema = get_json_schema_for_given_path('/update')
 
+    @expects_json(path_schema)
     def post(self):
         request_payload = request.get_json()
         return bpp_post_call('update', request_payload)

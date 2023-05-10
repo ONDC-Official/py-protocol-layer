@@ -1,13 +1,16 @@
+from datetime import datetime
+
 import pymongo
 
+from main.logger.custom_logging import log
 from main.models import get_mongo_collection
-from main.models.error import DatabaseError, RegistryLookupError
+from main.models.error import DatabaseError, RegistryLookupError, BaseError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main import constant
 from main.utils.lookup_utils import fetch_subscriber_url_from_lookup
 from main.utils.cryptic_utils import create_authorisation_header
-from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_or_bpp
+from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_or_bpp, MeasureTime
 
 
 def enrich_provider_details_into_items(provider, item):
@@ -78,6 +81,11 @@ def cast_provider_category_fulfillment_id_to_string(item):
     return item
 
 
+def enrich_created_at_timestamp_in_item(item):
+    item["created_at"] = datetime.utcnow()
+    return item
+
+
 def flatten_catalog_into_item_entries(catalog, context):
     item_entries = []
     bpp_id = context.get(constant.BPP_ID)
@@ -94,23 +102,27 @@ def flatten_catalog_into_item_entries(catalog, context):
             [enrich_location_details_into_items(provider_locations, i) for i in provider_items]
             [enrich_category_details_into_items(bpp_categories, i) for i in provider_items]
             [enrich_fulfillment_details_into_items(bpp_fulfillments, i) for i in provider_items]
-            [enrich_context_bpp_id_and_descriptor_into_items(context, bpp_id, bpp_descriptor, i) for i in provider_items]
+            [enrich_context_bpp_id_and_descriptor_into_items(context, bpp_id, bpp_descriptor, i) for i in
+             provider_items]
             [cast_price_and_rating_to_float(i) for i in provider_items]
             [cast_provider_category_fulfillment_id_to_string(i) for i in provider_items]
             item_entries.extend(provider_items)
 
+    [enrich_created_at_timestamp_in_item(i) for i in item_entries]
     return item_entries
 
 
 def add_search_catalogues(bpp_response):
+    log(f"Received on_search call of {bpp_response['context']['message_id']} "
+        f"for {bpp_response['context']['bpp_id']}")
     context = bpp_response[constant.CONTEXT]
     if constant.MESSAGE not in bpp_response:
-        return get_ack_response(ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
+        return get_ack_response(context=context, ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
     catalog = bpp_response[constant.MESSAGE][constant.CATALOG]
     items = flatten_catalog_into_item_entries(catalog, context)
 
     if len(items) == 0:
-        return get_ack_response(ack=True)
+        return get_ack_response(context=context, ack=True)
     search_collection = get_mongo_collection('on_search_items')
     is_successful = mongo.collection_insert_many(search_collection, items)
     if is_successful:
@@ -122,11 +134,12 @@ def add_search_catalogues(bpp_response):
                                                                               {"context.message_id": message_id}),
                                           "filters": get_filters_out_of_items(items)
                                       })
-        return get_ack_response(ack=True)
+        return get_ack_response(context=context, ack=True)
     else:
-        return get_ack_response(ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
+        return get_ack_response(context=context, ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
 
 
+@MeasureTime
 def gateway_search(search_request):
     request_type = 'search'
     gateway_url = fetch_subscriber_url_from_lookup(request_type)
@@ -134,7 +147,7 @@ def gateway_search(search_request):
     search_url = f"{gateway_url}{request_type}" if gateway_url.endswith("/") else f"{gateway_url}/{request_type}"
     print("Search URL", gateway_url)
     auth_header = create_authorisation_header(search_request)
-    print("Auth Header", auth_header)
+    log(f"making request to bg or bpp with {search_request}")
     return post_on_bg_or_bpp(search_url, payload=search_request, headers={'Authorization': auth_header})
 
 
@@ -207,3 +220,10 @@ def get_filters_out_of_items(items):
         "minPrice": min_price,
         "maxPrice": max_price,
     }
+
+
+def check_for_quantity_in_items(items):
+    flag = True
+    for i in items:
+        flag = flag and ("quantity" in i) and ('available' in i['quantity']) and ('maximum' in i['quantity'])
+    return flag

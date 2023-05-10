@@ -1,6 +1,6 @@
-def get_ack_response(ack=True, error=None):
+def get_ack_response(context=None, ack=True, error=None):
     resp = {
-        "context": None,
+        "context": context,
         "message":
             {
                 "ack":
