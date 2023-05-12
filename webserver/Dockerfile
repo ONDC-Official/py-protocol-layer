@@ -41,7 +41,6 @@ RUN printenv >> /etc/environment
 COPY . .
 
 # CMD ["supervisord", "-c", "/etc/supervisor.conf"]
-# RUN virtualenv -p python3.7 restapi
 
 RUN restapi/bin/pip3 install pip --upgrade
 RUN restapi/bin/pip3 install pyopenssl --upgrade
