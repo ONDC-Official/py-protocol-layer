@@ -19,10 +19,7 @@
   "paths": {
     "/search": {
       "post": {
-        "tags": [
-          "ONDC Seller App",
-          "ONDC Gateway"
-        ],
+        "tags": [ "ONDC Seller App", "ONDC Gateway" ],
         "description": "Search for services by intent",
         "requestBody": {
           "description": "Buyer searches for products and services",
@@ -43,10 +40,7 @@
                     }
                   }
                 },
-                "required": [
-                  "context",
-                  "message"
-                ]
+                "required": [ "context", "message" ]
               }
             }
           }
@@ -66,17 +60,13 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [
-                        "ack"
-                      ]
+                      "required": [ "ack" ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [
-                    "message"
-                  ]
+                  "required": [ "message" ]
                 }
               }
             }
@@ -86,9 +76,7 @@
     },
     "/select": {
       "post": {
-        "tags": [
-          "ONDC Seller App"
-        ],
+        "tags": [ "ONDC Seller App" ],
         "description": "Select items from the catalog and build your order",
         "requestBody": {
           "description": "Buyer selects one or more catalog items",
@@ -107,15 +95,10 @@
                         "$ref": "#/components/schemas/Order"
                       }
                     },
-                    "required": [
-                      "order"
-                    ]
+                    "required": [ "order" ]
                   }
                 },
-                "required": [
-                  "context",
-                  "message"
-                ]
+                "required": [ "context", "message" ]
               }
             }
           }
@@ -135,17 +118,13 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [
-                        "ack"
-                      ]
+                      "required": [ "ack" ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [
-                    "message"
-                  ]
+                  "required": [ "message" ]
                 }
               }
             }
@@ -155,9 +134,7 @@
     },
     "/init": {
       "post": {
-        "tags": [
-          "ONDC Seller App"
-        ],
+        "tags": [ "ONDC Seller App" ],
         "description": "Initialize an order by providing billing and/or shipping details",
         "requestBody": {
           "description": "Buyer initializes order checkout",
@@ -173,45 +150,13 @@
                     "type": "object",
                     "properties": {
                       "order": {
-                        "type": "object",
-                        "allOf": [
-                          {
-                            "$ref": "#/components/schemas/Order"
-                          },
-                          {
-                            "properties": {
-                              "fulfillments": {
-                                "type": "array",
-                                "items": {
-                                  "allOf": [
-                                    {
-                                      "$ref": "#/components/schemas/Fulfillment"
-                                    },
-                                    {
-                                      "type": "object",
-                                      "properties": {
-                                        "id": {
-                                          "$ref": "#/components/schemas/Fulfillment/properties/id"
-                                        }
-                                      },
-                                      "required": [ "id" ]
-                                    }
-                                  ]
-                                }
-                              }
-                            },
-                            "required": [ "fulfillments" ]
-                          }
-                        ]
+                        "$ref": "#/components/schemas/Order"
                       }
                     },
                     "required": [ "order" ]
                   }
                 },
-                "required": [
-                  "context",
-                  "message"
-                ]
+                "required": [ "context", "message" ]
               }
             }
           }
@@ -231,17 +176,13 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [
-                        "ack"
-                      ]
+                      "required": [ "ack" ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [
-                    "message"
-                  ]
+                  "required": [ "message" ]
                 }
               }
             }
@@ -251,9 +192,7 @@
     },
     "/confirm": {
       "post": {
-        "tags": [
-          "ONDC Seller App"
-        ],
+        "tags": [ "ONDC Seller App" ],
         "description": "Initialize an order by providing billing and/or shipping details",
         "requestBody": {
           "description": "Buyer confirms an order",
@@ -269,33 +208,13 @@
                     "type": "object",
                     "properties": {
                       "order": {
-                        "allOf": [
-                          {
-                            "$ref": "#/components/schemas/Order"
-                          },
-                          {
-                            "properties": {
-                              "created_at": {
-                                "$ref": "#/components/schemas/Order/properties/created_at"
-                              },
-                              "updated_at": {
-                                "$ref": "#/components/schemas/Order/properties/updated_at"
-                              }
-                            },
-                            "required": [ "created_at", "updated_at" ]
-                          }
-                        ]
+                        "$ref": "#/components/schemas/Order"
                       }
                     },
-                    "required": [
-                      "order"
-                    ]
+                    "required": [ "order" ]
                   }
                 },
-                "required": [
-                  "context",
-                  "message"
-                ]
+                "required": [ "context", "message" ]
               }
             }
           }
@@ -315,17 +234,13 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [
-                        "ack"
-                      ]
+                      "required": [ "ack" ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [
-                    "message"
-                  ]
+                  "required": [ "message" ]
                 }
               }
             }
@@ -842,14 +757,10 @@
                                   "properties": {
                                     "quantity": {
                                       "$ref": "#/components/schemas/ItemQuantity"
-                                    },
-                                    "fulfillment_id": {
-                                      "$ref": "#/components/schemas/Fulfillment/properties/id"
                                     }
                                   }
                                 }
-                              ],
-                              "required": [ "fulfillment_id" ]
+                              ]
                             }
                           },
                           "add_ons": {
@@ -866,25 +777,6 @@
                           },
                           "quote": {
                             "$ref": "#/components/schemas/Quotation"
-                          },
-                          "fulfillments": {
-                            "type": "array",
-                            "items": {
-                              "allOf": [
-                                {
-                                  "$ref": "#/components/schemas/Fulfillment"
-                                },
-                                {
-                                  "type": "object",
-                                  "properties": {
-                                    "id": {
-                                      "$ref": "#/components/schemas/Fulfillment/properties/id"
-                                    }
-                                  },
-                                  "required": [ "id" ]
-                                }
-                              ]
-                            }
                           }
                         }
                       }
@@ -1006,11 +898,8 @@
                           },
                           "fulfillments": {
                             "type": "array",
-                            "itemss": {
-                              "type": "array",
-                              "items": {
-                                "$ref": "#/components/schemas/Fulfillment"
-                              }
+                            "items": {
+                              "$ref": "#/components/schemas/Fulfillment"
                             }
                           },
                           "quote": {
@@ -3155,9 +3044,7 @@
             "description": "Human readable message describing the error"
           }
         },
-        "required": [
-          "code"
-        ]
+        "required": [ "code" ]
       },
       "Feedback": {
         "description": "Feedback for a service",
@@ -3242,12 +3129,7 @@
           "type": {
             "type": "string",
             "description": "This describes the type of fulfillment (\"Pickup\" - Buyer picks up from store by themselves or through their logistics provider; \"Delivery\" - seller delivers to buyer)",
-            "enum": [
-              "Pickup",
-              "Delivery",
-              "home-delivery",
-              "HOME-DELIVERY"
-            ]
+            "enum": [ "Pickup", "Delivery", "Delivery and Pickup", "Reverse QC" ]
           },
           "provider_id": {
             "$ref": "#/components/schemas/Provider/properties/id"
@@ -3390,66 +3272,61 @@
             "type": "object",
             "properties": {
               "count": {
-                "type": [ "string", "integer" ],
+                "type": "integer",
                 "minimum": 0
               },
               "measure": {
                 "$ref": "#/components/schemas/Scalar"
               }
-            },
-            "required": [ "count" ]
+            }
           },
           "available": {
             "type": "object",
             "properties": {
               "count": {
-                "type": [ "string", "integer" ],
+                "type": "integer",
                 "minimum": 0
               },
               "measure": {
                 "$ref": "#/components/schemas/Scalar"
               }
-            },
-            "required": [ "count" ]
+            }
           },
           "maximum": {
             "type": "object",
             "properties": {
               "count": {
-                "type": [ "string", "integer" ],
+                "type": "integer",
                 "minimum": 1
               },
               "measure": {
                 "$ref": "#/components/schemas/Scalar"
               }
-            },
-            "required": [ "count" ]
+            }
           },
           "minimum": {
             "type": "object",
             "properties": {
               "count": {
-                "type": [ "string", "integer" ],
+                "type": "integer",
                 "minimum": 0
               },
               "measure": {
                 "$ref": "#/components/schemas/Scalar"
               }
-            },
-            "required": [ "count" ]
+            }
           },
           "selected": {
             "type": "object",
             "properties": {
               "count": {
-                "type": [ "string", "integer" ],
+                "type": "integer",
                 "minimum": 0
               },
               "measure": {
                 "$ref": "#/components/schemas/Scalar"
               }
-            },
-            "required": [ "count" ]
+            }
           }
         }
       },
@@ -3491,9 +3368,6 @@
           },
           "matched": {
             "type": "boolean"
-          },
-          "quantity": {
-            "type": "number"
           },
           "related": {
             "type": "boolean"
@@ -3871,11 +3745,8 @@
           "billing": {
             "$ref": "#/components/schemas/Billing"
           },
-          "fulfillments": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Fulfillment"
-            }
+          "fulfillment": {
+            "$ref": "#/components/schemas/Fulfillment"
           },
           "quote": {
             "$ref": "#/components/schemas/Quotation"
@@ -4266,18 +4137,7 @@
           "items": {
             "type": "array",
             "items": {
-              "allOf": [
-                {
-                  "$ref": "#/components/schemas/Item"
-                },
-                {
-                  "properties": {
-                    "quantity": {
-                      "$ref": "#/components/schemas/ItemQuantity"
-                    }
-                  }
-                }
-              ]
+              "$ref": "#/components/schemas/Item"
             }
           },
           "exp": {
@@ -4318,8 +4178,7 @@
           "ttl": {
             "$ref": "#/components/schemas/Duration"
           }
-        },
-        "required": [ "breakup" ]
+        }
       },
       "Rateable": {
         "description": "If the entity can be rated or not",
