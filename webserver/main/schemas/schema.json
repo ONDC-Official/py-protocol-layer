@@ -4529,8 +4529,7 @@
           },
           "GRO": {
             "required": [
-              "contact.email",
-              "contact.phone",
+            
               "gro_type"
             ],
             "type": "object",
@@ -5002,6 +5001,7 @@
                 "$ref": "#/components/schemas/Tags"
               }
             },
+            "required":["phone","email"],
             "description": "Describes the contact information of an entity including phone number or an email ID<br>This has properties like phone,email,tags<br>This is used to allow the BPP or BAP to send contact details of a person."
           },
           "MediaFile": {
