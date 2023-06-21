@@ -57,7 +57,6 @@ Flask-JWT-Extended==4.0.2
 Flask-SQLAlchemy==2.4.4
 Flask-Migrate==2.6.0
 Flask-Login==0.5.0
-psycopg2-binary==2.8.6
 cachetools==4.2.1
 pdfkit==0.6.1
 stringcase==1.2.0
@@ -68,8 +67,6 @@ stringcase==1.2.0
 xlrd==2.0.1
 flask-executor==0.10.0
 openpyxl==3.0.9
-kafka-python==2.0.2
-python-snappy==0.6.1
 gunicorn==20.1.0
 pymongo==4.1.1
 flask-expects-json==1.7.0

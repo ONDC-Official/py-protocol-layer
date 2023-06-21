@@ -20,19 +20,6 @@ class BPPSupport(Resource):
         return bpp_post_call('support', request_payload)
 
 
-@support_namespace.route("/v1/on_support")
-class AddSupportResponse(Resource):
-    path_schema = get_json_schema_for_given_path('/on_support')
-
-    @validate_auth_header
-    @expects_json(path_schema)
-    def post(self):
-        resp = add_bpp_response(g.data, request_type='on_support')
-        response_schema = get_json_schema_for_response('/on_support')
-        validate(resp, response_schema)
-        return resp
-
-
 @support_namespace.route("/response/v1/on_support")
 class GetSupportResponseForMessageId(Resource):
 

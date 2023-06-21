@@ -20,19 +20,6 @@ class BPPRating(Resource):
         return bpp_post_call('rating', request_payload)
 
 
-@rating_namespace.route("/v1/on_rating")
-class AddRatingResponse(Resource):
-    path_schema = get_json_schema_for_given_path('/on_rating')
-
-    @validate_auth_header
-    @expects_json(path_schema)
-    def post(self):
-        resp = add_bpp_response(g.data, request_type='on_rating')
-        response_schema = get_json_schema_for_response('/on_rating')
-        validate(resp, response_schema)
-        return resp
-
-
 @rating_namespace.route("/response/v1/on_rating")
 class GetRatingResponseForMessageId(Resource):
 

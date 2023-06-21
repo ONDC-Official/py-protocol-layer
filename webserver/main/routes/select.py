@@ -20,19 +20,6 @@ class BPPSelect(Resource):
         return bpp_post_call('select', request_payload)
 
 
-@select_namespace.route("/v1/on_select")
-class AddSelectResponse(Resource):
-    path_schema = get_json_schema_for_given_path('/on_select')
-
-    @validate_auth_header
-    @expects_json(path_schema)
-    def post(self):
-        resp = add_bpp_response(g.data, request_type='on_select')
-        response_schema = get_json_schema_for_response('/on_select')
-        validate(resp, response_schema)
-        return resp
-
-
 @select_namespace.route("/response/v1/on_select")
 class GetSelectResponseForMessageId(Resource):
 

@@ -14,6 +14,7 @@ from main.routes.cancel import cancel_namespace
 from main.routes.cancellation_reasons import cancellation_reasons_namespace
 from main.routes.confirm import confirm_namespace
 from main.routes.init import init_namespace
+from main.routes.ondc_network import ondc_network_namespace
 from main.routes.rating import rating_namespace
 from main.routes.search import search_namespace
 from main.routes.select import select_namespace
@@ -83,3 +84,4 @@ api.add_namespace(track_namespace, path='/protocol')
 api.add_namespace(update_namespace, path='/protocol')
 api.add_namespace(issue_namespace, path='/protocol')
 api.add_namespace(issue_status_namespace, path='/protocol')
+api.add_namespace(ondc_network_namespace, path='/protocol')
