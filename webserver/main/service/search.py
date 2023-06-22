@@ -23,7 +23,7 @@ def enrich_provider_details_into_items(provider, item):
 
 def enrich_location_details_into_items(locations, item):
     try:
-        location = next(i for i in locations if i[constant.ID] == item.get(constant.LOCATION_ID))
+        location = next(i for i in locations if i[constant.ID] == item[constant.ITEM_DETAILS].get(constant.LOCATION_ID))
     except:
         location = {}
     item[constant.LOCATION_DETAILS] = location
@@ -32,7 +32,8 @@ def enrich_location_details_into_items(locations, item):
 
 def enrich_category_details_into_items(categories, item):
     try:
-        category = next(i for i in categories if i[constant.ID] == item.get(constant.CATEGORY_ID))
+        category = next(i for i in categories if i[constant.ID] == item[constant.ITEM_DETAILS].
+                        get(constant.CATEGORY_ID))
     except:
         category = {}
     item[constant.CATEGORY_DETAILS] = category
@@ -41,7 +42,8 @@ def enrich_category_details_into_items(categories, item):
 
 def enrich_fulfillment_details_into_items(fulfillments, item):
     try:
-        fulfillment = next(i for i in fulfillments if i[constant.ID] == item.get(constant.FULFILLMENT_ID))
+        fulfillment = next(i for i in fulfillments if i[constant.ID] == item[constant.ITEM_DETAILS].
+                           get(constant.FULFILLMENT_ID))
     except:
         fulfillment = {}
     item[constant.FULFILLMENT_DETAILS] = fulfillment
@@ -55,7 +57,8 @@ def enrich_context_bpp_id_and_descriptor_into_items(context, bpp_id, bpp_descrip
     return item
 
 
-def cast_price_and_rating_to_float(item):
+def cast_price_and_rating_to_float(item_obj):
+    item = item_obj[constant.ITEM_DETAILS]
     if item.get(constant.PRICE) and item[constant.PRICE].get('value'):
         item[constant.PRICE]['value'] = float(item[constant.PRICE]['value'])
     if item.get(constant.RATING):
@@ -63,7 +66,8 @@ def cast_price_and_rating_to_float(item):
     return item
 
 
-def cast_price_and_rating_to_string(item):
+def cast_price_and_rating_to_string(item_obj):
+    item = item_obj[constant.ITEM_DETAILS]
     if item.get(constant.PRICE) and item[constant.PRICE].get('value'):
         item[constant.PRICE]['value'] = str(item[constant.PRICE]['value'])
     if item.get(constant.RATING):
@@ -92,18 +96,23 @@ def flatten_catalog_into_item_entries(catalog, context):
     if bpp_id:
         bpp_descriptor = catalog.get(constant.BPP_DESCRIPTOR)
         bpp_fulfillments = catalog.get(constant.BPP_FULFILLMENTS)
-        bpp_categories = catalog.get(constant.BPP_CATEGORIES)
         bpp_providers = catalog.get(constant.BPP_PROVIDERS)
 
         for p in bpp_providers:
-            provider_locations = p.get(constant.LOCATIONS)
-            provider_items = p.get(constant.ITEMS)
+            provider_locations = p.pop(constant.LOCATIONS)
+            provider_categories = p.pop(constant.CATEGORIES)
+            provider_items = p.pop(constant.ITEMS)
+            provider_items = [{"item_details": i} for i in provider_items]
+            [i.update({"fulfillments": bpp_fulfillments}) for i in provider_items]
+            [i.update({"providers": bpp_providers}) for i in provider_items]
+            [i.update({"locations": provider_locations}) for i in provider_items]
+            [i.update({"categories": provider_categories}) for i in provider_items]
             [enrich_provider_details_into_items(p, i) for i in provider_items]
             [enrich_location_details_into_items(provider_locations, i) for i in provider_items]
-            [enrich_category_details_into_items(bpp_categories, i) for i in provider_items]
+            [enrich_category_details_into_items(provider_categories, i) for i in provider_items]
             [enrich_fulfillment_details_into_items(bpp_fulfillments, i) for i in provider_items]
-            [enrich_context_bpp_id_and_descriptor_into_items(context, bpp_id, bpp_descriptor, i) for i in
-             provider_items]
+            [enrich_context_bpp_id_and_descriptor_into_items(context, bpp_id, bpp_descriptor, i)
+             for i in provider_items]
             [cast_price_and_rating_to_float(i) for i in provider_items]
             [cast_provider_category_fulfillment_id_to_string(i) for i in provider_items]
             item_entries.extend(provider_items)
@@ -113,8 +122,7 @@ def flatten_catalog_into_item_entries(catalog, context):
 
 
 def add_search_catalogues(bpp_response):
-    log(f"Received on_search call of {bpp_response['context']['message_id']} "
-        f"for {bpp_response['context']['bpp_id']}")
+    log(f"Received on_search call of {bpp_response['context']['message_id']} for {bpp_response['context']['bpp_id']}")
     context = bpp_response[constant.CONTEXT]
     if constant.MESSAGE not in bpp_response:
         return get_ack_response(context=context, ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
