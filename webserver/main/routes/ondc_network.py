@@ -2,12 +2,14 @@ import json
 
 from flask import request
 from flask_restx import Namespace, Resource
-from jsonschema.exceptions import ValidationError
+import jsonschema
 from jsonschema.validators import validate
+import pydantic
 
 from main import constant
 from main.models.error import BaseError
 from main.repository.ack_response import get_ack_response
+from main.request_models.search import OnSearchRequest
 from main.service.common import add_bpp_response
 from main.service.search import add_search_catalogues
 from main.service.utils import validate_auth_header
@@ -16,12 +18,32 @@ from main.utils.schema_utils import get_json_schema_for_given_path, transform_js
 ondc_network_namespace = Namespace('ondc_network', description='ONDC Network Namespace')
 
 
-def validate_json_schema(request_payload, request_schema):
+def validate_payload_schema_based_on_version(request_payload, request_type):
+    if request_payload[constant.CONTEXT]["core_version"] != "1.2.0":
+        return validate_payload_schema_using_json_schema(request_payload, request_type)
+    else:
+        return validate_payload_schema_using_pydantic_classes(request_payload, request_type)
+
+
+def validate_payload_schema_using_json_schema(request_payload, request_type):
     try:
+        request_schema = get_json_schema_for_given_path(f"/{request_type}")
         validate(request_payload, request_schema)
         return None
-    except ValidationError as e:
+    except jsonschema.exceptions.ValidationError as e:
         error_message = transform_json_schema_error(e)
+        context = json.loads(request.data)[constant.CONTEXT]
+        return get_ack_response(context=context, ack=False,
+                                error={"type": BaseError.JSON_SCHEMA_ERROR.value, "code": "20000",
+                                       "message": error_message}), 400
+
+
+def validate_payload_schema_using_pydantic_classes(request_payload, request_type):
+    try:
+        OnSearchRequest(**request_payload)
+        return None
+    except pydantic.ValidationError as e:
+        error_message = str(e)
         context = json.loads(request.data)[constant.CONTEXT]
         return get_ack_response(context=context, ack=False,
                                 error={"type": BaseError.JSON_SCHEMA_ERROR.value, "code": "20000",
@@ -34,9 +56,10 @@ class GatewayOnSearch(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        request_schema = get_json_schema_for_given_path('/on_search')
-        resp = validate_json_schema(request_payload, request_schema)
+        # validate schema based on context version
+        resp = validate_payload_schema_based_on_version(request_payload, 'on_search')
         if resp is None:
+            # add search catalogs based on context version
             return add_search_catalogues(request_payload)
         else:
             return resp
@@ -48,8 +71,7 @@ class AddSelectResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        request_schema = get_json_schema_for_given_path('/on_select')
-        resp = validate_json_schema(request_payload, request_schema)
+        resp = validate_payload_schema_based_on_version(request_payload, 'on_select')
         if resp is None:
             return add_bpp_response(request_payload, request_type="on_select")
         else:
@@ -62,8 +84,7 @@ class AddInitResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        request_schema = get_json_schema_for_given_path('/on_init')
-        resp = validate_json_schema(request_payload, request_schema)
+        resp = validate_payload_schema_based_on_version(request_payload, 'on_init')
         if resp is None:
             return add_bpp_response(request_payload, request_type="on_init")
         else:
@@ -76,8 +97,7 @@ class AddConfirmResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        request_schema = get_json_schema_for_given_path('/on_confirm')
-        resp = validate_json_schema(request_payload, request_schema)
+        resp = validate_payload_schema_based_on_version(request_payload, 'on_confirm')
         if resp is None:
             return add_bpp_response(request_payload, request_type="on_confirm")
         else:
@@ -90,8 +110,7 @@ class AddCancelResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        request_schema = get_json_schema_for_given_path('/on_cancel')
-        resp = validate_json_schema(request_payload, request_schema)
+        resp = validate_payload_schema_based_on_version(request_payload, 'on_cancel')
         if resp is None:
             return add_bpp_response(request_payload, request_type="on_cancel")
         else:
@@ -104,10 +123,9 @@ class AddCancellationReasonsResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        request_schema = get_json_schema_for_given_path('/cancellation_reasons')
-        resp = validate_json_schema(request_payload, request_schema)
+        resp = validate_payload_schema_based_on_version(request_payload, 'on_cancellation_reasons')
         if resp is None:
-            return add_bpp_response(request_payload, request_type="cancellation_reasons")
+            return add_bpp_response(request_payload, request_type="on_cancellation_reasons")
         else:
             return resp
 
@@ -118,8 +136,7 @@ class AddIssueResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        request_schema = get_json_schema_for_given_path('/on_issue')
-        resp = validate_json_schema(request_payload, request_schema)
+        resp = validate_payload_schema_based_on_version(request_payload, 'on_issue')
         if resp is None:
             return add_bpp_response(request_payload, request_type="on_issue")
         else:
@@ -132,8 +149,7 @@ class AddIssueStatusResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        request_schema = get_json_schema_for_given_path('/on_issue_status')
-        resp = validate_json_schema(request_payload, request_schema)
+        resp = validate_payload_schema_based_on_version(request_payload, 'on_issue_status')
         if resp is None:
             return add_bpp_response(request_payload, request_type="on_issue_status")
         else:
@@ -146,8 +162,7 @@ class AddRatingResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        request_schema = get_json_schema_for_given_path('/on_rating')
-        resp = validate_json_schema(request_payload, request_schema)
+        resp = validate_payload_schema_based_on_version(request_payload, 'on_rating')
         if resp is None:
             return add_bpp_response(request_payload, request_type="on_rating")
         else:
@@ -160,8 +175,7 @@ class AddStatusResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        request_schema = get_json_schema_for_given_path('/on_status')
-        resp = validate_json_schema(request_payload, request_schema)
+        resp = validate_payload_schema_based_on_version(request_payload, 'on_status')
         if resp is None:
             return add_bpp_response(request_payload, request_type="on_status")
         else:
@@ -174,8 +188,7 @@ class AddSupportResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        request_schema = get_json_schema_for_given_path('/on_support')
-        resp = validate_json_schema(request_payload, request_schema)
+        resp = validate_payload_schema_based_on_version(request_payload, 'on_support')
         if resp is None:
             return add_bpp_response(request_payload, request_type="on_support")
         else:
@@ -188,8 +201,7 @@ class AddTrackResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        request_schema = get_json_schema_for_given_path('/on_track')
-        resp = validate_json_schema(request_payload, request_schema)
+        resp = validate_payload_schema_based_on_version(request_payload, 'on_track')
         if resp is None:
             return add_bpp_response(request_payload, request_type="on_track")
         else:
@@ -202,8 +214,7 @@ class AddUpdateResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        request_schema = get_json_schema_for_given_path('/on_update')
-        resp = validate_json_schema(request_payload, request_schema)
+        resp = validate_payload_schema_based_on_version(request_payload, 'on_update')
         if resp is None:
             return add_bpp_response(request_payload, request_type="on_update")
         else:
