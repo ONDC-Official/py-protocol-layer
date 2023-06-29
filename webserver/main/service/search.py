@@ -132,7 +132,16 @@ def add_search_catalogues(bpp_response):
     if len(items) == 0:
         return get_ack_response(context=context, ack=True)
     search_collection = get_mongo_collection('on_search_items')
-    is_successful = mongo.collection_insert_many(search_collection, items)
+    is_successful = True
+
+    for i in items:
+        # Upsert a single document
+        filter_criteria = {"context.bpp_id": i['context']['bpp_id'],
+                           "provider_details.id": i['provider_details']['id'],
+                           "item_details.id": i['item_details']['id']}
+        update_data = {'$set': i}  # Update data to be inserted or updated
+        is_successful = is_successful and mongo.collection_upsert_one(search_collection, filter_criteria, update_data)
+
     if is_successful:
         message_id = bpp_response[constant.CONTEXT]["message_id"]
         post_count_response_to_client("on_search",
@@ -209,7 +218,7 @@ def get_filters_out_of_items(items):
     category_values = [i[constant.CATEGORY_DETAILS] for i in items if 'id' in i[constant.CATEGORY_DETAILS]]
     fulfillment_values = [i[constant.FULFILLMENT_DETAILS] for i in items if 'id' in i[constant.FULFILLMENT_DETAILS]]
     provider_values = [i[constant.PROVIDER_DETAILS] for i in items if 'id' in i[constant.PROVIDER_DETAILS]]
-    price_values = [i[constant.PRICE]['value'] for i in items]
+    price_values = [i[constant.ITEM_DETAILS][constant.PRICE]['value'] for i in items]
 
     categories = list({v['id']: {'id': v['id'], 'name': v.get('descriptor', {}).get('name')}
                        for v in category_values}.values())

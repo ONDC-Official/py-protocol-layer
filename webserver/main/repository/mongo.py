@@ -17,6 +17,28 @@ def collection_insert_one(mongo_collection, entry):
 
 
 @MeasureTime
+def collection_upsert_one(mongo_collection, filter_criteria, update_data):
+    try:
+        mongo_collection.update_one(filter_criteria, update_data, upsert=True)
+        log(f"Entry upserted to collection {mongo_collection.name} successfully!")
+        return True
+    except:
+        log_error(f"Entry upsertion to collection {mongo_collection.name} failed!")
+        return False
+
+
+@MeasureTime
+def collection_upsert_many(mongo_collection, filter_criteria_list, update_data_list):
+    try:
+        mongo_collection.update_many({'$or': filter_criteria_list}, {'$set': update_data_list}, upsert=True)
+        log(f"Entries upserted to collection {mongo_collection.name} successfully!")
+        return True
+    except:
+        log_error(f"Entries upsertion to collection {mongo_collection.name} failed!")
+        return False
+
+
+@MeasureTime
 def collection_insert_many(mongo_collection, entries):
     try:
         mongo_collection.insert_many(entries)
