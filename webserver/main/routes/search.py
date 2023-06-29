@@ -3,6 +3,7 @@ from flask_restx import Namespace, Resource, reqparse
 
 from main import constant
 from main.service.search import get_catalogues_for_message_id, gateway_search
+from main.utils.validation import validate_payload_schema_based_on_version
 
 search_namespace = Namespace('search', description='Search Namespace')
 
@@ -11,8 +12,13 @@ search_namespace = Namespace('search', description='Search Namespace')
 class GatewaySearch(Resource):
 
     def post(self):
-        search_request = request.get_json()
-        return gateway_search(search_request)
+        request_payload = request.get_json()
+        # validate schema based on context version
+        resp = validate_payload_schema_based_on_version(request_payload, 'search')
+        if resp is None:
+            return gateway_search(request_payload)
+        else:
+            return resp
 
 
 @search_namespace.route("/response/v1/on_search")
