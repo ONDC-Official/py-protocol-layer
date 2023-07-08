@@ -8,7 +8,7 @@ from jsonschema.validators import validate
 from main import constant
 from main.models.error import BaseError
 from main.repository.ack_response import get_ack_response
-from main.request_models.search import request_type_to_class_mapping
+from main.request_models.request import request_type_to_class_mapping
 from main.utils.schema_utils import get_json_schema_for_given_path, transform_json_schema_error
 
 
