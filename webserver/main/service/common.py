@@ -35,11 +35,13 @@ def add_bpp_response(bpp_response, request_type):
 
 def get_query_object(**kwargs):
     query_object = {"context.message_id": kwargs['message_id']}
+    if "version" in kwargs:
+        query_object.update({"context.version": kwargs['version']})
     return query_object
 
 
-def get_bpp_response_for_message_id(request_type, **kwargs):
-    search_collection = get_mongo_collection(request_type)
+def get_bpp_response_for_message_id(**kwargs):
+    search_collection = get_mongo_collection(kwargs['request_type'])
     query_object = get_query_object(**kwargs)
     bpp_response = mongo.collection_find_all(search_collection, query_object, sort_field="created_at",
                                              sort_order=pymongo.DESCENDING)
