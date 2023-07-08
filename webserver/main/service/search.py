@@ -145,6 +145,7 @@ def add_search_catalogues(bpp_response):
     if is_successful:
         message_id = bpp_response[constant.CONTEXT]["message_id"]
         post_count_response_to_client("on_search",
+                                      bpp_response[constant.CONTEXT]["core_version"],
                                       {
                                           "messageId": message_id,
                                           "count": mongo.collection_get_count(search_collection,

@@ -22,6 +22,7 @@ def add_bpp_response(bpp_response, request_type):
     if is_successful:
         message_id = bpp_response[constant.CONTEXT]["message_id"]
         post_count_response_to_client(request_type,
+                                      bpp_response[constant.CONTEXT]["core_version"],
                                       {
                                           "messageId": message_id,
                                           "count": 1
