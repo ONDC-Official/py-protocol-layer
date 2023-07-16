@@ -28,7 +28,7 @@ def init_database():
     database_host = get_config_by_name('MONGO_DATABASE_HOST')
     database_port = get_config_by_name('MONGO_DATABASE_PORT')
     database_name = get_config_by_name('MONGO_DATABASE_NAME')
-    mongo_client = MongoClient(database_host, database_port,maxPoolSize=10)
+    mongo_client = MongoClient(database_host, database_port, maxPoolSize=10)
     mongo_db = mongo_client[database_name]
     log(f"Connection to mongodb://{database_host}:{database_port} is successful!")
     create_all_ttl_indexes()

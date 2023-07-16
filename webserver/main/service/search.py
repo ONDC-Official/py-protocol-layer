@@ -1,9 +1,12 @@
+import json
 from datetime import datetime
+from typing import List
 
 import pymongo
 
 from main.logger.custom_logging import log
 from main.models import get_mongo_collection
+from main.models.catalog import Product, ProductAttribute, ProductAttributeValue, VariantGroup
 from main.models.error import DatabaseError, RegistryLookupError, BaseError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
@@ -90,6 +93,11 @@ def enrich_created_at_timestamp_in_item(item):
     return item
 
 
+def enrich_unique_id_in_item(item):
+    item["id"] = f"{item['context']['bpp_id']}_{item['provider_details']['id']}_{item['item_details']['id']}"
+    return item
+
+
 def flatten_catalog_into_item_entries(catalog, context):
     item_entries = []
     bpp_id = context.get(constant.BPP_ID)
@@ -100,7 +108,7 @@ def flatten_catalog_into_item_entries(catalog, context):
 
         for p in bpp_providers:
             provider_locations = p.pop(constant.LOCATIONS)
-            provider_categories = p.pop(constant.CATEGORIES)
+            provider_categories = p.pop(constant.CATEGORIES, [])
             provider_items = p.pop(constant.ITEMS)
             provider_items = [{"item_details": i} for i in provider_items]
             [i.update({"fulfillments": bpp_fulfillments}) for i in provider_items]
@@ -118,7 +126,97 @@ def flatten_catalog_into_item_entries(catalog, context):
             item_entries.extend(provider_items)
 
     [enrich_created_at_timestamp_in_item(i) for i in item_entries]
+    [enrich_unique_id_in_item(i) for i in item_entries]
     return item_entries
+
+
+def transform_item_into_product_attributes(product_id, attributes):
+    attrs, attr_values = [], []
+    for a in attributes:
+        attr = ProductAttribute(**{"code": a["code"]})
+        attr_value = ProductAttributeValue(**{"product": product_id, "attribute_code": a["code"], "value": a["value"]})
+        attrs.append(attr)
+        attr_values.append(attr_value)
+    return attrs, attr_values
+
+
+def transform_item_into_product_variant_group(org_id, variants):
+    attrs = []
+    local_id = None
+    for v in variants:
+        if v["code"] == "variant_group_id":
+            local_id = v["value"]
+        elif v["code"] == "variant_attr":
+            value_splits = v["value"].split(".")
+            attrs.append(value_splits[-1])
+    return VariantGroup(**{"local_id": local_id, "attribute_codes": attrs, "organisation": org_id,
+                           "id": f"{org_id}_{local_id}"})
+
+
+def add_product_with_attributes(items):
+    products, final_attrs, final_attr_values, variant_group = [], [], [], None
+    for i in items:
+        attributes, variants = [], []
+        item_details = i["item_details"]
+        tags = item_details["tags"]
+        attr_codes = []
+        for t in tags:
+            if t["code"] == "attribute":
+                attributes = t["list"]
+            elif t["code"] == "variant":
+                variants = t["list"]
+
+        if len(attributes) > 0:
+            attrs, attr_values = transform_item_into_product_attributes(i["id"], attributes)
+            attr_codes = [a.code for a in attrs]
+            final_attrs.extend(attrs)
+            final_attr_values.extend(attr_values)
+        if len(variants) > 0:
+            variant_group = transform_item_into_product_variant_group(i["id"], variants)
+
+        p = Product(**{"id": i["id"],
+                       "product_code": item_details["descriptor"]["code"],
+                       "product_name": item_details["descriptor"]["name"],
+                       "variant_group": variant_group.id,
+                       "attribute_codes": attr_codes})
+        products.append(p)
+
+    upsert_product_attributes(final_attrs)
+    upsert_product_attribute_values(final_attr_values)
+    upsert_variant_groups([variant_group])
+    upsert_products(products)
+
+
+def upsert_product_attributes(product_attributes: List[ProductAttribute]):
+    collection = get_mongo_collection('product_attribute')
+    for p in product_attributes:
+        filter_criteria = {"id": p.code}
+        update_data = {'$set': p.dict()}
+        mongo.collection_upsert_one(collection, filter_criteria, update_data)
+
+
+def upsert_product_attribute_values(product_attribute_values: List[ProductAttributeValue]):
+    collection = get_mongo_collection('product_attribute_value')
+    for p in product_attribute_values:
+        filter_criteria = {"product": p.product, "attribute_code": p.attribute_code}
+        update_data = {'$set': p.dict()}
+        mongo.collection_upsert_one(collection, filter_criteria, update_data)
+
+
+def upsert_variant_groups(variant_groups: List[VariantGroup]):
+    collection = get_mongo_collection('variant_group')
+    for v in variant_groups:
+        filter_criteria = {"id": v.id}
+        update_data = {'$set': v.dict()}
+        mongo.collection_upsert_one(collection, filter_criteria, update_data)
+
+
+def upsert_products(products: List[Product]):
+    collection = get_mongo_collection('product')
+    for p in products:
+        filter_criteria = {"id": p.id}
+        update_data = {'$set': p.dict()}
+        mongo.collection_upsert_one(collection, filter_criteria, update_data)
 
 
 def add_search_catalogues(bpp_response):
@@ -134,11 +232,10 @@ def add_search_catalogues(bpp_response):
     search_collection = get_mongo_collection('on_search_items')
     is_successful = True
 
+    add_product_with_attributes(items)
     for i in items:
         # Upsert a single document
-        filter_criteria = {"context.bpp_id": i['context']['bpp_id'],
-                           "provider_details.id": i['provider_details']['id'],
-                           "item_details.id": i['item_details']['id']}
+        filter_criteria = {"id": i['id']}
         update_data = {'$set': i}  # Update data to be inserted or updated
         is_successful = is_successful and mongo.collection_upsert_one(search_collection, filter_criteria, update_data)
 
@@ -208,8 +305,8 @@ def get_catalogues_for_message_id(**kwargs):
     catalogs = mongo.collection_find_all(search_collection, query_object, sort_field, sort_order,
                                          skip=skip, limit=limit)
     if catalogs:
-        items = catalogs['data']
-        catalogs['data'] = [cast_price_and_rating_to_string(i) for i in items]
+        # items = catalogs['data']
+        # catalogs['data'] = [cast_price_and_rating_to_string(i) for i in items]
         return catalogs
     else:
         return {"error": DatabaseError.ON_READ_ERROR.value}
