@@ -130,25 +130,23 @@ def flatten_catalog_into_item_entries(catalog, context):
     return item_entries
 
 
-def transform_item_into_product_attributes(product_id, attributes):
+def transform_item_into_product_attributes(product_id, category, attributes):
     attrs, attr_values = [], []
     for a in attributes:
-        attr = ProductAttribute(**{"code": a["code"]})
+        attr = ProductAttribute(**{"code": a["code"], "category": category})
         attr_value = ProductAttributeValue(**{"product": product_id, "attribute_code": a["code"], "value": a["value"]})
         attrs.append(attr)
         attr_values.append(attr_value)
     return attrs, attr_values
 
 
-def transform_item_into_product_variant_group(org_id, variants):
+def transform_item_into_product_variant_group(org_id, local_id, variants):
     attrs = []
-    local_id = None
-    for v in variants:
-        if v["code"] == "variant_group_id":
-            local_id = v["value"]
-        elif v["code"] == "variant_attr":
-            value_splits = v["value"].split(".")
-            attrs.append(value_splits[-1])
+    for vl in variants:
+        for v in vl:
+            if v["code"] == "name":
+                value_splits = v["value"].split(".")
+                attrs.append(value_splits[-1])
     return VariantGroup(**{"local_id": local_id, "attribute_codes": attrs, "organisation": org_id,
                            "id": f"{org_id}_{local_id}"})
 
@@ -156,27 +154,35 @@ def transform_item_into_product_variant_group(org_id, variants):
 def add_product_with_attributes(items):
     products, final_attrs, final_attr_values, variant_group = [], [], [], None
     for i in items:
-        attributes, variants = [], []
+        attributes, variants, variant_group_local_id = [], [], None
         item_details = i["item_details"]
         tags = item_details["tags"]
         attr_codes = []
         for t in tags:
             if t["code"] == "attribute":
                 attributes = t["list"]
-            elif t["code"] == "variant":
-                variants = t["list"]
+
+        categories = i["categories"]
+        for c in categories:
+            variant_group_local_id = c["id"]
+            tags = c["tags"]
+            for t in tags:
+                if t["code"] == "attr":
+                    variants.append(t["list"])
 
         if len(attributes) > 0:
-            attrs, attr_values = transform_item_into_product_attributes(i["id"], attributes)
+            attrs, attr_values = transform_item_into_product_attributes(i["id"], item_details["category_id"], attributes)
             attr_codes = [a.code for a in attrs]
             final_attrs.extend(attrs)
             final_attr_values.extend(attr_values)
         if len(variants) > 0:
-            variant_group = transform_item_into_product_variant_group(i["id"], variants)
+            provider_id = f"{i['context']['bpp_id']}_{i['provider_details']['id']}"
+            variant_group = transform_item_into_product_variant_group(provider_id, variant_group_local_id, variants)
 
         p = Product(**{"id": i["id"],
                        "product_code": item_details["descriptor"]["code"],
                        "product_name": item_details["descriptor"]["name"],
+                       "category": item_details["category_id"],
                        "variant_group": variant_group.id,
                        "attribute_codes": attr_codes})
         products.append(p)
