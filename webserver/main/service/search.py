@@ -372,3 +372,15 @@ def check_for_quantity_in_items(items):
     for i in items:
         flag = flag and ("quantity" in i) and ('available' in i['quantity']) and ('maximum' in i['quantity'])
     return flag
+
+
+def get_item_details(item_id):
+    search_collection = get_mongo_collection("on_search_items")
+    product_collection = get_mongo_collection("product")
+    on_search_item = mongo.collection_find_one(search_collection, {"id": item_id})
+    product_details = mongo.collection_find_one(product_collection, {"id": item_id})
+    variant_group = product_details["variant_group"]
+    related_products = mongo.collection_find_all(product_collection, {"variant_group": variant_group})
+    on_search_item["related_items"] = related_products
+    return on_search_item
+

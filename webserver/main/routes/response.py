@@ -2,7 +2,7 @@ from flask_restx import Namespace, Resource, reqparse
 
 from main import constant
 from main.service.common import get_bpp_response_for_message_id
-from main.service.search import get_catalogues_for_message_id
+from main.service.search import get_catalogues_for_message_id, get_item_details
 
 response_namespace = Namespace('response', description='Response Namespace')
 
@@ -28,6 +28,13 @@ class GetCataloguesForMessageId(Resource):
     def get(self):
         args = self.create_parser_with_args()
         return get_catalogues_for_message_id(**args)
+
+
+@response_namespace.route("/items/<string:item_id>")
+class GetCataloguesForMessageId(Resource):
+
+    def get(self, item_id):
+        return get_item_details(item_id)
 
 
 @response_namespace.route("/response")
