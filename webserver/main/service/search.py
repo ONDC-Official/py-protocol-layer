@@ -180,8 +180,8 @@ def add_product_with_attributes(items):
             variant_group = transform_item_into_product_variant_group(provider_id, variant_group_local_id, variants)
 
         p = Product(**{"id": i["id"],
-                       "product_code": item_details["descriptor"]["code"],
-                       "product_name": item_details["descriptor"]["name"],
+                       "product_code": item_details["descriptor"].get("code"),
+                       "product_name": item_details["descriptor"].get("name"),
                        "category": item_details["category_id"],
                        "variant_group": variant_group.id,
                        "attribute_codes": attr_codes})
@@ -191,6 +191,24 @@ def add_product_with_attributes(items):
     upsert_product_attribute_values(final_attr_values)
     upsert_variant_groups([variant_group])
     upsert_products(products)
+
+
+def get_items_and_customisation_groups(items):
+    new_item_list, customisation_groups = [], []
+    for i in items:
+        item_details = i["item_details"]
+        tags = item_details["tags"]
+        item_type = "item"
+        for t in tags:
+            if t["code"] == "type":
+                item_type = t["list"][0]["value"]
+
+        if item_type == "customization":
+            customisation_groups.append(i)
+        else:
+            new_item_list.append(i)
+
+    return new_item_list, customisation_groups
 
 
 def upsert_product_attributes(product_attributes: List[ProductAttribute]):
@@ -236,14 +254,22 @@ def add_search_catalogues(bpp_response):
     if len(items) == 0:
         return get_ack_response(context=context, ack=True)
     search_collection = get_mongo_collection('on_search_items')
+    customisation_group_collection = get_mongo_collection('customisation_group')
     is_successful = True
 
+    items, customisation_groups = get_items_and_customisation_groups(items)
     add_product_with_attributes(items)
     for i in items:
         # Upsert a single document
         filter_criteria = {"id": i['id']}
         update_data = {'$set': i}  # Update data to be inserted or updated
         is_successful = is_successful and mongo.collection_upsert_one(search_collection, filter_criteria, update_data)
+    for c in customisation_groups:
+        # Upsert a single document
+        filter_criteria = {"id": c['id']}
+        update_data = {'$set': c}  # Update data to be inserted or updated
+        is_successful = is_successful and mongo.collection_upsert_one(customisation_group_collection, filter_criteria,
+                                                                      update_data)
 
     if is_successful:
         message_id = bpp_response[constant.CONTEXT]["message_id"]

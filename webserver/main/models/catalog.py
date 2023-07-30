@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class Product(BaseModel):
     id: str
-    product_code: str
+    product_code: Optional[str]
     product_name: str
     variant_group: str
     attribute_codes: list
