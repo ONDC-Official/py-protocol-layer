@@ -73,6 +73,19 @@ def collection_find_all(mongo_collection, query_object, sort_field=None, sort_or
 
 
 @MeasureTime
+def collection_find_distinct(mongo_collection, query_object, distinct=None):
+    try:
+        log(f"Getting distinct entries from collection {mongo_collection.name}")
+        catalogue_objects = mongo_collection.find(query_object)
+        if distinct:
+            catalogue_objects = catalogue_objects.distinct(distinct)
+        return {'count': len(catalogue_objects), 'data': catalogue_objects}
+    except:
+        log_error(f"Getting Entries for collection {mongo_collection.name} failed!")
+        return None
+
+
+@MeasureTime
 def collection_find_one(mongo_collection, query_object):
     catalog = mongo_collection.find_one(query_object)
     catalog.pop('_id')

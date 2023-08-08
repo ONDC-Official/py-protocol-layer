@@ -98,6 +98,21 @@ def enrich_unique_id_in_item(item):
     return item
 
 
+def flatten_item_attributes(item):
+    tags = item["item_details"]["tags"]
+    attr_list = []
+    attr_dict = {}
+    for t in tags:
+        if t["code"] == "attribute":
+            attr_list = t["list"]
+
+    for a in attr_list:
+        attr_dict[a["code"]] = a["value"]
+
+    item["attributes"] = attr_dict
+    return item
+
+
 def flatten_catalog_into_item_entries(catalog, context):
     item_entries = []
     bpp_id = context.get(constant.BPP_ID)
@@ -123,6 +138,7 @@ def flatten_catalog_into_item_entries(catalog, context):
              for i in provider_items]
             [cast_price_and_rating_to_float(i) for i in provider_items]
             [cast_provider_category_fulfillment_id_to_string(i) for i in provider_items]
+            [flatten_item_attributes(i) for i in provider_items]
             item_entries.extend(provider_items)
 
     [enrich_created_at_timestamp_in_item(i) for i in item_entries]
@@ -297,22 +313,25 @@ def gateway_search(search_request):
 
 
 def get_query_object(**kwargs):
-    query_object = {"context.message_id": kwargs['message_id']}
+    query_object = {}
     if kwargs['price_min'] and kwargs['price_max']:
-        query_object.update({'price.value': {'$gte': kwargs['price_min'], '$lte': kwargs['price_max']}})
+        query_object.update({'item_details.price.value': {'$gte': kwargs['price_min'], '$lte': kwargs['price_max']}})
     elif kwargs['price_min']:
-        query_object.update({'price.value': {'$gte': kwargs['price_min']}})
+        query_object.update({'item_details.price.value': {'$gte': kwargs['price_min']}})
     elif kwargs['price_max']:
-        query_object.update({'price.value': {'$lte': kwargs['price_max']}})
+        query_object.update({'item_details.price.value': {'$lte': kwargs['price_max']}})
 
     if kwargs['rating']:
-        query_object.update({'rating.value': {'$gte': kwargs['rating']}})
+        query_object.update({'item_details.rating.value': {'$gte': kwargs['rating']}})
     if kwargs['provider_ids']:
-        query_object.update({'provider_details.id': {'$in': [x.strip() for x in kwargs['provider_ids']]}})
+        query_object.update({'item_details.provider_details.id': {'$in': [x.strip() for x in kwargs['provider_ids']]}})
     if kwargs['category_ids']:
-        query_object.update({'category_id': {'$in': [x.strip() for x in kwargs['category_ids']]}})
+        query_object.update({'item_details.category_id': {'$in': [x.strip() for x in kwargs['category_ids']]}})
     if kwargs['fulfillment_ids']:
-        query_object.update({'fulfillment_id': {'$in': [x.strip() for x in kwargs['fulfillment_ids']]}})
+        query_object.update({'item_details.fulfillment_id': {'$in': [x.strip() for x in kwargs['fulfillment_ids']]}})
+    if kwargs['product_attrs'] and len(kwargs['product_attrs']) > 0:
+        for k, v in kwargs['product_attrs'].items():
+            query_object.update({f'attributes.{k}': v})
     return query_object
 
 
@@ -327,7 +346,7 @@ def get_sort_field_and_order(**kwargs):
     return sort_field, sort_order
 
 
-def get_catalogues_for_message_id(**kwargs):
+def get_item_catalogues(**kwargs):
     search_collection = get_mongo_collection('on_search_items')
     query_object = get_query_object(**kwargs)
     sort_field, sort_order = get_sort_field_and_order(**kwargs)
@@ -383,4 +402,17 @@ def get_item_details(item_id):
     related_products = mongo.collection_find_all(product_collection, {"variant_group": variant_group})
     on_search_item["related_items"] = related_products
     return on_search_item
+
+
+def get_item_attributes(category):
+    mongo_collection = get_mongo_collection("product_attribute")
+    item_attributes = mongo.collection_find_all(mongo_collection, {"category": category})
+    return item_attributes
+
+
+def get_item_attribute_values(attribute_code):
+    mongo_collection = get_mongo_collection("product_attribute_value")
+    item_attribute_values = mongo.collection_find_distinct(mongo_collection, {"attribute_code": attribute_code},
+                                                           distinct="value")
+    return item_attribute_values
 
