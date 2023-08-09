@@ -66,7 +66,7 @@ def collection_find_all(mongo_collection, query_object, sort_field=None, sort_or
             c.pop('_id')
             c.pop('created_at', None)
         log(f"Got entries from collection {mongo_collection.name} successfully")
-        return {'count': count, 'data': catalogues}
+        return {'count': count, 'data': catalogues, "pages": ((count-1)//limit)+1}
     except:
         log_error(f"Getting Entries for collection {mongo_collection.name} failed!")
         return None

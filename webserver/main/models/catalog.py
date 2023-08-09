@@ -27,6 +27,7 @@ class ProductAttributeValue(BaseModel):
     product: str
     attribute_code: str
     value: str
+    variant_group_id: Optional[str]
 
 
 class VariantGroup(BaseModel):

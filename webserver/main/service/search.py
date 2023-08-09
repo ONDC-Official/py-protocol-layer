@@ -146,11 +146,12 @@ def flatten_catalog_into_item_entries(catalog, context):
     return item_entries
 
 
-def transform_item_into_product_attributes(product_id, category, attributes):
+def transform_item_into_product_attributes(product_id, category, attributes, variant_group_id):
     attrs, attr_values = [], []
     for a in attributes:
         attr = ProductAttribute(**{"code": a["code"], "category": category})
-        attr_value = ProductAttributeValue(**{"product": product_id, "attribute_code": a["code"], "value": a["value"]})
+        attr_value = ProductAttributeValue(**{"product": product_id, "attribute_code": a["code"], "value": a["value"],
+                                              "variant_group_id": variant_group_id})
         attrs.append(attr)
         attr_values.append(attr_value)
     return attrs, attr_values
@@ -186,14 +187,15 @@ def add_product_with_attributes(items):
                 if t["code"] == "attr":
                     variants.append(t["list"])
 
-        if len(attributes) > 0:
-            attrs, attr_values = transform_item_into_product_attributes(i["id"], item_details["category_id"], attributes)
-            attr_codes = [a.code for a in attrs]
-            final_attrs.extend(attrs)
-            final_attr_values.extend(attr_values)
         if len(variants) > 0:
             provider_id = f"{i['context']['bpp_id']}_{i['provider_details']['id']}"
             variant_group = transform_item_into_product_variant_group(provider_id, variant_group_local_id, variants)
+        if len(attributes) > 0:
+            attrs, attr_values = transform_item_into_product_attributes(i["id"], item_details["category_id"],
+                                                                        attributes,  variant_group.id)
+            attr_codes = [a.code for a in attrs]
+            final_attrs.extend(attrs)
+            final_attr_values.extend(attr_values)
 
         p = Product(**{"id": i["id"],
                        "product_code": item_details["descriptor"].get("code"),
@@ -321,6 +323,8 @@ def get_query_object(**kwargs):
     elif kwargs['price_max']:
         query_object.update({'item_details.price.value': {'$lte': kwargs['price_max']}})
 
+    if kwargs['name']:
+        query_object.update({'item_details.descriptor.name': {"$regex": kwargs["name"]}})
     if kwargs['rating']:
         query_object.update({'item_details.rating.value': {'$gte': kwargs['rating']}})
     if kwargs['provider_ids']:
@@ -331,7 +335,7 @@ def get_query_object(**kwargs):
         query_object.update({'item_details.fulfillment_id': {'$in': [x.strip() for x in kwargs['fulfillment_ids']]}})
     if kwargs['product_attrs'] and len(kwargs['product_attrs']) > 0:
         for k, v in kwargs['product_attrs'].items():
-            query_object.update({f'attributes.{k}': v})
+            query_object.update({f'attributes.{k}': {'$in': [x.strip() for x in v]}})
     return query_object
 
 
@@ -396,11 +400,31 @@ def check_for_quantity_in_items(items):
 def get_item_details(item_id):
     search_collection = get_mongo_collection("on_search_items")
     product_collection = get_mongo_collection("product")
+    variant_group_collection = get_mongo_collection("variant_group")
+    attr_value_collection = get_mongo_collection("product_attribute_value")
     on_search_item = mongo.collection_find_one(search_collection, {"id": item_id})
     product_details = mongo.collection_find_one(product_collection, {"id": item_id})
-    variant_group = product_details["variant_group"]
-    related_products = mongo.collection_find_all(product_collection, {"variant_group": variant_group})
-    on_search_item["related_items"] = related_products
+    variant_group_id = product_details["variant_group"]
+    variant_group = mongo.collection_find_one(variant_group_collection, {"id": variant_group_id})
+    variant_attrs = variant_group["attribute_codes"]
+    variant_value_list = mongo.collection_find_all(attr_value_collection, {"variant_group_id": variant_group_id,
+                                                                           "attribute_code": {'$in': variant_attrs}})["data"]
+    # variant_attr_values = {}
+    # for vv in variant_value_list["data"]:
+    #     key, value = vv["attribute_code"], vv["value"]
+    #     if key in variant_attr_values:
+    #         variant_attr_values[key].append(value)
+    #     else:
+    #         variant_attr_values[key] = [value]
+    # for k in variant_attr_values:
+    #     variant_attr_values[k] = list(set(variant_attr_values[k]))
+    on_search_item["variant_attr_values"] = variant_value_list
+
+    related_products = mongo.collection_find_all(product_collection, {"variant_group": variant_group_id})["data"]
+    related_product_ids = [r["id"] for r in related_products]
+    related_products_with_details = mongo.collection_find_all(search_collection,
+                                                              {"id": {'$in': [x.strip() for x in related_product_ids]}})["data"]
+    on_search_item["related_items"] = related_products_with_details
     return on_search_item
 
 

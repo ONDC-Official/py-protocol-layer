@@ -16,6 +16,7 @@ class GetCataloguesForMessageId(Resource):
         parser.add_argument("priceMin", dest="price_min", type=float, required=False)
         parser.add_argument("priceMax", dest="price_max", type=float, required=False)
         parser.add_argument("rating", dest="rating", type=float, required=False)
+        parser.add_argument("name", dest="name", type=str, required=False)
         parser.add_argument("providerIds", dest="provider_ids", type=lambda x: x.split(","), required=False)
         parser.add_argument("categoryIds", dest="category_ids", type=lambda x: x.split(","), required=False)
         parser.add_argument("fulfillmentIds", dest="fulfillment_ids", type=lambda x: x.split(","), required=False)
@@ -31,7 +32,7 @@ class GetCataloguesForMessageId(Resource):
         for k, v in all_args.items():
             if "product_attr_" in k:
                 attr_name = k.split("product_attr_")[1]
-                product_attrs[attr_name] = v
+                product_attrs[attr_name] = v.split(",")
         args = self.create_parser_with_args()
         args['product_attrs'] = product_attrs
         return get_item_catalogues(**args)
