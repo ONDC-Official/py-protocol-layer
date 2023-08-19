@@ -1,12 +1,13 @@
 import json
 from datetime import datetime
-from typing import List
+from typing import List, Tuple
 
 import pymongo
 
 from main.logger.custom_logging import log
 from main.models import get_mongo_collection
-from main.models.catalog import Product, ProductAttribute, ProductAttributeValue, VariantGroup
+from main.models.catalog import Product, ProductAttribute, ProductAttributeValue, VariantGroup, CustomMenu, \
+    CustomisationGroup
 from main.models.error import DatabaseError, RegistryLookupError, BaseError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
@@ -113,6 +114,37 @@ def flatten_item_attributes(item):
     return item
 
 
+def enrich_item_type(item):
+    item_details = item["item_details"]
+    tags = item_details["tags"]
+    item_type = "item"
+    for t in tags:
+        if t["code"] == "type":
+            item_type = t["list"][0]["value"]
+
+    item["type"] = item_type
+    return item
+
+
+def enrich_is_first_flag_for_items(items):
+    variant_groups = set()
+    for i in items:
+        variant_group_local_id, variants = None, []
+        categories = i["categories"]
+        for c in categories:
+            variant_group_local_id = c["id"]
+            tags = c["tags"]
+            for t in tags:
+                if t["code"] == "attr":
+                    variants.append(t["list"])
+        if len(variants) == 0:
+            i["is_first"] = True
+        else:
+            i["is_first"] = variant_group_local_id not in variant_groups
+        variant_groups.add(variant_group_local_id)
+    return items
+
+
 def flatten_catalog_into_item_entries(catalog, context):
     item_entries = []
     bpp_id = context.get(constant.BPP_ID)
@@ -139,6 +171,8 @@ def flatten_catalog_into_item_entries(catalog, context):
             [cast_price_and_rating_to_float(i) for i in provider_items]
             [cast_provider_category_fulfillment_id_to_string(i) for i in provider_items]
             [flatten_item_attributes(i) for i in provider_items]
+            [enrich_item_type(i) for i in provider_items]
+            provider_items = enrich_is_first_flag_for_items(provider_items)
             item_entries.extend(provider_items)
 
     [enrich_created_at_timestamp_in_item(i) for i in item_entries]
@@ -150,8 +184,8 @@ def transform_item_into_product_attributes(product_id, category, attributes, var
     attrs, attr_values = [], []
     for a in attributes:
         attr = ProductAttribute(**{"code": a["code"], "category": category})
-        attr_value = ProductAttributeValue(**{"product": product_id, "attribute_code": a["code"], "value": a["value"],
-                                              "variant_group_id": variant_group_id})
+        attr_value = ProductAttributeValue(**{"product": product_id, "category": category, "attribute_code": a["code"],
+                                              "value": a["value"], "variant_group_id": variant_group_id})
         attrs.append(attr)
         attr_values.append(attr_value)
     return attrs, attr_values
@@ -168,8 +202,52 @@ def transform_item_into_product_variant_group(org_id, local_id, variants):
                            "id": f"{org_id}_{local_id}"})
 
 
+def transform_item_into_custom_menu(org_id, local_id, custom_menu, category):
+    return CustomMenu(**{"local_id": local_id, "parent_category_id": custom_menu["parent_category_id"],
+                         "descriptor": custom_menu["descriptor"], "tags": custom_menu["tags"],
+                         "id": f"{org_id}_{local_id}", "category": category})
+
+
+def transform_item_into_customisation_group(org_id, local_id, custom_group, category):
+    return CustomisationGroup(**{"local_id": local_id, "parent_category_id": custom_group.get("parent_category_id"),
+                                 "descriptor": custom_group["descriptor"], "tags": custom_group["tags"],
+                                 "id": f"{org_id}_{local_id}", "category": category})
+
+
+def transform_item_categories(item):
+    variant_group, custom_menu, customisation_groups = None, None, []
+    provider_id = f"{item['context']['bpp_id']}_{item['provider_details']['id']}"
+    categories = item["categories"]
+    for c in categories:
+        variants, variant_group_local_id = [], None
+        local_id = c["id"]
+        category_type = "variant_group"
+        tags = c["tags"]
+        for t in tags:
+            if t["code"] == "type":
+                category_type = t["list"][0]["value"]
+            if t["code"] == "attr":
+                variants.append(t["list"])
+
+        if category_type == "variant_group":
+            for t in tags:
+                if t["code"] == "attr":
+                    variants.append(t["list"])
+            if len(variants) > 0:
+                variant_group = transform_item_into_product_variant_group(provider_id, local_id, variants)
+        elif category_type == "custom_menu":
+            custom_menu = transform_item_into_custom_menu(provider_id, local_id, c, item["item_details"]["category_id"])
+        elif category_type == "custom_group":
+            customisation_group = transform_item_into_customisation_group(provider_id, local_id, c,
+                                                                          item["item_details"]["category_id"])
+            customisation_groups.append(customisation_group)
+
+    return variant_group, custom_menu, customisation_groups
+
+
 def add_product_with_attributes(items):
-    products, final_attrs, final_attr_values, variant_group = [], [], [], None
+    products, final_attrs, final_attr_values = [], [], []
+    variant_groups, custom_menus, final_customisation_groups = [], [], []
     for i in items:
         attributes, variants, variant_group_local_id = [], [], None
         item_details = i["item_details"]
@@ -179,18 +257,10 @@ def add_product_with_attributes(items):
             if t["code"] == "attribute":
                 attributes = t["list"]
 
-        categories = i["categories"]
-        for c in categories:
-            variant_group_local_id = c["id"]
-            tags = c["tags"]
-            for t in tags:
-                if t["code"] == "attr":
-                    variants.append(t["list"])
+        variant_group, custom_menu, customisation_groups = transform_item_categories(i)
+        i["custom_menu"] = custom_menu.id if custom_menu else None
 
-        if len(variants) > 0:
-            provider_id = f"{i['context']['bpp_id']}_{i['provider_details']['id']}"
-            variant_group = transform_item_into_product_variant_group(provider_id, variant_group_local_id, variants)
-        if len(attributes) > 0:
+        if variant_group and len(attributes) > 0:
             attrs, attr_values = transform_item_into_product_attributes(i["id"], item_details["category_id"],
                                                                         attributes,  variant_group.id)
             attr_codes = [a.code for a in attrs]
@@ -201,32 +271,22 @@ def add_product_with_attributes(items):
                        "product_code": item_details["descriptor"].get("code"),
                        "product_name": item_details["descriptor"].get("name"),
                        "category": item_details["category_id"],
-                       "variant_group": variant_group.id,
+                       "variant_group": variant_group.id if variant_group else None,
+                       "custom_menu": custom_menu.id if custom_menu else None,
+                       "customisation_groups": [c.id for c in customisation_groups],
                        "attribute_codes": attr_codes})
         products.append(p)
+        variant_groups.append(variant_group) if variant_group else None
+        custom_menus.append(custom_menu) if custom_menu else None
+        final_customisation_groups.extend(customisation_groups)
 
     upsert_product_attributes(final_attrs)
     upsert_product_attribute_values(final_attr_values)
-    upsert_variant_groups([variant_group])
+    upsert_variant_groups(variant_groups)
+    upsert_custom_menus(custom_menus)
+    upsert_customisation_groups(final_customisation_groups)
     upsert_products(products)
-
-
-def get_items_and_customisation_groups(items):
-    new_item_list, customisation_groups = [], []
-    for i in items:
-        item_details = i["item_details"]
-        tags = item_details["tags"]
-        item_type = "item"
-        for t in tags:
-            if t["code"] == "type":
-                item_type = t["list"][0]["value"]
-
-        if item_type == "customization":
-            customisation_groups.append(i)
-        else:
-            new_item_list.append(i)
-
-    return new_item_list, customisation_groups
+    return items
 
 
 def upsert_product_attributes(product_attributes: List[ProductAttribute]):
@@ -253,6 +313,22 @@ def upsert_variant_groups(variant_groups: List[VariantGroup]):
         mongo.collection_upsert_one(collection, filter_criteria, update_data)
 
 
+def upsert_custom_menus(custom_menus: List[CustomMenu]):
+    collection = get_mongo_collection('custom_menu')
+    for v in custom_menus:
+        filter_criteria = {"id": v.id}
+        update_data = {'$set': v.dict()}
+        mongo.collection_upsert_one(collection, filter_criteria, update_data)
+
+
+def upsert_customisation_groups(customisation_groups: List[CustomisationGroup]):
+    collection = get_mongo_collection('customisation_group')
+    for v in customisation_groups:
+        filter_criteria = {"id": v.id}
+        update_data = {'$set': v.dict()}
+        mongo.collection_upsert_one(collection, filter_criteria, update_data)
+
+
 def upsert_products(products: List[Product]):
     collection = get_mongo_collection('product')
     for p in products:
@@ -272,22 +348,21 @@ def add_search_catalogues(bpp_response):
     if len(items) == 0:
         return get_ack_response(context=context, ack=True)
     search_collection = get_mongo_collection('on_search_items')
-    customisation_group_collection = get_mongo_collection('customisation_group')
     is_successful = True
 
-    items, customisation_groups = get_items_and_customisation_groups(items)
-    add_product_with_attributes(items)
+    # items, customisation_groups = get_items_and_customisation_groups(items)
+    items = add_product_with_attributes(items)
     for i in items:
         # Upsert a single document
         filter_criteria = {"id": i['id']}
         update_data = {'$set': i}  # Update data to be inserted or updated
         is_successful = is_successful and mongo.collection_upsert_one(search_collection, filter_criteria, update_data)
-    for c in customisation_groups:
-        # Upsert a single document
-        filter_criteria = {"id": c['id']}
-        update_data = {'$set': c}  # Update data to be inserted or updated
-        is_successful = is_successful and mongo.collection_upsert_one(customisation_group_collection, filter_criteria,
-                                                                      update_data)
+    # for c in customisation_groups:
+    #     # Upsert a single document
+    #     filter_criteria = {"id": c['id']}
+    #     update_data = {'$set': c}  # Update data to be inserted or updated
+    #     is_successful = is_successful and mongo.collection_upsert_one(customisation_group_collection, filter_criteria,
+    #                                                                   update_data)
 
     if is_successful:
         message_id = bpp_response[constant.CONTEXT]["message_id"]
@@ -315,7 +390,7 @@ def gateway_search(search_request):
 
 
 def get_query_object(**kwargs):
-    query_object = {}
+    query_object = {"type": "item", "is_first": True}
     if kwargs['price_min'] and kwargs['price_max']:
         query_object.update({'item_details.price.value': {'$gte': kwargs['price_min'], '$lte': kwargs['price_max']}})
     elif kwargs['price_min']:
@@ -325,6 +400,8 @@ def get_query_object(**kwargs):
 
     if kwargs['name']:
         query_object.update({'item_details.descriptor.name': {"$regex": kwargs["name"]}})
+    if kwargs['custom_menu']:
+        query_object.update({'custom_menu': kwargs['custom_menu']})
     if kwargs['rating']:
         query_object.update({'item_details.rating.value': {'$gte': kwargs['rating']}})
     if kwargs['provider_ids']:
@@ -428,15 +505,22 @@ def get_item_details(item_id):
     return on_search_item
 
 
+def get_custom_menus(category):
+    mongo_collection = get_mongo_collection("custom_menu")
+    custom_menus = mongo.collection_find_all(mongo_collection, {"category": category})
+    return custom_menus
+
+
 def get_item_attributes(category):
     mongo_collection = get_mongo_collection("product_attribute")
     item_attributes = mongo.collection_find_all(mongo_collection, {"category": category})
     return item_attributes
 
 
-def get_item_attribute_values(attribute_code):
+def get_item_attribute_values(category, attribute_code):
     mongo_collection = get_mongo_collection("product_attribute_value")
-    item_attribute_values = mongo.collection_find_distinct(mongo_collection, {"attribute_code": attribute_code},
+    item_attribute_values = mongo.collection_find_distinct(mongo_collection, {"category": category,
+                                                                              "attribute_code": attribute_code},
                                                            distinct="value")
     return item_attribute_values
 

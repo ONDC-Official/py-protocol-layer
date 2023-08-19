@@ -3,7 +3,8 @@ from flask_restx import Namespace, Resource, reqparse
 
 from main import constant
 from main.service.common import get_bpp_response_for_message_id
-from main.service.search import get_item_catalogues, get_item_details, get_item_attributes, get_item_attribute_values
+from main.service.search import get_item_catalogues, get_item_details, get_item_attributes, get_item_attribute_values, \
+    get_custom_menus
 
 response_namespace = Namespace('response', description='Response Namespace')
 
@@ -17,6 +18,7 @@ class GetCataloguesForMessageId(Resource):
         parser.add_argument("priceMax", dest="price_max", type=float, required=False)
         parser.add_argument("rating", dest="rating", type=float, required=False)
         parser.add_argument("name", dest="name", type=str, required=False)
+        parser.add_argument("customMenu", dest="custom_menu", type=str, required=False)
         parser.add_argument("providerIds", dest="provider_ids", type=lambda x: x.split(","), required=False)
         parser.add_argument("categoryIds", dest="category_ids", type=lambda x: x.split(","), required=False)
         parser.add_argument("fulfillmentIds", dest="fulfillment_ids", type=lambda x: x.split(","), required=False)
@@ -60,6 +62,20 @@ class GetResponseForMessageId(Resource):
         return get_bpp_response_for_message_id(**args)
 
 
+@response_namespace.route("/custom-menus")
+class GetCustomMenus(Resource):
+
+    def create_parser_with_args(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("category", required=True)
+        return parser.parse_args()
+
+    def get(self):
+        args = self.create_parser_with_args()
+        return get_custom_menus(args["category"])
+
+
+
 @response_namespace.route("/attributes")
 class GetItemAttributes(Resource):
 
@@ -78,9 +94,10 @@ class GetItemAttributeValues(Resource):
 
     def create_parser_with_args(self):
         parser = reqparse.RequestParser()
+        parser.add_argument("category", required=True)
         parser.add_argument("attribute_code", required=True)
         return parser.parse_args()
 
     def get(self):
         args = self.create_parser_with_args()
-        return get_item_attribute_values(args["attribute_code"])
+        return get_item_attribute_values(args["category"], args["attribute_code"])
