@@ -479,6 +479,7 @@ def get_item_details(item_id):
     product_collection = get_mongo_collection("product")
     variant_group_collection = get_mongo_collection("variant_group")
     attr_value_collection = get_mongo_collection("product_attribute_value")
+    customisation_group_collection = get_mongo_collection("customisation_group")
     on_search_item = mongo.collection_find_one(search_collection, {"id": item_id})
     product_details = mongo.collection_find_one(product_collection, {"id": item_id})
     variant_group_id = product_details["variant_group"]
@@ -497,6 +498,18 @@ def get_item_details(item_id):
     #     variant_attr_values[k] = list(set(variant_attr_values[k]))
     on_search_item["variant_attr_values"] = variant_value_list
 
+    # Customisation Group and Items
+    customisation_group_ids = product_details["customisation_groups"]
+    customisation_groups = mongo.collection_find_all(customisation_group_collection,
+                                                     {"id": {'$in': customisation_group_ids}})["data"]
+    customisation_items = mongo.collection_find_all(search_collection,
+                                                    {"context.bpp_id": on_search_item["context"]["bpp_id"],
+                                                     "provider_details.id": on_search_item["provider_details"]["id"],
+                                                     "type": "customization"})["data"]
+    on_search_item["customisation_groups"] = customisation_groups
+    on_search_item["customisation_items"] = customisation_items
+
+    # Related Products
     related_products = mongo.collection_find_all(product_collection, {"variant_group": variant_group_id})["data"]
     related_product_ids = [r["id"] for r in related_products]
     related_products_with_details = mongo.collection_find_all(search_collection,
