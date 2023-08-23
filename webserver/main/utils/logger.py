@@ -1,6 +1,6 @@
 import logging
 import logging_loki
-
+import os
 
 def handle_logError(record):
     print(record)
@@ -9,7 +9,7 @@ def get_logger():
 
 
     handler = logging_loki.LokiHandler(
-        url="http://192.168.11.146:3100/loki/api/v1/push", 
+        url= os.getenv("LOKI_URL", "some-url")+"/loki/api/v1/push", 
         tags={"app": "buyer-protocol"},
         version='1',
         
