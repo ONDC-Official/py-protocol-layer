@@ -37,6 +37,7 @@ class Config:
     BAP_UNIQUE_KEY_ID = os.getenv("BAP_UNIQUE_KEY_ID", "207")
     REGISTRY_BASE_URL = "https://pilot-gateway-1.beckn.nsdl.co.in"
     TTL_IN_SECONDS = int(os.getenv("TTL_IN_SECONDS", "3600"))
+    LOKI_URL = os.getenv("LOKI_URL")
     VERIFICATION_ENABLE = os.getenv("VERIFICATION_ENABLE", "True") == "True"
 
 
