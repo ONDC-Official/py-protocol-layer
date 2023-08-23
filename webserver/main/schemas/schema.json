@@ -7,13 +7,13 @@
   },
   "security": [
     {
-      "SubscriberAuth": [ ]
+      "SubscriberAuth": []
     },
     {
-      "GatewaySubscriberAuth": [ ]
+      "GatewaySubscriberAuth": []
     },
     {
-      "GatewaySubscriberAuthNew": [ ]
+      "GatewaySubscriberAuthNew": []
     }
   ],
   "paths": {
@@ -194,18 +194,18 @@
                                           "$ref": "#/components/schemas/Fulfillment/properties/id"
                                         }
                                       },
-                                      "required": [ "id" ]
+                                      "required": ["id"]
                                     }
                                   ]
                                 }
                               }
                             },
-                            "required": [ "fulfillments" ]
+                            "required": ["fulfillments"]
                           }
                         ]
                       }
                     },
-                    "required": [ "order" ]
+                    "required": ["order"]
                   }
                 },
                 "required": [
@@ -282,7 +282,7 @@
                                 "$ref": "#/components/schemas/Order/properties/updated_at"
                               }
                             },
-                            "required": [ "created_at", "updated_at" ]
+                            "required": ["created_at", "updated_at"]
                           }
                         ]
                       }
@@ -335,7 +335,9 @@
     },
     "/status": {
       "post": {
-        "tags": [ "ONDC Seller App" ],
+        "tags": [
+          "ONDC Seller App"
+        ],
         "description": "Fetch the latest order object",
         "requestBody": {
           "description": "Buyer checks for status of order",
@@ -354,10 +356,15 @@
                         "$ref": "#/components/schemas/Order/properties/id"
                       }
                     },
-                    "required": [ "order_id" ]
+                    "required": [
+                      "order_id"
+                    ]
                   }
                 },
-                "required": [ "context", "message" ]
+                "required": [
+                  "context",
+                  "message"
+                ]
               }
             }
           }
@@ -377,13 +384,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -393,7 +404,9 @@
     },
     "/track": {
       "post": {
-        "tags": [ "ONDC Seller App" ],
+        "tags": [
+          "ONDC Seller App"
+        ],
         "description": "Track an active order",
         "requestBody": {
           "description": "Buyer tracks fulfillment of an order",
@@ -416,10 +429,15 @@
                         "format": "uri"
                       }
                     },
-                    "required": [ "order_id" ]
+                    "required": [
+                      "order_id"
+                    ]
                   }
                 },
-                "required": [ "context", "message" ]
+                "required": [
+                  "context",
+                  "message"
+                ]
               }
             }
           }
@@ -439,13 +457,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -455,7 +477,9 @@
     },
     "/cancel": {
       "post": {
-        "tags": [ "ONDC Seller App" ],
+        "tags": [
+          "ONDC Seller App"
+        ],
         "description": "Cancel an order.<br> Use the following cancellation reason codes (cancellation_reason_id, descriptor.code):<br> (\"001\", \"Order delivery delayed or not possible\");<br> (\"002\", \"Price of one or more items have changed due to which buyer was asked to make additional payment\");<br> (\"003\", \"One or more items in the Order not available\");<br> (\"004\", \"Delivery pin code not serviceable\");<br> (\"005\", \"Buyer refused to accept delivery\");",
         "requestBody": {
           "description": "Buyer cancels an order",
@@ -480,10 +504,15 @@
                         "$ref": "#/components/schemas/Descriptor"
                       }
                     },
-                    "required": [ "order_id" ]
+                    "required": [
+                      "order_id"
+                    ]
                   }
                 },
-                "required": [ "context", "message" ]
+                "required": [
+                  "context",
+                  "message"
+                ]
               }
             }
           }
@@ -503,13 +532,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -519,7 +552,9 @@
     },
     "/update": {
       "post": {
-        "tags": [ "ONDC Seller App" ],
+        "tags": [
+          "ONDC Seller App"
+        ],
         "description": "Update an order",
         "requestBody": {
           "description": "Buyer updates an order",
@@ -542,10 +577,16 @@
                         "$ref": "#/components/schemas/Order"
                       }
                     },
-                    "required": [ "update_target", "order" ]
+                    "required": [
+                      "update_target",
+                      "order"
+                    ]
                   }
                 },
-                "required": [ "context", "message" ]
+                "required": [
+                  "context",
+                  "message"
+                ]
               }
             }
           }
@@ -565,13 +606,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -581,7 +626,9 @@
     },
     "/rating": {
       "post": {
-        "tags": [ "ONDC Seller App" ],
+        "tags": [
+          "ONDC Seller App"
+        ],
         "description": "Provide feedback on a service",
         "requestBody": {
           "description": "Buyer rates for one or more rating categories",
@@ -597,7 +644,10 @@
                     "$ref": "#/components/schemas/Rating"
                   }
                 },
-                "required": [ "context", "message" ]
+                "required": [
+                  "context",
+                  "message"
+                ]
               }
             }
           }
@@ -617,13 +667,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -633,7 +687,9 @@
     },
     "/support": {
       "post": {
-        "tags": [ "ONDC Seller App" ],
+        "tags": [
+          "ONDC Seller App"
+        ],
         "description": "Contact support",
         "requestBody": {
           "description": "Buyer searches for Support Contact details",
@@ -655,7 +711,10 @@
                     }
                   }
                 },
-                "required": [ "context", "message" ]
+                "required": [
+                  "context",
+                  "message"
+                ]
               }
             }
           }
@@ -675,13 +734,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -691,8 +754,10 @@
     },
     "/issue": {
       "post": {
-        "tags": [ "Issue Lifecycle management apis" ],
-        "description": "###  Operation Description \n * Create an issue for the following entities  of intrest, for which an issue is faced by the buyer: \n    +  order,\n    +  transaction \n    +  fulfillment or\n    +  item. \n * The issue can be created/raised by any of \n    + the Issueca#/components/schemas/IssueCateogory' himself related to any of he entity mentioned  Or\n    + By any of the Issueca#/components/schemas/IssueCateogory'-app,seller-app, transaction-counter party, or logistics providers NPs to help resolve any issue rasied by the buyer.\n",
+        "tags": [
+          "Complaint lifecycle management"
+        ],
+        "description": "###  Operation Description \n * Create an issue for the following entities  of intrest, for which an issue is faced by the buyer: \n    +  order\n    +  item\n    +  transaction \n    +  fulfillment or\n    +  payment \n * The issue can be created/raised by any of \n    + the Issueca#/components/schemas/IssueCateogory' himself related to any of he entity mentioned  Or\n    + By any of the Issueca#/components/schemas/IssueCateogory'-app,seller-app, transaction-counter party, or logistics providers NPs to help resolve any issue rasied by the buyer.\n",
         "requestBody": {
           "content": {
             "application/json": {
@@ -718,8 +783,10 @@
     },
     "/issue_status": {
       "post": {
-        "tags": [ "Issue status-check apis" ],
-        "description": "Fetch the latest issue status",
+        "tags": [
+          "Complaint status checks"
+        ],
+        "description": "Fetch the status of a complaint",
         "requestBody": {
           "description": "Any of the network participants or the buyer or seller or lsp checks for status of order",
           "content": {
@@ -746,7 +813,10 @@
     },
     "/on_search": {
       "post": {
-        "tags": [ "ONDC Buyer App", "ONDC Gateway" ],
+        "tags": [
+          "ONDC Buyer App",
+          "ONDC Gateway"
+        ],
         "description": "Send catalog",
         "requestBody": {
           "description": "Sellers provide their catalog in response to buyer search<br> In case of large catalogs, seller apps can page their catalog response and send multiple on_search responses for a single search request",
@@ -765,13 +835,17 @@
                         "$ref": "#/components/schemas/Catalog"
                       }
                     },
-                    "required": [ "catalog" ]
+                    "required": [
+                      "catalog"
+                    ]
                   },
                   "error": {
                     "$ref": "#/components/schemas/Error"
                   }
                 },
-                "required": [ "context" ]
+                "required": [
+                  "context"
+                ]
               }
             }
           }
@@ -791,13 +865,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "context" ]
+                  "required": [
+                    "context"
+                  ]
                 }
               }
             }
@@ -807,7 +885,9 @@
     },
     "/on_select": {
       "post": {
-        "tags": [ "ONDC Buyer App" ],
+        "tags": [
+          "ONDC Buyer App"
+        ],
         "description": "Send draft order object with quoted price for selected items",
         "requestBody": {
           "description": "Seller provides quote for selected items",
@@ -849,7 +929,7 @@
                                   }
                                 }
                               ],
-                              "required": [ "fulfillment_id" ]
+                              "required": ["fulfillment_id"]
                             }
                           },
                           "add_ons": {
@@ -881,7 +961,7 @@
                                       "$ref": "#/components/schemas/Fulfillment/properties/id"
                                     }
                                   },
-                                  "required": [ "id" ]
+                                  "required": ["id"]
                                 }
                               ]
                             }
@@ -889,13 +969,17 @@
                         }
                       }
                     },
-                    "required": [ "order" ]
+                    "required": [
+                      "order"
+                    ]
                   },
                   "error": {
                     "$ref": "#/components/schemas/Error"
                   }
                 },
-                "required": [ "context" ]
+                "required": [
+                  "context"
+                ]
               }
             }
           }
@@ -915,13 +999,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -931,7 +1019,9 @@
     },
     "/on_init": {
       "post": {
-        "tags": [ "ONDC Buyer App" ],
+        "tags": [
+          "ONDC Buyer App"
+        ],
         "description": "Send order object with payment details updated",
         "requestBody": {
           "description": "Seller provides terms and conditions for an order",
@@ -1006,11 +1096,8 @@
                           },
                           "fulfillments": {
                             "type": "array",
-                            "itemss": {
-                              "type": "array",
-                              "items": {
-                                "$ref": "#/components/schemas/Fulfillment"
-                              }
+                            "items": {
+                              "$ref": "#/components/schemas/Fulfillment"
                             }
                           },
                           "quote": {
@@ -1022,13 +1109,17 @@
                         }
                       }
                     },
-                    "required": [ "order" ]
+                    "required": [
+                      "order"
+                    ]
                   },
                   "error": {
                     "$ref": "#/components/schemas/Error"
                   }
                 },
-                "required": [ "context" ]
+                "required": [
+                  "context"
+                ]
               }
             }
           }
@@ -1048,13 +1139,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1064,7 +1159,9 @@
     },
     "/on_confirm": {
       "post": {
-        "tags": [ "ONDC Buyer App" ],
+        "tags": [
+          "ONDC Buyer App"
+        ],
         "description": "Send active order object",
         "requestBody": {
           "description": "Seller confirms order",
@@ -1083,13 +1180,17 @@
                         "$ref": "#/components/schemas/Order"
                       }
                     },
-                    "required": [ "order" ]
+                    "required": [
+                      "order"
+                    ]
                   },
                   "error": {
                     "$ref": "#/components/schemas/Error"
                   }
                 },
-                "required": [ "context" ]
+                "required": [
+                  "context"
+                ]
               }
             }
           }
@@ -1109,13 +1210,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1125,7 +1230,9 @@
     },
     "/on_track": {
       "post": {
-        "tags": [ "ONDC Buyer App" ],
+        "tags": [
+          "ONDC Buyer App"
+        ],
         "description": "Send tracking details of an active order",
         "requestBody": {
           "description": "Seller provides tracking details for an order",
@@ -1144,13 +1251,17 @@
                         "$ref": "#/components/schemas/Tracking"
                       }
                     },
-                    "required": [ "tracking" ]
+                    "required": [
+                      "tracking"
+                    ]
                   },
                   "error": {
                     "$ref": "#/components/schemas/Error"
                   }
                 },
-                "required": [ "context" ]
+                "required": [
+                  "context"
+                ]
               }
             }
           }
@@ -1170,13 +1281,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1186,7 +1301,9 @@
     },
     "/on_cancel": {
       "post": {
-        "tags": [ "ONDC Buyer App" ],
+        "tags": [
+          "ONDC Buyer App"
+        ],
         "description": "Send cancellation request_id with reasons list in case of cancellation request. Else send cancelled order object<br> Use same cancellation reason codes as in /cancel",
         "requestBody": {
           "description": "Seller provides response to cancellation request",
@@ -1205,13 +1322,17 @@
                         "$ref": "#/components/schemas/Order"
                       }
                     },
-                    "required": [ "order" ]
+                    "required": [
+                      "order"
+                    ]
                   },
                   "error": {
                     "$ref": "#/components/schemas/Error"
                   }
                 },
-                "required": [ "context" ]
+                "required": [
+                  "context"
+                ]
               }
             }
           }
@@ -1231,13 +1352,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1247,7 +1372,9 @@
     },
     "/on_update": {
       "post": {
-        "tags": [ "ONDC Buyer App" ],
+        "tags": [
+          "ONDC Buyer App"
+        ],
         "description": "Returns updated service with updated runtime object",
         "requestBody": {
           "description": "Seller provides response to order update",
@@ -1266,13 +1393,17 @@
                         "$ref": "#/components/schemas/Order"
                       }
                     },
-                    "required": [ "order" ]
+                    "required": [
+                      "order"
+                    ]
                   },
                   "error": {
                     "$ref": "#/components/schemas/Error"
                   }
                 },
-                "required": [ "context" ]
+                "required": [
+                  "context"
+                ]
               }
             }
           }
@@ -1292,13 +1423,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1308,7 +1443,9 @@
     },
     "/on_status": {
       "post": {
-        "tags": [ "ONDC Buyer App" ],
+        "tags": [
+          "ONDC Buyer App"
+        ],
         "description": "Fetch the status of a Service",
         "requestBody": {
           "description": "Seller provides status information for order",
@@ -1327,13 +1464,17 @@
                         "$ref": "#/components/schemas/Order"
                       }
                     },
-                    "required": [ "order" ]
+                    "required": [
+                      "order"
+                    ]
                   },
                   "error": {
                     "$ref": "#/components/schemas/Error"
                   }
                 },
-                "required": [ "context" ]
+                "required": [
+                  "context"
+                ]
               }
             }
           }
@@ -1353,13 +1494,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1369,7 +1514,9 @@
     },
     "/on_rating": {
       "post": {
-        "tags": [ "ONDC Buyer App" ],
+        "tags": [
+          "ONDC Buyer App"
+        ],
         "description": "Provide feedback on a service",
         "requestBody": {
           "description": "Seller provides response to rating provided by buyer",
@@ -1388,7 +1535,9 @@
                     "$ref": "#/components/schemas/Error"
                   }
                 },
-                "required": [ "context" ]
+                "required": [
+                  "context"
+                ]
               }
             }
           }
@@ -1408,13 +1557,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1424,7 +1577,9 @@
     },
     "/on_support": {
       "post": {
-        "tags": [ "ONDC Buyer App" ],
+        "tags": [
+          "ONDC Buyer App"
+        ],
         "description": "Contact Support",
         "requestBody": {
           "description": "Seller provides Contact Support details",
@@ -1457,7 +1612,9 @@
                     "$ref": "#/components/schemas/Error"
                   }
                 },
-                "required": [ "context" ]
+                "required": [
+                  "context"
+                ]
               }
             }
           }
@@ -1477,13 +1634,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1493,7 +1654,9 @@
     },
     "/on_issue": {
       "post": {
-        "tags": [ "Issue Lifecycle management apis" ],
+        "tags": [
+          "Complaint lifecycle management"
+        ],
         "description": "Send the issue resolution details object",
         "requestBody": {
           "description": "Seller confirms order",
@@ -1521,8 +1684,10 @@
     },
     "/on_issue_status": {
       "post": {
-        "tags": [ "Issue status-check apis" ],
-        "description": "Fetch the status of a Service",
+        "tags": [
+          "Complaint status checks"
+        ],
+        "description": "Fetch the status of a complaint",
         "requestBody": {
           "description": "Seller provides status information for order",
           "content": {
@@ -1549,7 +1714,9 @@
     },
     "/get_cancellation_reasons": {
       "post": {
-        "tags": [ "Seller App Meta APIs" ],
+        "tags": [
+          "Seller App Meta APIs"
+        ],
         "description": "Get cancellation reasons from the Seller App",
         "requestBody": {
           "description": "Context header is sent as the request",
@@ -1581,13 +1748,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1597,7 +1768,9 @@
     },
     "/cancellation_reasons": {
       "post": {
-        "tags": [ "Buyer App Meta APIs" ],
+        "tags": [
+          "Buyer App Meta APIs"
+        ],
         "description": "Get cancellation reasons from the Seller App",
         "requestBody": {
           "description": "List of cancellation reasons.",
@@ -1640,13 +1813,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1656,7 +1833,9 @@
     },
     "/get_return_reasons": {
       "post": {
-        "tags": [ "Seller App Meta APIs" ],
+        "tags": [
+          "Seller App Meta APIs"
+        ],
         "description": "Get return reasons from the Seller App",
         "requestBody": {
           "description": "Context header is sent as the request",
@@ -1688,13 +1867,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1704,7 +1887,9 @@
     },
     "/return_reasons": {
       "post": {
-        "tags": [ "Buyer App Meta APIs" ],
+        "tags": [
+          "Buyer App Meta APIs"
+        ],
         "description": "Get return reasons from the Seller App",
         "requestBody": {
           "description": "List of return reasons",
@@ -1742,13 +1927,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1758,7 +1947,9 @@
     },
     "/get_rating_categories": {
       "post": {
-        "tags": [ "Seller App Meta APIs" ],
+        "tags": [
+          "Seller App Meta APIs"
+        ],
         "description": "Get a list of categories that can be rated by the Seller App",
         "requestBody": {
           "description": "Context header is sent as the request",
@@ -1790,13 +1981,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1806,7 +2001,9 @@
     },
     "/rating_categories": {
       "post": {
-        "tags": [ "Buyer App Meta APIs" ],
+        "tags": [
+          "Buyer App Meta APIs"
+        ],
         "description": "Get a list of categories that can be rated by the Buyer App",
         "requestBody": {
           "description": "Array of categories which can be rated",
@@ -1844,13 +2041,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1860,7 +2061,9 @@
     },
     "/get_feedback_categories": {
       "post": {
-        "tags": [ "Seller Meta APIs" ],
+        "tags": [
+          "Seller Meta APIs"
+        ],
         "description": "Get a list of categories for which feedback can be given by the Buyer App",
         "requestBody": {
           "description": "Context header is sent as the request",
@@ -1892,13 +2095,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1908,7 +2115,9 @@
     },
     "/feedback_categories": {
       "post": {
-        "tags": [ "Buyer App Meta APIs" ],
+        "tags": [
+          "Buyer App Meta APIs"
+        ],
         "description": "Get a list of categories for which feedback can be given by the Buyer App",
         "requestBody": {
           "description": "Array of categories for which feedback can be given by the Buyer App",
@@ -1946,13 +2155,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1962,7 +2175,9 @@
     },
     "/get_feedback_form": {
       "post": {
-        "tags": [ "Seller App Meta APIs" ],
+        "tags": [
+          "Seller App Meta APIs"
+        ],
         "description": "Request a feedback form from the Seller App",
         "requestBody": {
           "description": "The rating value and category is sent by the Buyer App",
@@ -2005,13 +2220,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -2021,7 +2240,9 @@
     },
     "/feedback_form": {
       "post": {
-        "tags": [ "Buyer App Meta APIs" ],
+        "tags": [
+          "Buyer App Meta APIs"
+        ],
         "description": "Get a feedback form from the Seller App",
         "requestBody": {
           "description": "Feedback form sent by the Buyer App",
@@ -2056,13 +2277,17 @@
                           "$ref": "#/components/schemas/Ack"
                         }
                       },
-                      "required": [ "ack" ]
+                      "required": [
+                        "ack"
+                      ]
                     },
                     "error": {
                       "$ref": "#/components/schemas/Error"
                     }
                   },
-                  "required": [ "message" ]
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -2100,10 +2325,15 @@
           "status": {
             "type": "string",
             "description": "Describe the status of the ACK response. If schema validation passes, status is ACK else it is NACK",
-            "enum": [ "ACK", "NACK" ]
+            "enum": [
+              "ACK",
+              "NACK"
+            ]
           }
         },
-        "required": [ "status" ]
+        "required": [
+          "status"
+        ]
       },
       "AddOn": {
         "description": "Describes an add-on",
@@ -2142,11 +2372,11 @@
             "description": "Street name or number"
           },
           "locality": {
-            "type": [ "string", "null" ],
+            "type": ["string", "null"],
             "description": "Name of the locality, apartments"
           },
           "ward": {
-            "type": [ "string", "null" ],
+            "type": ["string", "null"],
             "description": "Name or number of the ward if applicable"
           },
           "city": {
@@ -2251,7 +2481,10 @@
             "format": "date-time"
           }
         },
-        "required": [ "name", "phone" ]
+        "required": [
+          "name",
+          "phone"
+        ]
       },
       "Cancellation": {
         "description": "Describes a cancellation event",
@@ -2259,7 +2492,10 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": [ "full", "partial" ]
+            "enum": [
+              "full",
+              "partial"
+            ]
           },
           "ref_id": {
             "type": "string"
@@ -2347,14 +2583,16 @@
             "format": "date-time"
           }
         },
-        "required": [ "bpp/providers" ]
+        "required": [
+          "bpp/providers"
+        ]
       },
       "Category": {
         "description": "Describes a category",
         "type": "object",
         "properties": {
           "id": {
-            "type": [ "string", "integer" ],
+            "type": ["string", "integer"],
             "description": "Unique id of the category"
           },
           "parent_category_id": {
@@ -2382,7 +2620,10 @@
             "$ref": "#/components/schemas/Scalar"
           }
         },
-        "required": [ "gps", "radius" ]
+        "required": [
+          "gps",
+          "radius"
+        ]
       },
       "City": {
         "description": "Describes a city",
@@ -2488,7 +2729,7 @@
             "description": "This is a unique value which persists during a request / callback cycle"
           },
           "timestamp": {
-            "type": [ "string", "integer" ],
+            "type": ["string", "integer"],
             "format": "date-time",
             "description": "Time of request generation in RFC3339 format"
           },
@@ -2497,7 +2738,7 @@
             "description": "The encryption public key of the sender"
           },
           "ttl": {
-            "type": [ "string", "integer" ],
+            "type": ["string", "integer"],
             "description": "Timestamp for which this message holds valid in ISO8601 durations format<br> Outer limit for ttl for search, select, init, confirm, status, track, cancel, update, rating, support is 'PT30S' which is 30 seconds<br> Different buyer apps can change this to meet their UX requirements, but it shouldn't exceed this outer limit"
           }
         },
@@ -2528,568 +2769,53 @@
           }
         }
       },
-      "Complainant": {
-        "required": [ ],
-        "type": "object",
-        "properties": {
-          "person": {
-            "$ref": "#/components/schemas/Person"
-          },
-          "contact": {
-            "$ref": "#/components/schemas/Contact"
-          }
-        },
-        "description": "- Describes an entity that raises a complaint with an interfacing app. \n- The complainant may be an end user (buyer or seller) or a network participant (buyer app/ seller app/ logistic services  provider app)\n"
-      },
-      "ResolutionProvider": {
-        "required": [ "respondent_info" ],
-        "type": "object",
-        "properties": {
-          "respondent_info": {
-            "$ref": "#/components/schemas/ResolutionProvider_respondent_info"
-          }
-        },
-        "description": "Describes the details of the entity that provides the resolution for the issue"
-      },
-      "ResolutionProvider_respondent_info": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "description": "Indicates the type of the resolution provider NP type.\n### TYPES\n1. Interfacing NP : indicating the NP where or through which the issue is raised\n2. Transaction Counterparty NP : indicating the first level of transaction counterparty network provider with which the interfacing NP is interacting with to get an issue resolution.\n3. Cascaded Counterparty NP : indicating the second or any further downstream levels of counterparty network provider with which the NP is interacting with to get an issue resolution.\n",
-            "enum": [
-              "INTERFACING-NP",
-              "TRANSACTION-COUNTERPARTY-NP",
-              "CASCADED-COUNTERPARTY-NP"
-            ]
-          },
-          "pos_id": {
-            "type": "string"
-          },
-          "organization": {
-            "$ref": "#/components/schemas/Organization"
-          },
-          "resolution_support": {
-            "$ref": "#/components/schemas/ResolutionSupport"
-          }
-        },
-        "description": "_ the respondant represents the details of the entity identfied by the resolution provider or the complainant himself (when he has to select the ODRs)"
-      },
-      "IssueResolution": {
-        "required": [
-
-          "resolution_action",
-          "resolution_remarks"
-        ],
-        "type": "object",
-        "properties": {
-          "network_issue_id": {
-            "type": "string",
-            "description": "Network issue identifier is a unique number assigned to a complaint by the interfacing application",
-            "format": "uuid"
-          },
-          "resolution": {
-            "type": "string",
-            "description": "resolution"
-          },
-          "resolution_remarks": {
-            "type": "string",
-            "description": "remarks of the resolution of the issue by the respondent"
-          },
-          "gro_remarks": {
-            "type": "string",
-            "description": "resolution remarks provided by the gro"
-          },
-          "dispute_resolution_remarks": {
-            "type": "string",
-            "description": "remarks of the result of the dispute, if applicable"
-          },
-          "refund_amount": {
-            "type": "number"
-          },
-          "resolution_action": {
-            "type": "string",
-            "description": "Indicactes the action taken while addressing the issue.\n ### Actions\n  1. resolve : indicating the issue being resolved. \n  2. reject : indicating that the issue is rejected by the respondant or the resolution provider. \n",
-            "enum": [ "RESOLVE", "REJECT" ]
-          },
-          "action_triggered": {
-            "type": "string",
-            "enum": [ "REFUND", "REPLACEMENT", "NO-ACTION" ]
-          }
-        },
-        "description": "Describes the issue resolution for the issue raised by a Complainant"
-      },
-      "ResolutionSupport": {
-        "type": "object",
-        "properties": {
-          "respondentChatLink": {
-            "type": "string",
-            "description": "chatbot link for the respondent for complainant to interact with the respondent"
-          },
-          "respondentEmail": {
-            "type": "string",
-            "description": "email for the respondent for complainant to interact with the respondent"
-          },
-          "respondentContact": {
-            "$ref": "#/components/schemas/Contact"
-          },
-          "respondentFaqs": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/Faq"
-            },
-            "description": "frequently asked questions for the respondent for complainant to get information as required"
-          },
-          "additional_sources": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/ResolutionSource"
-            }
-          },
-          "gros": {
-            "type": "array",
-            "description": "Details of the GRO appointed by the resolution provider to support in issue resolution .\nThis is a required object if and when the issue type is \"Grievance\"\n",
-            "items": {
-              "$ref": "#/components/schemas/GRO"
-            }
-          }
-        },
-        "description": "Any one of these resolution support deatils are mandatory to be speficed whenever an issue resolution is proposed.\nIn case of Issue, Either a respondent ChatLink, email or faq deatils should be provided or any of the additional sources of support should be provided\nIn case of Grievance : the GRO details are manadatory to be provided \nIn case of Dispute : the selected ODR details are mandatory to be provided \nPorvides details of the resolution support for the respondent / complainant to interact with the respondent\n"
-      },
-      "ResolutionSource": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "link": {
-            "type": "string"
-          }
-        },
-        "description": "the resolution source provide details of any addtional resolution resources thier types and a link eg : AI enabled chatbot, support/contact webpage link , lnik to IVR detials etc\n"
-      },
-      "issue_body": {
-        "required": [ "context", "context.ttl" ],
-        "type": "object",
-        "properties": {
-          "context": {
-            "$ref": "#/components/schemas/Context"
-          },
-          "message": {
-            "$ref": "#/components/schemas/issue_message"
-          }
-        }
-      },
-      "issue_message": {
-        "type": "object",
-        "properties": {
-          "issue": {
-            "$ref": "#/components/schemas/Issue"
-          }
-        }
-      },
-      "GRO": {
-        "required": [ ],
-        "type": "object",
-        "properties": {
-          "person": {
-            "$ref": "#/components/schemas/Person"
-          },
-          "contact": {
-            "$ref": "#/components/schemas/Contact"
-          },
-          "gro_type": {
-            "type": "string",
-            "description": "Indicates the system through which the GRO is assigned to this issue. \n### TYPES\n    1. Intefacing NP GRO : indicating the GRO is assigned by the NP where or through which the issue is raised\n    2. Transaction Counterparty NP GRO : indicating the GRO is assigned by the first level of counterparty network provider with which the interfacing NP is interacting with to get an issue resolution.\n    3. Cascaded Counterparty NP GRO : indicating the GRO is assigned by the second or any further downstream levels of counterparty network provider, with which the NP is interacting with, to get an issue resolution.\n",
-            "enum": [
-              "INTEFACING-NP-GRO",
-              "TRANSACTION-COUNTERPARTY-NP-GRO",
-              "CASCADED-COUNTERPARTY-NP-GRO"
-            ]
-          }
-        },
-        "description": "Grievance Redressal Officer is appointed by each network participant (buyer app, seller app, logistic provider app) for consumer grievance redressal\nDetails of the GRO appointed by the resolution provider to support in issue resolution .\nThis is a required object if and when the issue type is \"Grievance\"\n"
-      },
-      "inline_response_200": {
-        "required": [ "message" ],
-        "type": "object",
-        "properties": {
-          "message": {
-            "$ref": "#/components/schemas/inline_response_200_message"
-          },
-          "error": {
-            "$ref": "#/components/schemas/Error"
-          }
-        }
-      },
-      "inline_response_200_message": {
-        "required": [ "ack" ],
-        "type": "object",
-        "properties": {
-          "ack": {
-            "$ref": "#/components/schemas/Ack"
-          }
-        }
-      },
-      "Faq": {
-        "properties": {
-          "question": {
-            "type": "string"
-          },
-          "Answer": {
-            "type": "string"
-          }
-        },
-        "description": "type: object\n"
-      },
-      "ODR": {
-        "required": [
-          "about_info",
-          "name",
-          "pricing_model.pricing_info",
-          "resolution_ratings.rating_value",
-          "url"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Name of the ODR provider"
-          },
-          "about_info": {
-            "type": "string",
-            "description": "Detailed information about the ODR provider"
-          },
-          "url": {
-            "type": "string",
-            "description": "URL link to the ODR provider"
-          },
-          "organization": {
-            "$ref": "#/components/schemas/Organization"
-          },
-          "pricing_model": {
-            "$ref": "#/components/schemas/ODR_pricing_model"
-          },
-          "resolution_ratings": {
-            "$ref": "#/components/schemas/Rating"
-          }
-        },
-        "description": "* Describes the details of the Online Dispute Resolution Provider.\nODR Service Providers (ODR SP) via dispute resolution methods such as mediation/ conciliation and/or arbitration, will attempt to resolve disputes\nNOTE : ```ODR``` stands for Online Dispute Resolution.\n* May also describe the details of the ODR finalized or identified by the intefacing app, to whom the issue will be assigned for resolution.\n"
-      },
-      "ODR_pricing_model": {
-        "type": "object",
-        "properties": {
-          "price": {
-            "$ref": "#/components/schemas/Price"
-          },
-          "pricing_info": {
-            "type": "string",
-            "description": "addtional information about the pricing model"
-          }
-        },
-        "description": "Details of the pricing modle of the ODR"
-      },
-      "OrderDetails": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "the value of this field will be the combination of context.transaction_id and order.id."
-          },
-          "state": {
-            "type": "string"
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Item"
-            }
-          },
-          "fulfillments": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Fulfillment"
-            }
-          }
-        }
-      },
-      "Issue": {
-        "required": [ ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "* Network issue identifier is an unique number assigned to any complaint by the interfacing application at the source.\n\n* **During the life cycle of a complaint, this number will not change and will be communicated to counterparty application.**\n\n* Any subsequent issues created with the interfacing,counterpary or casacaded counter party apps are responsible for providing the correalted and relevant network-issue-id which helps all this inteacting systems to traverse back to the main issue.\n",
-            "format": "uuid"
-          },
-          "complainant_info": {
-            "$ref": "#/components/schemas/Complainant"
-          },
-          "order_details": {
-            "$ref": "#/components/schemas/OrderDetails"
-          },
-          "description": {
-            "$ref": "#/components/schemas/Descriptor"
-          },
-          "category": {
-            "$ref": "#/components/schemas/IssueCategory"
-          },
-          "sub_category": {
-            "$ref": "#/components/schemas/IssueSubCategory"
-          },
-          "issue_type": {
-            "type": "string",
-            "description": "identifies the type of the issue raised\n* the complainant being raised can be a regular ```Issue```, \n* which then subsequently can be escalated to be a ```Grievance``` \n* which may be further escalated to be a ```Dispute```\n",
-            "enum": [ "ISSUE", "GRIEVANCE", "DISPUTE" ]
-          },
-          "source": {
-            "$ref": "#/components/schemas/IssueSource"
-          },
-          "expected_response_time": {
-            "$ref": "#/components/schemas/Time"
-          },
-          "expected_resolution_time": {
-            "$ref": "#/components/schemas/Time"
-          },
-          "status": {
-            "type": "string",
-            "description": "### Statues\n  1. Open : indicating that the issue is opened and further action is yet to be taken on the issue\n  2. Closed : indicating that the issue is closed and no further action/update/info/resolution action/status change are expected/accepted on this issue. \n",
-            "enum": [ "OPEN", "CLOSED" ]
-          },
-          "issue_action": {
-            "$ref": "#/components/schemas/IssueActions"
-          },
-          "selected_odrs_info": {
-            "type": "array",
-            "description": "details of the ODRs selected by the resolution provider .\none of this would be subsequently finalized to be the ODR resposbile to resolve the issue . \nThis is a required object if and when the issue type is \"Dispute\"\n",
-            "items": {
-              "$ref": "#/components/schemas/SelectedODRs"
-            }
-          },
-          "finalized_odr": {
-            "$ref": "#/components/schemas/ODR"
-          },
-          "rating": {
-            "type": "string",
-            "description": "rating by the complainant for issue resolution",
-            "enum": [ "THUMBS-UP", "THUMBS-DOWN" ]
-          },
-          "resolution_provider": {
-            "$ref": "#/components/schemas/ResolutionProvider"
-          },
-          "resolution": {
-            "$ref": "#/components/schemas/IssueResolution"
-          },
-          "additional_info_required": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AdditionalInfoRequired"
-            }
-          },
-          "created_at": {
-            "type": "string",
-            "description": "timestamp for the creation of the issue",
-            "format": "date-time"
-          },
-          "updated_at": {
-            "type": "string",
-            "description": "timestamp for the capturing the time an issue was last updated",
-            "format": "date-time"
-          }
-        },
-        "description": "*  Describes the Issue/complaint raised for a particular order, transaction or fulfillment or item for which an issue is faced by the buyer.\n* It also describes the Issue/complaint raised by the network participants to its conuter party or casacaded counterparty apps as and when applicable\n* Describes the issue when it is escalated as a Grievance or a Dispute\n*  supplementary Information  Describes and details evidence of the information about the issue . When the complainant or respondant seeks an issue update the addtional information about the update are populated as part of the supplementary information. \n  the supplementary information section , details information including but not limited to any of the following or more: \n    * comments from the complaintant/ respondant for seeking more information about the issue\n    * comments from the complaintant/ respondant providing the update on the issue with more information on the issue \n    * Picutres providing further information about the issue\n    * documents attachment/links providing further information about the issue etc\n"
-      },
-      "SelectedODRs": {
-        "type": "object",
-        "properties": {
-          "respondant_info": {
-            "$ref": "#/components/schemas/Organization"
-          },
-          "odrs": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ODR"
-            }
-          }
-        }
-      },
-      "SupplementaryInformation": {
-        "type": "object",
-        "properties": {
-          "issue_update_info": {
-            "$ref": "#/components/schemas/Descriptor"
-          },
-          "updated_at": {
-            "type": "string",
-            "description": "timestamp for the capturing the time an issue was last updated",
-            "format": "date-time"
-          },
-          "message_id": {
-            "type": "string"
-          }
-        }
-      },
-      "IssueSource": {
-        "type": "object",
-        "properties": {
-          "network_participant_id": {
-            "type": "string",
-            "description": "unique identifier of the network participant of the source of this issue. It can be one of buyer-id in the buyer- interfacing app , or any of the relevant network provider id based on what causes the issue"
-          },
-          "issue_source_type": {
-            "type": "string",
-            "description": "Indicates the source from where the issue is raised. \n### TYPES\n    1. Consumer : indicating that the Consumer(Buyer) of a product or a service has raised the issue\n    2. Seller : indicating that the Seller of a product or a service has raised the issue\n    3. Intefacing NP : indicating that the Interfacing NP has identified and raised the issue\n",
-            "enum": [ "CONSUMER", "SELLER", "INTERFACING-NP" ]
-          }
-        },
-        "description": "_"
-      },
-      "IssueActions": {
-        "type": "object",
-        "properties": {
-          "complainant_actions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ComplainantAction"
-            }
-          },
-          "respondent_actions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RespondentAction"
-            }
-          }
-        },
-        "description": "Status of the issue updated by respondent or the complainant\nThe issue may attain different status based on its lifecycle. TODO add info of enums in here and in issue-source\n"
-      },
-      "on_issue_message": {
-        "required": [ ],
-        "type": "object",
-        "properties": {
-          "issue": {
-            "$ref": "#/components/schemas/Issue"
-          }
-        }
-      },
-      "on_issue_body": {
-        "required": [ "context" ],
-        "type": "object",
-        "properties": {
-          "context": {
-            "$ref": "#/components/schemas/Context"
-          },
-          "message": {
-            "$ref": "#/components/schemas/on_issue_message"
-          },
-          "error": {
-            "$ref": "#/components/schemas/Error"
-          }
-        }
-      },
-      "ComplainantAction": {
-        "type": "object",
-        "properties": {
-          "complainant_action": {
-            "type": "string",
-            "description": "Describes the action taken by the complainant who has raised the issue. \nthe value should be populated when the complainant has taken any of the below actions to anotate the action taken. the actions can be, \n### Actions\n1. Complainant can ```open``` the issue if he isn't satisfied with the products or services he has purchased or used \n2. Complainant can ```escalate``` the issue if he isn't satisfied with the issue resolution\n3. Complainant can ```close``` the issue if he doesn't expect any more additonal action on the issue and he is satisfied with the resolution/actions taken on the issue till the time of closure of the issue.\n",
-            "enum": [ "OPEN", "ESCALATE", "CLOSE" ]
-          },
-          "updated_at": {
-            "type": "string",
-            "description": "timestamp for the capturing the time an issue status was last updated",
-            "format": "date-time"
-          },
-          "updated_by": {
-            "$ref": "#/components/schemas/Organization"
-          },
-          "remarks": {
-            "type": "string",
-            "description": "details of the remarks when the issue status is changed, can be captured when the complainant triggers an action\n"
-          }
-        }
-      },
-      "RespondentAction": {
-        "type": "object",
-        "properties": {
-          "respondent_action": {
-            "type": "string",
-            "enum": [ "PROCESSING", "CASCADED", "RESOLVED", "NEED-MORE-INFO" ]
-          },
-          "updated_at": {
-            "type": "string",
-            "description": "timestamp for the capturing the time an issue status was last updated",
-            "format": "date-time"
-          },
-          "updated_by": {
-            "$ref": "#/components/schemas/Organization"
-          },
-          "remarks": {
-            "type": "string",
-            "description": "details of the remarks when the issue status is changed, can be captured when the respondent triggers an action\n"
-          },
-          "cascaded_level": {
-            "type": "integer",
-            "description": "the default value will be 1, whenever the issue will be cascaded to the next level the value of this field should be incremented by 1 it will upgrade it indicates to the next sub-level."
-          }
-        }
-      },
-      "IssueCategory": {
-        "type": "string",
-        "description": "Identifies what is the category of this issue\n### CATEGORIES:\n1. Order : Indicactes that the issue is related to  Order.\n2. Transaction : Indicactes that the issue is related to  Transaction.\n3. Fulfillment : Indicactes that the issue is related to  Fulfillment.\n4. Product : Indicactes that the issue is related to  Product.\n5. Product Service : Indicactes that the issue is related to  Product Service.\n6. Service : Indicactes that the issue is related to  Service.\n7. Payment : Indicactes that the issue is related to  Payments.\n",
-        "enum": [
-          "ORDER",
-          "TRANSACTION",
-          "FULFILLMENT",
-          "PRODUCT",
-          "PRODUCT-SERVICE",
-          "SERVICE",
-          "PAYMENT"
-        ]
-      },
-      "IssueSubCategory": {
-        "type": "string",
-        "description": "Identifies what is the sub-category of this issue",
-        "enum": [ "01", "02", "03" ]
-      },
       "DecimalValue": {
         "description": "Describes a decimal value",
         "type": [ "string", "number" ],
         "pattern": "[+-]?([0-9]*[.])?[0-9]+"
       },
       "Descriptor": {
-        "description": "Describes the description of a real-world object.",
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "code": {
-            "type": "string"
-          },
-          "symbol": {
-            "type": "string"
-          },
-          "short_desc": {
-            "type": "string"
-          },
-          "long_desc": {
-            "type": "string"
-          },
-          "images": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Image"
-            }
-          },
-          "audio": {
-            "type": "string",
-            "format": "uri"
-          },
-          "3d_render": {
-            "type": "string",
-            "format": "uri"
-          }
-        }
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "short_desc": {
+                      "type": "string"
+                    },
+                    "long_desc": {
+                      "type": "string"
+                    },
+                    "additional_desc": {
+                      "$ref": "#/components/schemas/Descriptor_additional_desc"
+                    },
+                    "media": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MediaFile"
+                      }
+                    },
+                    "images": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Image"
+                      }
+                    },"audio": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "3d_render": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "description": "Describes the description used to describe or identify a real world object<br>This has properties like name,code,symbol,short_desc,long_desc,images,audio,3d_render"
       },
       "Dimensions": {
         "description": "Describes the dimensions of a real-world object",
@@ -3122,7 +2848,10 @@
       "Domain": {
         "description": "Codification of domain for ONDC",
         "type": "string",
-        "enum": [ "nic2004:52110", "nic2021:52110" ]
+        "enum": [
+          "nic2004:52110",
+          "nic2021:52110"
+        ]
       },
       "Duration": {
         "description": "Describes duration as per ISO8601 format",
@@ -3199,7 +2928,11 @@
           "answer_type": {
             "description": "Specifies how the answer option should be rendered.",
             "type": "string",
-            "enum": [ "radio", "checkbox", "text" ]
+            "enum": [
+              "radio",
+              "checkbox",
+              "text"
+            ]
           }
         }
       },
@@ -3214,7 +2947,10 @@
           },
           "tl_method": {
             "type": "string",
-            "enum": [ "http/get", "http/post" ]
+            "enum": [
+              "http/get",
+              "http/post"
+            ]
           },
           "params": {
             "type": "object",
@@ -3227,7 +2963,9 @@
             "additionalProperties": {
               "type": "string"
             },
-            "required": [ "feedback_id" ]
+            "required": [
+              "feedback_id"
+            ]
           }
         }
       },
@@ -3243,10 +2981,10 @@
             "type": "string",
             "description": "This describes the type of fulfillment (\"Pickup\" - Buyer picks up from store by themselves or through their logistics provider; \"Delivery\" - seller delivers to buyer)",
             "enum": [
-              "Pickup",
+              "Self-Pickup",
               "Delivery",
-              "home-delivery",
-              "HOME-DELIVERY"
+              "Delivery and Self-Pickup",
+              "Reverse QC"
             ]
           },
           "provider_id": {
@@ -3341,7 +3079,8 @@
             "$ref": "#/components/schemas/Tags"
           }
         },
-        "required": [ ]
+        "required": [
+        ]
       },
       "Gps": {
         "description": "Describes a gps coordinate",
@@ -3390,66 +3129,66 @@
             "type": "object",
             "properties": {
               "count": {
-                "type": [ "string", "integer" ],
+                "type": ["string", "integer"],
                 "minimum": 0
               },
               "measure": {
                 "$ref": "#/components/schemas/Scalar"
               }
             },
-            "required": [ "count" ]
+            "required": ["count"]
           },
           "available": {
             "type": "object",
             "properties": {
               "count": {
-                "type": [ "string", "integer" ],
+                "type": ["string", "integer"],
                 "minimum": 0
               },
               "measure": {
                 "$ref": "#/components/schemas/Scalar"
               }
             },
-            "required": [ "count" ]
+            "required": ["count"]
           },
           "maximum": {
             "type": "object",
             "properties": {
               "count": {
-                "type": [ "string", "integer" ],
+                "type": ["string", "integer"],
                 "minimum": 1
               },
               "measure": {
                 "$ref": "#/components/schemas/Scalar"
               }
             },
-            "required": [ "count" ]
+            "required": ["count"]
           },
           "minimum": {
             "type": "object",
             "properties": {
               "count": {
-                "type": [ "string", "integer" ],
+                "type": ["string", "integer"],
                 "minimum": 0
               },
               "measure": {
                 "$ref": "#/components/schemas/Scalar"
               }
             },
-            "required": [ "count" ]
+            "required": ["count"]
           },
           "selected": {
             "type": "object",
             "properties": {
               "count": {
-                "type": [ "string", "integer" ],
+                "type": ["string","integer"],
                 "minimum": 0
               },
               "measure": {
                 "$ref": "#/components/schemas/Scalar"
               }
             },
-            "required": [ "count" ]
+            "required": ["count"]
           }
         }
       },
@@ -3459,7 +3198,7 @@
         "properties": {
           "id": {
             "description": "This is the most unique identifier of a service item. An example of an Item ID could be the SKU of a product.",
-            "type": [ "string", "integer" ],
+            "type": ["string", "integer"],
             "format": "#/components/schemas/Item/properties/id"
           },
           "parent_item_id": {
@@ -3491,9 +3230,6 @@
           },
           "matched": {
             "type": "boolean"
-          },
-          "quantity": {
-            "type": "number"
           },
           "related": {
             "type": "boolean"
@@ -3657,7 +3393,9 @@
             "$ref": "#/components/schemas/Tags"
           }
         },
-        "required": [ "id" ]
+        "required": [
+          "id"
+        ]
       },
       "Language": {
         "description": "indicates language code. ONDC supports language codes as per ISO 639.2 standard",
@@ -3787,7 +3525,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": [ "number", "string" ],
+            "type": ["number" ,"string"],
             "description": "Hash of order object without id<br> Will be created by buyer app in confirm API"
           },
           "state": {
@@ -3818,7 +3556,9 @@
                       "$ref": "#/components/schemas/Location/properties/id"
                     }
                   },
-                  "required": [ "id" ]
+                  "required": [
+                    "id"
+                  ]
                 }
               }
             }
@@ -3835,7 +3575,9 @@
                   "$ref": "#/components/schemas/ItemQuantity/properties/selected"
                 }
               },
-              "required": [ "id" ]
+              "required": [
+                "id"
+              ]
             }
           },
           "add_ons": {
@@ -3847,7 +3589,9 @@
                   "$ref": "#/components/schemas/AddOn/properties/id"
                 }
               },
-              "required": [ "id" ]
+              "required": [
+                "id"
+              ]
             }
           },
           "offers": {
@@ -3859,7 +3603,9 @@
                   "$ref": "#/components/schemas/Offer/properties/id"
                 }
               },
-              "required": [ "id" ]
+              "required": [
+                "id"
+              ]
             }
           },
           "documents": {
@@ -3943,7 +3689,12 @@
           },
           "tl_method": {
             "type": "string",
-            "enum": [ "http/get", "http/post", "payto", "upi" ]
+            "enum": [
+              "http/get",
+              "http/post",
+              "payto",
+              "upi"
+            ]
           },
           "params": {
             "type": "object",
@@ -3965,7 +3716,8 @@
             "additionalProperties": {
               "type": "string"
             },
-            "required": [ ]
+            "required": [
+            ]
           },
           "type": {
             "type": "string",
@@ -3978,22 +3730,37 @@
           },
           "status": {
             "type": "string",
-            "enum": [ "PAID", "NOT-PAID", "PENDING" ]
+            "enum": [
+              "PAID",
+              "NOT-PAID",
+              "PENDING"
+            ]
           },
           "time": {
             "$ref": "#/components/schemas/Time"
           },
           "collected_by": {
             "type": "string",
-            "enum": [ "BAP", "BPP" ]
+            "enum": [
+              "BAP",
+              "BPP"
+            ]
           },
           "./ondc-collected_by_status": {
             "type": "string",
-            "enum": [ "Assert", "Agree", "Disagree", "Terminate" ]
+            "enum": [
+              "Assert",
+              "Agree",
+              "Disagree",
+              "Terminate"
+            ]
           },
           "./ondc-buyer_app_finder_fee_type": {
             "type": "string",
-            "enum": [ "Amount", "Percent" ]
+            "enum": [
+              "Amount",
+              "Percent"
+            ]
           },
           "./ondc-buyer_app_finder_fee_amount": {
             "$ref": "#/components/schemas/DecimalValue"
@@ -4003,7 +3770,12 @@
           },
           "./ondc-withholding_amount_status": {
             "type": "string",
-            "enum": [ "Assert", "Agree", "Disagree", "Terminate" ]
+            "enum": [
+              "Assert",
+              "Agree",
+              "Disagree",
+              "Terminate"
+            ]
           },
           "./ondc-return_window": {
             "description": "return window for the item in ISO8601 durations format e.g. 'PT24H' indicates 24 hour return window",
@@ -4011,16 +3783,30 @@
           },
           "./ondc-return_window_status": {
             "type": "string",
-            "enum": [ "Assert", "Agree", "Disagree", "Terminate" ]
+            "enum": [
+              "Assert",
+              "Agree",
+              "Disagree",
+              "Terminate"
+            ]
           },
           "./ondc-settlement_basis": {
             "description": "In case of prepaid payment, whether settlement between counterparties should be on the basis of collection, shipment or delivery",
             "type": "string",
-            "enum": [ "Collection", "Shipment", "Delivery" ]
+            "enum": [
+              "Collection",
+              "Shipment",
+              "Delivery"
+            ]
           },
           "./ondc-settlement_basis_status": {
             "type": "string",
-            "enum": [ "Assert", "Agree", "Disagree", "Terminate" ]
+            "enum": [
+              "Assert",
+              "Agree",
+              "Disagree",
+              "Terminate"
+            ]
           },
           "./ondc-settlement_window": {
             "description": "return window for the item in ISO8601 durations format e.g. 'PT24H' indicates 24 hour return window",
@@ -4028,7 +3814,12 @@
           },
           "./ondc-settlement_window_status": {
             "type": "string",
-            "enum": [ "Assert", "Agree", "Disagree", "Terminate" ]
+            "enum": [
+              "Assert",
+              "Agree",
+              "Disagree",
+              "Terminate"
+            ]
           },
           "./ondc-settlement_details": {
             "type": "array",
@@ -4037,15 +3828,26 @@
               "properties": {
                 "settlement_counterparty": {
                   "type": "string",
-                  "enum": [ "buyer-app", "seller-app", "logistics-provider" ]
+                  "enum": [
+                    "buyer-app",
+                    "seller-app",
+                    "logistics-provider"
+                  ]
                 },
                 "settlement_phase": {
                   "type": "string",
-                  "enum": [ "sale-amount", "withholding-amount" ]
+                  "enum": [
+                    "sale-amount",
+                    "withholding-amount"
+                  ]
                 },
                 "settlement_type": {
                   "type": "string",
-                  "enum": [ "neft", "rtgs", "upi" ]
+                  "enum": [
+                    "neft",
+                    "rtgs",
+                    "upi"
+                  ]
                 },
                 "settlement_bank_account_no": {
                   "type": "string"
@@ -4059,7 +3861,10 @@
                 },
                 "settlement_status": {
                   "type": "string",
-                  "enum": [ "PAID", "NOT-PAID" ]
+                  "enum": [
+                    "PAID",
+                    "NOT-PAID"
+                  ]
                 },
                 "settlement_reference": {
                   "description": "Settlement transaction reference number",
@@ -4072,17 +3877,6 @@
                 }
               }
             }
-          }
-        }
-      },
-      "AdditionalInfoRequired": {
-        "type": "object",
-        "properties": {
-          "info_required": {
-            "$ref": "#/components/schemas/SupplementaryInformation"
-          },
-          "info_provided": {
-            "$ref": "#/components/schemas/SupplementaryInformation"
           }
         }
       },
@@ -4160,52 +3954,17 @@
             "$ref": "#/components/schemas/DecimalValue"
           }
         },
-        "required": [ "currency", "value" ]
-      },
-      "issue_status_body": {
-        "required": [ "context", "message" ],
-        "type": "object",
-        "properties": {
-          "context": {
-            "$ref": "#/components/schemas/Context"
-          },
-          "message": {
-            "$ref": "#/components/schemas/issue_status_message"
-          }
-        }
-      },
-      "issue_status_message": {
-        "required": [ "id" ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Network issue identifier is a unique number assigned to a complaint by the interfacing application",
-            "format": "uuid"
-          }
-        }
-      },
-      "on_issue_status_body": {
-        "required": [ "context" ],
-        "type": "object",
-        "properties": {
-          "context": {
-            "$ref": "#/components/schemas/Context"
-          },
-          "message": {
-            "$ref": "#/components/schemas/issue_message"
-          },
-          "error": {
-            "$ref": "#/components/schemas/Error"
-          }
-        }
+        "required": [
+          "currency",
+          "value"
+        ]
       },
       "Provider": {
         "description": "Describes a service provider. This can be a restaurant, a hospital, a Store etc",
         "type": "object",
         "properties": {
           "id": {
-            "type": [ "string", "integer" ],
+            "type": ["string", "integer"],
             "description": "Id of the provider"
           },
           "descriptor": {
@@ -4292,7 +4051,9 @@
             "$ref": "#/components/schemas/Tags"
           }
         },
-        "required": [ "id" ]
+        "required": [
+          "id"
+        ]
       },
       "Quotation": {
         "description": "Describes a quote",
@@ -4319,7 +4080,7 @@
             "$ref": "#/components/schemas/Duration"
           }
         },
-        "required": [ "breakup" ]
+        "required": ["breakup"]
       },
       "Rateable": {
         "description": "If the entity can be rated or not",
@@ -4370,10 +4131,13 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": [ "CONSTANT", "VARIABLE" ]
+            "enum": [
+              "CONSTANT",
+              "VARIABLE"
+            ]
           },
           "value": {
-            "type": [ "string", "number" ]
+            "type": ["string", "number"]
           },
           "estimated_value": {
             "type": "number"
@@ -4396,7 +4160,10 @@
             "type": "string"
           }
         },
-        "required": [ "value", "unit" ]
+        "required": [
+          "value",
+          "unit"
+        ]
       },
       "Schedule": {
         "description": "Describes a schedule",
@@ -4448,7 +4215,11 @@
           },
           "type": {
             "type": "string",
-            "enum": [ "bap", "bpp", "bg" ]
+            "enum": [
+              "bap",
+              "bpp",
+              "bg"
+            ]
           },
           "cb_url": {
             "type": "string",
@@ -4503,7 +4274,11 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": [ "order", "billing", "fulfillment" ]
+            "enum": [
+              "order",
+              "billing",
+              "fulfillment"
+            ]
           },
           "ref_id": {
             "type": "string"
@@ -4527,7 +4302,7 @@
             "type": "string"
           },
           "timestamp": {
-            "type": [ "string", "integer" ],
+            "type": ["string", "integer"],
             "format": "date-time"
           },
           "duration": {
@@ -4569,7 +4344,11 @@
           },
           "status": {
             "type": "string",
-            "enum": [ "active", "inactive", "Active" ]
+            "enum": [
+              "active",
+              "inactive",
+              "Active"
+            ]
           }
         }
       },
@@ -4605,7 +4384,856 @@
             "type": "string"
           }
         }
-      }
+      },
+      "Complainant": {
+            "required": [
+              "contact"
+            ],
+            "type": "object",
+            "properties": {
+              "person": {
+                "$ref": "#/components/schemas/Person"
+              },
+              "contact": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Contact"
+                  },
+                  {
+                    "required": [
+                      "phone"
+                    ]
+                  }
+                ]
+              }
+            },
+            "description": "- Describes an entity that raises a complaint with an interfacing app. \n- The complainant may be an end user (buyer or seller) or a network participant (buyer app/ seller app/ logistic services  provider app)\n"
+          },
+          "ResolutionProvider": {
+            "required": [
+              "respondent_info"
+            ],
+            "type": "object",
+            "properties": {
+              "respondent_info": {
+                "$ref": "#/components/schemas/ResolutionProvider_respondent_info"
+              }
+            },
+            "description": "Describes the details of the entity that provides the resolution for the issue"
+          },
+          "IssueResolution": {
+            "required": [
+              "action_triggered",
+              "short_desc"
+            ],
+            "type": "object",
+            "properties": {
+              "short_desc": {
+                "type": "string",
+                "description": "resolution"
+              },
+              "long_desc": {
+                "type": "string",
+                "description": "remarks of the resolution of the issue by the respondent"
+              },
+              "gro_remarks": {
+                "type": "string",
+                "description": "resolution remarks provided by the gro"
+              },
+              "odr_remarks": {
+                "type": "string",
+                "description": "remarks of the result of the dispute, if applicable"
+              },
+              "action_triggered": {
+                "type": "string",
+                "enum": [
+                  "REFUND",
+                  "REPLACEMENT",
+                  "RETURN",
+                  "CANCEL",
+                  "NO-ACTION"
+                ]
+              },
+              "action": {
+                "type": "string",
+                "description": "Indicactes the action taken while addressing the issue.\n ### Actions\n  1. resolve : indicating the issue being resolved. \n  2. reject : indicating that the issue is rejected by the respondent or the resolution provider. \n",
+                "enum": [
+                  "RESOLVE",
+                  "REJECT"
+                ]
+              },
+              "refund_amount": {
+                "type": "string"
+              }
+            },
+            "description": "Describes the issue resolution for the issue raised by a Complainant"
+          },
+          "IssueOrganization": {
+            "type": "object",
+            "properties": {
+              "org": {
+                "$ref": "#/components/schemas/Organization_1"
+              },
+              "contact": {
+                "$ref": "#/components/schemas/Contact"
+              },
+              "person": {
+                "$ref": "#/components/schemas/Person"
+              }
+            }
+          },
+          "ResolutionSupport": {
+            "type": "object",
+            "properties": {
+              "chat_link": {
+                "type": "string",
+                "description": "chatbot link for the respondent for complainant to interact with the respondent"
+              },
+              "contact": {
+                "$ref": "#/components/schemas/Contact"
+              },
+              "faqs": {
+                "type": "array",
+                "description": "frequently asked questions for the respondent for complainant to get information as required",
+                "items": {
+                  "$ref": "#/components/schemas/Faq"
+                }
+              },
+              "additional_sources": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ResolutionSource"
+                }
+              },
+              "gros": {
+                "type": "array",
+                "description": "Details of the GRO appointed by the resolution provider to support in issue resolution .\nThis is a required object if and when the issue type is \"Grievance\"\n",
+                "items": {
+                  "$ref": "#/components/schemas/GRO"
+                }
+              }
+            },
+            "description": "Any one of these resolution support deatils are mandatory to be speficed whenever an issue resolution is proposed.\nIn case of Issue, Either a respondent ChatLink, email or faq deatils should be provided or any of the additional sources of support should be provided\nIn case of Grievance : the GRO details are manadatory to be provided \nIn case of Dispute : the selected ODR details are mandatory to be provided \nPorvides details of the resolution support for the respondent / complainant to interact with the respondent\n"
+          },
+          "ResolutionSource": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "link": {
+                "type": "string"
+              }
+            },
+            "description": "the resolution source provide details of any addtional resolution resources thier types and a link eg : AI enabled chatbot, support/contact webpage link , lnik to IVR detials etc\n"
+          },
+          "GRO": {
+            "required": [
+            
+              "gro_type"
+            ],
+            "type": "object",
+            "properties": {
+              "person": {
+                "$ref": "#/components/schemas/Person"
+              },
+              "contact": {
+                "$ref": "#/components/schemas/Contact_1"
+              },
+              "gro_type": {
+                "type": "string",
+                "description": "Indicates the system through which the GRO is assigned to this issue. \n### TYPES\n    1. Intefacing NP GRO : indicating the GRO is assigned by the NP where or through which the issue is raised\n    2. Transaction Counterparty NP GRO : indicating the GRO is assigned by the first level of counterparty network provider with which the interfacing NP is interacting with to get an issue resolution.\n    3. Cascaded Counterparty NP GRO : indicating the GRO is assigned by the second or any further downstream levels of counterparty network provider, with which the NP is interacting with, to get an issue resolution.\n",
+                "enum": [
+                  "INTEFACING-NP-GRO",
+                  "TRANSACTION-COUNTERPARTY-NP-GRO",
+                  "CASCADED-COUNTERPARTY-NP-GRO"
+                ]
+              }
+            },
+            "description": "Grievance Redressal Officer is appointed by each network participant (buyer app, seller app, logistic provider app) for consumer grievance redressal\nDetails of the GRO appointed by the resolution provider to support in issue resolution .\nThis is a required object if and when the issue type is \"Grievance\"\n"
+          },
+          "Faq": {
+            "properties": {
+              "question": {
+                "type": "string"
+              },
+              "answer": {
+                "type": "string"
+              }
+            },
+            "description": "type: object\n"
+          },
+          "ODR": {
+            "required": [
+              "name",
+              "pricing_model",
+              "resolution_ratings",
+              "short_desc",
+              "url"
+            ],
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the ODR provider"
+              },
+              "short_desc": {
+                "type": "string",
+                "description": "Information about the ODR provider"
+              },
+              "long_desc": {
+                "type": "string",
+                "description": "Detailed information about the ODR provider"
+              },
+              "url": {
+                "type": "string",
+                "description": "URL link to the ODR provider"
+              },
+              "organization": {
+                "$ref": "#/components/schemas/IssueOrganization"
+              },
+              "pricing_model": {
+                "$ref": "#/components/schemas/ODR_pricing_model"
+              },
+              "resolution_ratings": {
+                "$ref": "#/components/schemas/IssueRating"
+              }
+            },
+            "description": "* Describes the details of the Online Dispute Resolution Provider.\nODR Service Providers (ODR SP) via dispute resolution methods such as mediation/ conciliation and/or arbitration, will attempt to resolve disputes\nNOTE : ```ODR``` stands for Online Dispute Resolution.\n* May also describe the details of the ODR finalized or identified by the intefacing app, to whom the issue will be assigned for resolution.\n"
+          },
+          "IssueRating": {
+            "required": [
+              "value"
+            ],
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "description": "provided rating"
+              }
+            },
+            "description": "provides details of the ratings provided for a specific entity.\nDescribes details of how the ODR has been rated across the resolutions it has provided in the past\n"
+          },
+          "Issue": {
+            "required": [
+              "created_at",
+              "id",
+              "updated_at"
+            ],
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "* Network issue identifier is an unique number assigned to any complaint by the interfacing application at the source.\n\n* **During the life cycle of a complaint, this number will not change and will be communicated to counterparty application.**\n\n* Any subsequent issues created with the interfacing,counterpary or casacaded counter party apps are responsible for providing the correalted and relevant network-issue-id which helps all this inteacting systems to traverse back to the main issue.\n",
+                "format": "uuid"
+              },
+              "complainant_info": {
+                "$ref": "#/components/schemas/Complainant"
+              },
+              "order_details": {
+                "$ref": "#/components/schemas/OrderDetails"
+              },
+              "description": {
+                "$ref": "#/components/schemas/Descriptor"
+              },
+              "category": {
+                "$ref": "#/components/schemas/IssueCategory"
+              },
+              "sub_category": {
+                "$ref": "#/components/schemas/IssueSubCategory"
+              },
+              "issue_type": {
+                "type": "string",
+                "description": "identifies the type of the issue raised\n* the complainant being raised can be a regular ```Issue```, \n* which then subsequently can be escalated to be a ```Grievance``` \n* which may be further escalated to be a ```Dispute```\n",
+                "enum": [
+                  "ISSUE",
+                  "GRIEVANCE",
+                  "DISPUTE"
+                ]
+              },
+              "source": {
+                "$ref": "#/components/schemas/IssueSource"
+              },
+              "expected_response_time": {
+                "$ref": "#/components/schemas/Time"
+              },
+              "expected_resolution_time": {
+                "$ref": "#/components/schemas/Time"
+              },
+              "status": {
+                "type": "string",
+                "description": "### Statues\n  1. Open : indicating that the issue is opened and further action is yet to be taken on the issue\n  2. Closed : indicating that the issue is closed and no further action/update/info/resolution action/status change are expected/accepted on this issue. \n",
+                "enum": [
+                  "OPEN",
+                  "CLOSED"
+                ]
+              },
+              "issue_actions": {
+                "$ref": "#/components/schemas/IssueActions"
+              },
+              "selected_odrs_info": {
+                "type": "array",
+                "description": "details of the ODRs selected by the resolution provider .\none of this would be subsequently finalized to be the ODR resposbile to resolve the issue . \nThis is a required object if and when the issue type is \"Dispute\"\n",
+                "items": {
+                  "$ref": "#/components/schemas/SelectedODRs"
+                }
+              },
+              "finalized_odr": {
+                "$ref": "#/components/schemas/ODR"
+              },
+              "rating": {
+                "type": "string",
+                "description": "rating by the complainant for issue resolution",
+                "enum": [
+                  "THUMBS-UP",
+                  "THUMBS-DOWN"
+                ]
+              },
+              "resolution_provider": {
+                "$ref": "#/components/schemas/ResolutionProvider"
+              },
+              "resolution": {
+                "$ref": "#/components/schemas/IssueResolution"
+              },
+              "additional_info_required": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AdditionalInfoRequired"
+                }
+              },
+              "created_at": {
+                "type": "string",
+                "description": "timestamp for the creation of the issue",
+                "format": "date-time"
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "timestamp for the capturing the time an issue was last updated",
+                "format": "date-time"
+              }
+            },
+            "description": "*  Describes the Issue/complaint raised for a particular order, transaction or fulfillment or item for which an issue is faced by the buyer.\n* It also describes the Issue/complaint raised by the network participants to its conuter party or casacaded counterparty apps as and when applicable\n* Describes the issue when it is escalated as a Grievance or a Dispute\n*  supplementary Information  Describes and details evidence of the information about the issue . When the complainant or respondent seeks an issue update the addtional information about the update are populated as part of the supplementary information. \n  the supplementary information section , details information including but not limited to any of the following or more: \n    * comments from the complaintant/ respondent for seeking more information about the issue\n    * comments from the complaintant/ respondent providing the update on the issue with more information on the issue \n    * Picutres providing further information about the issue\n    * documents attachment/links providing further information about the issue etc\n"
+          },
+          "SupplementaryInformation": {
+            "type": "object",
+            "properties": {
+              "issue_update_info": {
+                "$ref": "#/components/schemas/Descriptor"
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "timestamp for the capturing the time an issue was last updated",
+                "format": "date-time"
+              },
+              "message_id": {
+                "type": "string"
+              }
+            }
+          },
+          "IssueSource": {
+            "type": "object",
+            "properties": {
+              "network_participant_id": {
+                "type": "string",
+                "description": "unique identifier of the network participant of the source of this issue. It can be one of buyer-id in the buyer- interfacing app , or any of the relevant network provider id based on what causes the issue"
+              },
+              "type": {
+                "type": "string",
+                "description": "Indicates the source from where the issue is raised. \n### TYPES\n    1. Consumer : indicating that the Consumer(Buyer) of a product or a service has raised the issue\n    2. Seller : indicating that the Seller of a product or a service has raised the issue\n    3. Intefacing NP : indicating that the Interfacing NP has identified and raised the issue\n",
+                "enum": [
+                  "CONSUMER",
+                  "SELLER",
+                  "INTERFACING-NP"
+                ]
+              }
+            },
+            "description": "source of the issue"
+          },
+          "IssueActions": {
+            "type": "object",
+            "properties": {
+              "complainant_actions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ComplainantAction"
+                }
+              },
+              "respondent_actions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RespondentAction"
+                }
+              }
+            },
+            "description": "Status of the issue updated by respondent or the complainant\nThe issue may attain different status based on its lifecycle. TODO add info of enums in here and in issue-source\n"
+          },
+          "IssueCategory": {
+            "type": "string",
+            "description": "Identifies what is the category of this issue\n### CATEGORIES:\n1. Order : Indicactes that the issue is related to  Order.\n2. Transaction : Indicactes that the issue is related to  Transaction.\n3. Fulfillment : Indicactes that the issue is related to  Fulfillment.\n4. Product : Indicactes that the issue is related to  Product.\n5. Product Service : Indicactes that the issue is related to  Product Service.\n6. Service : Indicactes that the issue is related to  Service.\n7. Payment : Indicactes that the issue is related to  Payments.\n",
+            "enum": [
+              "ORDER",
+              "ITEM",
+              "FULFILLMENT",
+              "AGENT",
+              "PAYMENT",
+              "TRANSACTION"
+            ]
+          },
+          "IssueSubCategory": {
+            "type": "string",
+            "description": "Identifies what is the sub-category of this issue",
+            "enum": [
+              "ORD01",
+              "ORD02",
+              "ORD03",
+              "ITM01",
+              "ITM02",
+              "ITM03",
+              "ITM04",
+              "FLM01",
+              "FLM02",
+              "FLM03",
+              "FLM04",
+              "FLM05",
+              "FLM06",
+              "FLM07",
+              "AGT01",
+              "AGT02",
+              "PMT01",
+              "PMT02",
+              "PMT03",
+              "PMT04"
+            ]
+          },
+          "OrderDetails": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "the value of this field will be the combination of context.transaction_id and order.id."
+              },
+              "state": {
+                "type": "string"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/IssueItem"
+                }
+              },
+              "fulfillments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/IssueFulfillment"
+                }
+              }
+            }
+          },
+          "IssueItem": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "number"
+              }
+            }
+          },
+          "IssueFulfillment": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string"
+              }
+            }
+          },
+          "AdditionalInfoRequired": {
+            "type": "object",
+            "properties": {
+              "info_required": {
+                "$ref": "#/components/schemas/SupplementaryInformation"
+              },
+              "info_provided": {
+                "$ref": "#/components/schemas/SupplementaryInformation"
+              }
+            }
+          },
+          "SelectedODRs": {
+            "type": "object",
+            "properties": {
+              "respondent_info": {
+                "$ref": "#/components/schemas/IssueOrganization"
+              },
+              "odrs": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ODR"
+                }
+              }
+            }
+          },
+          "ComplainantAction": {
+            "type": "object",
+            "properties": {
+              "complainant_action": {
+                "type": "string",
+                "description": "Describes the action taken by the complainant who has raised the issue. \nthe value should be populated when the complainant has taken any of the below actions to anotate the action taken. the actions can be, \n### Actions\n1. Complainant can ```open``` the issue if he isn't satisfied with the products or services he has purchased or used \n2. Complainant can ```escalate``` the issue if he isn't satisfied with the issue resolution\n3. Complainant can ```close``` the issue if he doesn't expect any more additonal action on the issue and he is satisfied with the resolution/actions taken on the issue till the time of closure of the issue.\n",
+                "enum": [
+                  "OPEN",
+                  "ESCALATE",
+                  "CLOSE"
+                ]
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "timestamp for the capturing the time an issue status was last updated",
+                "format": "date-time"
+              },
+              "updated_by": {
+                "$ref": "#/components/schemas/IssueOrganization"
+              },
+              "short_desc": {
+                "type": "string",
+                "description": "details of the remarks when the issue status is changed, can be captured when the complainant triggers an action"
+              }
+            }
+          },
+          "RespondentAction": {
+            "type": "object",
+            "properties": {
+              "respondent_action": {
+                "type": "string",
+                "enum": [
+                  "PROCESSING",
+                  "CASCADED",
+                  "RESOLVED",
+                  "NEED-MORE-INFO"
+                ]
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "timestamp for the capturing the time an issue status was last updated",
+                "format": "date-time"
+              },
+              "updated_by": {
+                "$ref": "#/components/schemas/IssueOrganization"
+              },
+              "short_desc": {
+                "type": "string",
+                "description": "details of the remarks when the issue status is changed, can be captured when the respondent triggers an action"
+              },
+              "cascaded_level": {
+                "type": "integer",
+                "description": "the default value will be 1, whenever the issue will be cascaded to the next level the value of this field should be incremented by 1 it will upgrade it indicates to the next sub-level."
+              }
+            }
+          },
+          "code": {
+            "type": "string",
+            "description": "Country code as per ISO 3166-1 and ISO 3166-2 format"
+          },
+          "code_1": {
+            "type": "string",
+            "description": "City code"
+          },
+          "Credential": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "default": "VerifiableCredential"
+              },
+              "issuer": {
+                "type": "string"
+              },
+              "issuance_date": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "credential_subject": {
+                "$ref": "#/components/schemas/Credential_credential_subject"
+              },
+              "credential_schema": {
+                "$ref": "#/components/schemas/Credential_credential_schema"
+              }
+            },
+            "description": "Describes a credential of an entity - Person or Organization"
+          },
+          "Organization_1": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "cred": {
+                "type": "string"
+              }
+            },
+            "description": "Describes an organization"
+          },
+          "Contact_1": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "#/components/schemas/Name"
+              },
+              "address": {
+                "$ref": "#/components/schemas/Address"
+              },
+              "phone": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "jcard": {
+                "type": "object",
+                "description": "A Jcard object as per draft-ietf-jcardcal-jcard-03 specification"
+              },
+              "tags": {
+                "$ref": "#/components/schemas/Tags"
+              }
+            },
+            "required":["phone","email"],
+            "description": "Describes the contact information of an entity including phone number or an email ID<br>This has properties like phone,email,tags<br>This is used to allow the BPP or BAP to send contact details of a person."
+          },
+          "MediaFile": {
+            "type": "object",
+            "properties": {
+              "mimetype": {
+                "type": "string",
+                "description": "indicates the nature and format of the document, file, or assortment of bytes. MIME types are defined and standardized in IETF's RFC 6838"
+              },
+              "url": {
+                "type": "string",
+                "description": "The URL of the file",
+                "format": "uri"
+              },
+              "signature": {
+                "type": "string",
+                "description": "The digital signature of the file signed by the sender"
+              },
+              "dsa": {
+                "type": "string",
+                "description": "The signing algorithm used by the sender"
+              }
+            }
+          },
+          "issue_message": {
+            "type": "object",
+            "properties": {
+              "issue": {
+                "$ref": "#/components/schemas/Issue"
+              }
+            }
+          },
+          "issue_body": {
+            "required": [
+              "context",
+              "message"
+            ],
+            "type": "object",
+            "properties": {
+              "context": {
+                "$ref": "#/components/schemas/Context"
+              },
+              "message": {
+                "$ref": "#/components/schemas/issue_message"
+              }
+            }
+          },
+          "inline_response_200": {
+            "required": [
+              "message"
+            ],
+            "type": "object",
+            "properties": {
+              "message": {
+                "$ref": "#/components/schemas/inline_response_200_message"
+              },
+              "error": {
+                "$ref": "#/components/schemas/Error"
+              }
+            }
+          },
+          "on_issue_message": {
+            "required": [
+              "issue"
+            ],
+            "type": "object",
+            "properties": {
+              "issue": {
+                "$ref": "#/components/schemas/Issue"
+              }
+            }
+          },
+          "on_issue_body": {
+            "required": [
+              "context",
+              "message"
+            ],
+            "type": "object",
+            "properties": {
+              "context": {
+                "$ref": "#/components/schemas/Context"
+              },
+              "message": {
+                "$ref": "#/components/schemas/on_issue_message"
+              },
+              "error": {
+                "$ref": "#/components/schemas/Error"
+              }
+            }
+          },
+          "issue_status_message": {
+            "required": [
+              "issue_id"
+            ],
+            "type": "object",
+            "properties": {
+              "issue_id": {
+                "type": "string",
+                "description": "Network issue identifier is a unique number assigned to a complaint by the interfacing application",
+                "format": "uuid"
+              }
+            }
+          },
+          "issue_status_body": {
+            "required": [
+              "context",
+              "message"
+            ],
+            "type": "object",
+            "properties": {
+              "context": {
+                "$ref": "#/components/schemas/Context"
+              },
+              "message": {
+                "$ref": "#/components/schemas/issue_status_message"
+              }
+            }
+          },
+          "on_issue_status_body": {
+            "required": [
+              "context",
+              "message"
+            ],
+            "type": "object",
+            "properties": {
+              "context": {
+                "$ref": "#/components/schemas/Context"
+              },
+              "message": {
+                "$ref": "#/components/schemas/issue_message"
+              },
+              "error": {
+                "$ref": "#/components/schemas/Error"
+              }
+            }
+          },
+          "ResolutionProvider_respondent_info": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "description": "Indicates the type of the resolution provider NP type.\n### TYPES\n1. Interfacing NP : indicating the NP where or through which the issue is raised\n2. Transaction Counterparty NP : indicating the first level of transaction counterparty network provider with which the interfacing NP is interacting with to get an issue resolution.\n3. Cascaded Counterparty NP : indicating the second or any further downstream levels of counterparty network provider with which the NP is interacting with to get an issue resolution.\n",
+                "enum": [
+                  "INTERFACING-NP",
+                  "TRANSACTION-COUNTERPARTY-NP",
+                  "CASCADED-COUNTERPARTY-NP"
+                ]
+              },
+              "organization": {
+                "$ref": "#/components/schemas/IssueOrganization"
+              },
+              "resolution_support": {
+                "$ref": "#/components/schemas/ResolutionSupport"
+              }
+            },
+            "description": "the respondent represents the details of the entity identfied by the resolution provider or the complainant himself (when he has to select the ODRs)"
+          },
+          "ODR_pricing_model": {
+            "type": "object",
+            "properties": {
+              "price": {
+                "$ref": "#/components/schemas/Price"
+              },
+              "pricing_info": {
+                "type": "string",
+                "description": "addtional information about the pricing model"
+              }
+            },
+            "description": "Details of the pricing modle of the ODR"
+          },
+          "Credential_credential_subject": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "type": "object"
+              }
+            }
+          },
+          "Credential_credential_schema": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "Descriptor_additional_desc": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string"
+              },
+              "content_type": {
+                "type": "string",
+                "enum": [
+                  "text/plain",
+                  "text/html",
+                  "application/json"
+                ]
+              }
+            }
+          },
+          "Time_range": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "end": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "inline_response_200_message": {
+            "required": [
+              "ack"
+            ],
+            "type": "object",
+            "properties": {
+              "ack": {
+                "$ref": "#/components/schemas/Ack"
+              }
+            }
+          }
     }
   }
 }

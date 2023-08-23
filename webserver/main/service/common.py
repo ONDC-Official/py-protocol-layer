@@ -53,7 +53,6 @@ def get_bpp_response_for_message_id(request_type, **kwargs):
 
 def bpp_post_call(request_type, request_payload):
     subscriber_id = request_payload[constant.CONTEXT][constant.BPP_ID]
-    print("subscriber_id", subscriber_id)
     bpp_url = request_payload[constant.CONTEXT]["bpp_uri"] if "bpp_uri" in request_payload[constant.CONTEXT]\
         else fetch_subscriber_url_from_lookup(request_type, subscriber_id=subscriber_id)
     bpp_url_with_route = f"{bpp_url}{request_type}" if bpp_url.endswith("/") else f"{bpp_url}/{request_type}"

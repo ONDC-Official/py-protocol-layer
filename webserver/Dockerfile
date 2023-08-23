@@ -38,12 +38,12 @@ COPY supervisord.conf /etc/supervisor.conf
 
 RUN printenv >> /etc/environment
 
+RUN restapi/bin/pip3 install pip --upgrade
+RUN restapi/bin/pip3 install pyopenssl --upgrade
+
 COPY . .
 
 # CMD ["supervisord", "-c", "/etc/supervisor.conf"]
-# RUN virtualenv -p python3.7 restapi
 
-RUN restapi/bin/pip3 install pip --upgrade
-RUN restapi/bin/pip3 install pyopenssl --upgrade
 
 CMD exec /dataorc/app/restapi/bin/gunicorn -b 0.0.0.0:5555 -w 8 --no-sendfile manage:app --timeout 300
