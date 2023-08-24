@@ -58,3 +58,12 @@ class CustomisationGroup(BaseModel):
     parent_category_id: Optional[str]
     descriptor: dict
     tags: List[dict]
+
+
+class Provider(BaseModel):
+    id: str
+    local_id: str
+    domain: str
+    descriptor: dict
+    ttl: Optional[str]
+    tags: Optional[List[dict]]

@@ -7,7 +7,7 @@ import pymongo
 from main.logger.custom_logging import log
 from main.models import get_mongo_collection
 from main.models.catalog import Product, ProductAttribute, ProductAttributeValue, VariantGroup, CustomMenu, \
-    CustomisationGroup
+    CustomisationGroup, Provider
 from main.models.error import DatabaseError, RegistryLookupError, BaseError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
@@ -261,7 +261,7 @@ def get_self_and_nested_customisation_group_id(item):
 
 def add_product_with_attributes(items):
     products, final_attrs, final_attr_values = [], [], []
-    variant_groups, custom_menus, final_customisation_groups = [], [], []
+    providers, variant_groups, custom_menus, final_customisation_groups = [], [], [], []
     for i in items:
         attributes, variants, variant_group_local_id = [], [], None
         item_details = i["item_details"]
@@ -293,7 +293,15 @@ def add_product_with_attributes(items):
                        "customisation_groups": [c.id for c in customisation_groups],
                        "attribute_codes": attr_codes,
                        })
+        provider = Provider(**{"id": f"{i['context']['bpp_id']}_{i['provider_details']['id']}",
+                               "local_id": i['provider_details']['id'],
+                               "domain": i['context']['domain'],
+                               "ttl": i['provider_details'].get('ttl'),
+                               "descriptor": i['provider_details']['descriptor'],
+                               "tags": i['provider_details'].get('tags'),
+                               })
         products.append(p)
+        providers.append(provider)
         variant_groups.append(variant_group) if variant_group else None
         custom_menus.append(custom_menu) if custom_menu else None
         final_customisation_groups.extend(customisation_groups)
@@ -304,6 +312,7 @@ def add_product_with_attributes(items):
     upsert_custom_menus(custom_menus)
     upsert_customisation_groups(final_customisation_groups)
     upsert_products(products)
+    upsert_providers(providers)
     return items
 
 
@@ -349,6 +358,14 @@ def upsert_customisation_groups(customisation_groups: List[CustomisationGroup]):
 
 def upsert_products(products: List[Product]):
     collection = get_mongo_collection('product')
+    for p in products:
+        filter_criteria = {"id": p.id}
+        update_data = {'$set': p.dict()}
+        mongo.collection_upsert_one(collection, filter_criteria, update_data)
+
+
+def upsert_providers(products: List[Provider]):
+    collection = get_mongo_collection('provider')
     for p in products:
         filter_criteria = {"id": p.id}
         update_data = {'$set': p.dict()}
@@ -526,6 +543,13 @@ def get_custom_menus(**kwargs):
     query_object = {k: v for k, v in kwargs.items() if v is not None}
     custom_menus = mongo.collection_find_all(mongo_collection, query_object)
     return custom_menus
+
+
+def get_providers(**kwargs):
+    mongo_collection = get_mongo_collection("provider")
+    query_object = {k: v for k, v in kwargs.items() if v is not None}
+    providers = mongo.collection_find_all(mongo_collection, query_object)
+    return providers
 
 
 def get_item_attributes(category):

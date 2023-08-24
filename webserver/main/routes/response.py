@@ -4,7 +4,7 @@ from flask_restx import Namespace, Resource, reqparse
 from main import constant
 from main.service.common import get_bpp_response_for_message_id
 from main.service.search import get_item_catalogues, get_item_details, get_item_attributes, get_item_attribute_values, \
-    get_custom_menus
+    get_custom_menus, get_providers
 
 response_namespace = Namespace('response', description='Response Namespace')
 
@@ -77,7 +77,6 @@ class GetCustomMenus(Resource):
         return get_custom_menus(**args)
 
 
-
 @response_namespace.route("/attributes")
 class GetItemAttributes(Resource):
 
@@ -103,3 +102,16 @@ class GetItemAttributeValues(Resource):
     def get(self):
         args = self.create_parser_with_args()
         return get_item_attribute_values(args["category"], args["attribute_code"])
+
+
+@response_namespace.route("/providers")
+class GetItemProviders(Resource):
+
+    def create_parser_with_args(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("domain", required=False)
+        return parser.parse_args()
+
+    def get(self):
+        args = self.create_parser_with_args()
+        return get_providers(**args)
