@@ -43,6 +43,8 @@ class VariantGroup(BaseModel):
 class CustomMenu(BaseModel):
     id: str
     local_id: str
+    domain: str
+    provider: str
     category: str
     parent_category_id: Optional[str]
     descriptor: dict

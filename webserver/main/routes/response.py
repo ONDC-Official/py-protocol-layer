@@ -67,12 +67,14 @@ class GetCustomMenus(Resource):
 
     def create_parser_with_args(self):
         parser = reqparse.RequestParser()
-        parser.add_argument("category", required=True)
+        parser.add_argument("domain", required=False)
+        parser.add_argument("provider", required=False)
+        parser.add_argument("category", required=False)
         return parser.parse_args()
 
     def get(self):
         args = self.create_parser_with_args()
-        return get_custom_menus(args["category"])
+        return get_custom_menus(**args)
 
 
 
