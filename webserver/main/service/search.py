@@ -511,11 +511,12 @@ def get_item_details(item_id):
     on_search_item = mongo.collection_find_one(search_collection, {"id": item_id})
     product_details = mongo.collection_find_one(product_collection, {"id": item_id})
     variant_group_id = product_details["variant_group"]
-    variant_group = mongo.collection_find_one(variant_group_collection, {"id": variant_group_id})
-    variant_attrs = variant_group["attribute_codes"]
-    variant_value_list = mongo.collection_find_all(attr_value_collection, {"variant_group_id": variant_group_id,
-                                                                           "attribute_code": {'$in': variant_attrs}})["data"]
-    on_search_item["variant_attr_values"] = variant_value_list
+    if variant_group_id:
+        variant_group = mongo.collection_find_one(variant_group_collection, {"id": variant_group_id})
+        variant_attrs = variant_group["attribute_codes"]
+        variant_value_list = mongo.collection_find_all(attr_value_collection, {"variant_group_id": variant_group_id,
+                                                                               "attribute_code": {'$in': variant_attrs}})["data"]
+        on_search_item["variant_attr_values"] = variant_value_list
 
     # Customisation Group and Items
     customisation_group_ids = product_details["customisation_groups"]
