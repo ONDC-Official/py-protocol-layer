@@ -4,7 +4,7 @@ from flask_restx import Namespace, Resource, reqparse
 from main import constant
 from main.service.common import get_bpp_response_for_message_id
 from main.service.search import get_item_catalogues, get_item_details, get_item_attributes, get_item_attribute_values, \
-    get_custom_menus, get_providers
+    get_custom_menus, get_providers, get_locations, get_custom_menu_details, get_provider_details, get_location_details
 
 response_namespace = Namespace('response', description='Response Namespace')
 
@@ -115,3 +115,38 @@ class GetItemProviders(Resource):
     def get(self):
         args = self.create_parser_with_args()
         return get_providers(**args)
+
+
+@response_namespace.route("/locations")
+class GetItemLocations(Resource):
+
+    def create_parser_with_args(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("domain", required=False)
+        parser.add_argument("provider", required=False)
+        return parser.parse_args()
+
+    def get(self):
+        args = self.create_parser_with_args()
+        return get_locations(**args)
+
+
+@response_namespace.route("/custom-menus/<string:custom_menu_id>")
+class GetCustomMenu(Resource):
+
+    def get(self, custom_menu_id):
+        return get_custom_menu_details(custom_menu_id)
+
+
+@response_namespace.route("/providers/<string:provider_id>")
+class GetProvider(Resource):
+
+    def get(self, provider_id):
+        return get_provider_details(provider_id)
+
+
+@response_namespace.route("/locations/<string:location_id>")
+class GetLocation(Resource):
+
+    def get(self, location_id):
+        return get_location_details(location_id)

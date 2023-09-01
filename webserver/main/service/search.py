@@ -7,11 +7,12 @@ import pymongo
 from main.logger.custom_logging import log
 from main.models import get_mongo_collection
 from main.models.catalog import Product, ProductAttribute, ProductAttributeValue, VariantGroup, CustomMenu, \
-    CustomisationGroup, Provider
+    CustomisationGroup, Provider, Location
 from main.models.error import DatabaseError, RegistryLookupError, BaseError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main import constant
+from main.utils.decorators import check_for_exception
 from main.utils.lookup_utils import fetch_subscriber_url_from_lookup
 from main.utils.cryptic_utils import create_authorisation_header
 from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_or_bpp, MeasureTime
@@ -260,7 +261,7 @@ def get_self_and_nested_customisation_group_id(item):
 
 def add_product_with_attributes(items):
     products, final_attrs, final_attr_values = [], [], []
-    providers, final_variant_groups, final_custom_menus, final_customisation_groups = [], [], [], []
+    providers, locations, final_variant_groups, final_custom_menus, final_customisation_groups = [], [], [], [], []
     for i in items:
         attributes, variants, variant_group_local_id = [], [], None
         item_details = i["item_details"]
@@ -307,6 +308,17 @@ def add_product_with_attributes(items):
                                "descriptor": i['provider_details']['descriptor'],
                                "tags": i['provider_details'].get('tags'),
                                })
+        if i['location_details'] and "id" in i['location_details']:
+            location = Location(**{"id": f"{i['context']['bpp_id']}_{i['provider_details']['id']}_{i['location_details']['id']}",
+                                   "local_id": i['location_details']['id'],
+                                   "domain": i['context']['domain'],
+                                   "provider": f"{i['context']['bpp_id']}_{i['provider_details']['id']}",
+                                   "gps": i['location_details'].get('gpc'),
+                                   "address": i['location_details'].get('address'),
+                                   "circle": i['location_details'].get('circle'),
+                                   })
+            locations.append(location)
+
         products.append(p)
         providers.append(provider)
         final_variant_groups.extend(variant_groups)
@@ -320,6 +332,7 @@ def add_product_with_attributes(items):
     upsert_customisation_groups(final_customisation_groups)
     upsert_products(products)
     upsert_providers(providers)
+    upsert_locations(locations)
     return items
 
 
@@ -374,6 +387,14 @@ def upsert_products(products: List[Product]):
 def upsert_providers(products: List[Provider]):
     collection = get_mongo_collection('provider')
     for p in products:
+        filter_criteria = {"id": p.id}
+        update_data = {'$set': p.dict()}
+        mongo.collection_upsert_one(collection, filter_criteria, update_data)
+
+
+def upsert_locations(locations: List[Location]):
+    collection = get_mongo_collection('location')
+    for p in locations:
         filter_criteria = {"id": p.id}
         update_data = {'$set': p.dict()}
         mongo.collection_upsert_one(collection, filter_criteria, update_data)
@@ -560,6 +581,13 @@ def get_providers(**kwargs):
     return providers
 
 
+def get_locations(**kwargs):
+    mongo_collection = get_mongo_collection("location")
+    query_object = {k: v for k, v in kwargs.items() if v is not None}
+    providers = mongo.collection_find_all(mongo_collection, query_object)
+    return providers
+
+
 def get_item_attributes(category):
     mongo_collection = get_mongo_collection("product_attribute")
     item_attributes = mongo.collection_find_all(mongo_collection, {"category": category})
@@ -572,4 +600,25 @@ def get_item_attribute_values(category, attribute_code):
                                                                               "attribute_code": attribute_code},
                                                            distinct="value")
     return item_attribute_values
+
+
+@check_for_exception
+def get_custom_menu_details(custom_menu_id):
+    mongo_collection = get_mongo_collection("custom_menu")
+    custom_menu = mongo.collection_find_one(mongo_collection, {"id": custom_menu_id})
+    return custom_menu
+
+
+@check_for_exception
+def get_provider_details(provider_id):
+    mongo_collection = get_mongo_collection("provider")
+    custom_menu = mongo.collection_find_one(mongo_collection, {"id": provider_id})
+    return custom_menu
+
+
+@check_for_exception
+def get_location_details(location_id):
+    mongo_collection = get_mongo_collection("location")
+    custom_menu = mongo.collection_find_one(mongo_collection, {"id": location_id})
+    return custom_menu
 

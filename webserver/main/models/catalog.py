@@ -67,3 +67,13 @@ class Provider(BaseModel):
     descriptor: dict
     ttl: Optional[str]
     tags: Optional[List[dict]]
+
+
+class Location(BaseModel):
+    id: str
+    local_id: str
+    domain: str
+    provider: str
+    gps: Optional[str]
+    address: Optional[dict]
+    circle: Optional[dict]

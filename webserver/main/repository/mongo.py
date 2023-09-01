@@ -88,8 +88,9 @@ def collection_find_distinct(mongo_collection, query_object, distinct=None):
 @MeasureTime
 def collection_find_one(mongo_collection, query_object):
     catalog = mongo_collection.find_one(query_object)
-    catalog.pop('_id')
-    catalog.pop('created_at', None)
+    if catalog:
+        catalog.pop('_id')
+        catalog.pop('created_at', None)
     return catalog
 
 
