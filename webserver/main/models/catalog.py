@@ -8,7 +8,7 @@ class Product(BaseModel):
     product_code: Optional[str]
     product_name: str
     variant_group: Optional[str]
-    custom_menu: Optional[str]
+    custom_menus: Optional[List[str]]
     customisation_groups: List[str]
     attribute_codes: list
     category: str

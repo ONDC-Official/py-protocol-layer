@@ -216,7 +216,7 @@ def transform_item_into_customisation_group(org_id, local_id, custom_group, cate
 
 
 def transform_item_categories(item):
-    variant_group, custom_menu, customisation_groups = None, None, []
+    variant_groups, custom_menus, customisation_groups = [], [], []
     provider_id = f"{item['context']['bpp_id']}_{item['provider_details']['id']}"
     categories = item["categories"]
     for c in categories:
@@ -235,15 +235,14 @@ def transform_item_categories(item):
                 if t["code"] == "attr":
                     variants.append(t["list"])
             if len(variants) > 0:
-                variant_group = transform_item_into_product_variant_group(provider_id, local_id, variants)
+                variant_groups.append(transform_item_into_product_variant_group(provider_id, local_id, variants))
         elif category_type == "custom_menu":
-            custom_menu = transform_item_into_custom_menu(provider_id, local_id, c, item)
+            custom_menus.append(transform_item_into_custom_menu(provider_id, local_id, c, item))
         elif category_type == "custom_group":
-            customisation_group = transform_item_into_customisation_group(provider_id, local_id, c,
-                                                                          item["item_details"]["category_id"])
-            customisation_groups.append(customisation_group)
+            customisation_groups.append(transform_item_into_customisation_group(provider_id, local_id, c,
+                                                                                item["item_details"]["category_id"]))
 
-    return variant_group, custom_menu, customisation_groups
+    return variant_groups, custom_menus, customisation_groups
 
 
 def get_self_and_nested_customisation_group_id(item):
@@ -261,7 +260,7 @@ def get_self_and_nested_customisation_group_id(item):
 
 def add_product_with_attributes(items):
     products, final_attrs, final_attr_values = [], [], []
-    providers, variant_groups, custom_menus, final_customisation_groups = [], [], [], []
+    providers, final_variant_groups, final_custom_menus, final_customisation_groups = [], [], [], []
     for i in items:
         attributes, variants, variant_group_local_id = [], [], None
         item_details = i["item_details"]
@@ -271,15 +270,23 @@ def add_product_with_attributes(items):
             if t["code"] == "attribute":
                 attributes = t["list"]
 
-        variant_group, custom_menu, customisation_groups = transform_item_categories(i)
-        i["custom_menu"] = custom_menu.id if custom_menu else None
+        variant_groups, custom_menus, customisation_groups = transform_item_categories(i)
+        custom_menu_configs = item_details.get("category_ids", [])
+        custom_menu_ids, variant_group_id = [], None
+        for c in custom_menu_configs:
+            [cm_id, item_rank] = c.split(":")
+            custom_menu_ids.append(f"{i['context']['bpp_id']}_{i['provider_details']['id']}_{cm_id}")
+        i["custom_menus"] = custom_menu_ids
 
-        if variant_group and len(attributes) > 0:
-            attrs, attr_values = transform_item_into_product_attributes(i["id"], item_details["category_id"],
-                                                                        attributes,  variant_group.id)
-            attr_codes = [a.code for a in attrs]
-            final_attrs.extend(attrs)
-            final_attr_values.extend(attr_values)
+        if 'parent_item_id' in item_details and item_details['parent_item_id']:
+            final_parent_item_id = f"{i['context']['bpp_id']}_{i['provider_details']['id']}_{item_details['parent_item_id']}"
+            for v in variant_groups:
+                if final_parent_item_id == v.id:
+                    attrs, attr_values = transform_item_into_product_attributes(i["id"], item_details["category_id"],
+                                                                                attributes,  final_parent_item_id)
+                    attr_codes = [a.code for a in attrs]
+                    final_attrs.extend(attrs)
+                    final_attr_values.extend(attr_values)
 
         if len(customisation_groups) > 0 and i["type"] == "customization":
             i["customisation_group_id"], i["customisation_nested_group_id"] = get_self_and_nested_customisation_group_id(i)
@@ -288,8 +295,8 @@ def add_product_with_attributes(items):
                        "product_code": item_details["descriptor"].get("code"),
                        "product_name": item_details["descriptor"].get("name"),
                        "category": item_details["category_id"],
-                       "variant_group": variant_group.id if variant_group else None,
-                       "custom_menu": custom_menu.id if custom_menu else None,
+                       "variant_group": variant_group_id,
+                       "custom_menus": custom_menu_ids,
                        "customisation_groups": [c.id for c in customisation_groups],
                        "attribute_codes": attr_codes,
                        })
@@ -302,14 +309,14 @@ def add_product_with_attributes(items):
                                })
         products.append(p)
         providers.append(provider)
-        variant_groups.append(variant_group) if variant_group else None
-        custom_menus.append(custom_menu) if custom_menu else None
+        final_variant_groups.extend(variant_groups)
+        final_custom_menus.extend(custom_menus)
         final_customisation_groups.extend(customisation_groups)
 
     upsert_product_attributes(final_attrs)
     upsert_product_attribute_values(final_attr_values)
-    upsert_variant_groups(variant_groups)
-    upsert_custom_menus(custom_menus)
+    upsert_variant_groups(final_variant_groups)
+    upsert_custom_menus(final_custom_menus)
     upsert_customisation_groups(final_customisation_groups)
     upsert_products(products)
     upsert_providers(providers)
@@ -429,7 +436,7 @@ def get_query_object(**kwargs):
     if kwargs['name']:
         query_object.update({'item_details.descriptor.name': {"$regex": kwargs["name"]}})
     if kwargs['custom_menu']:
-        query_object.update({'custom_menu': kwargs['custom_menu']})
+        query_object.update({'custom_menus': kwargs['custom_menu']})
     if kwargs['rating']:
         query_object.update({'item_details.rating.value': {'$gte': kwargs['rating']}})
     if kwargs['provider_ids']:
