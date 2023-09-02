@@ -51,7 +51,7 @@ def collection_insert_many(mongo_collection, entries):
 
 @MeasureTime
 def collection_find_all(mongo_collection, query_object, sort_field=None, sort_order=pymongo.ASCENDING,
-                        skip=0, limit=10):
+                        skip=0, limit=50):
     try:
         log(f"Getting entries from collection {mongo_collection.name}")
         catalogue_objects = mongo_collection.find(query_object)
