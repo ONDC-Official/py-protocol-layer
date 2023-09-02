@@ -8,7 +8,7 @@ from main import constant
 from main.repository.ack_response import get_ack_response
 from main.service import send_message_to_queue_for_given_request
 from main.service.common import add_bpp_response
-from main.service.search import add_search_catalogues, dump_on_search_payload
+from main.service.search import add_search_catalogues, dump_on_search_payload, add_incremental_search_catalogues
 from main.service.utils import validate_auth_header
 from main.utils.validation import validate_payload_schema_based_on_version
 
@@ -27,13 +27,45 @@ class GatewayOnSearch(Resource):
             unique_id = str(uuid.uuid4())
             request_payload["id"] = unique_id
             dump_on_search_payload(request_payload)
+            request_type = request.headers.get("X-ONDC-Search-Response", "full")
             message = {
                 "unique_id": unique_id,
+                "request_type": request_type,
             }
             send_message_to_queue_for_given_request(message)
             return get_ack_response(request_payload[constant.CONTEXT], ack=True)
             # add search catalogs based on context version
             # return add_search_catalogues(request_payload)
+        else:
+            return resp
+
+
+@ondc_network_namespace.route("/v1/internal/full/on_search")
+class GatewayOnSearch(Resource):
+
+    @validate_auth_header
+    def post(self):
+        request_payload = request.get_json()
+        # validate schema based on context version
+        resp = validate_payload_schema_based_on_version(request_payload, 'on_search')
+        if resp is None:
+            # add search catalogs based on context version
+            return add_search_catalogues(request_payload)
+        else:
+            return resp
+
+
+@ondc_network_namespace.route("/v1/internal/incr/on_search")
+class GatewayOnSearch(Resource):
+
+    @validate_auth_header
+    def post(self):
+        request_payload = request.get_json()
+        # validate schema based on context version
+        resp = validate_payload_schema_based_on_version(request_payload, 'on_search')
+        if resp is None:
+            # add search catalogs based on context version
+            return add_incremental_search_catalogues(request_payload)
         else:
             return resp
 

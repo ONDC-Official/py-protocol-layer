@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List, Tuple
 
 import pymongo
+from funcy import project
 
 from main.logger.custom_logging import log
 from main.models import get_mongo_collection
@@ -163,7 +164,7 @@ def flatten_catalog_into_item_entries(catalog, context):
     item_entries = []
     bpp_id = context.get(constant.BPP_ID)
     if bpp_id:
-        bpp_descriptor = catalog.get(constant.BPP_DESCRIPTOR)
+        bpp_descriptor = catalog.get(constant.BPP_DESCRIPTOR, {})
         bpp_fulfillments = catalog.get(constant.BPP_FULFILLMENTS)
         bpp_providers = catalog.get(constant.BPP_PROVIDERS)
         bpp_providers = [enrich_provider_with_unique_id(p, context) for p in bpp_providers]
@@ -322,6 +323,7 @@ def add_product_with_attributes(items):
                                "ttl": i['provider_details'].get('ttl'),
                                "descriptor": i['provider_details']['descriptor'],
                                "tags": i['provider_details'].get('tags'),
+                               "time": i['provider_details'].get('time'),
                                })
         if i['location_details'] and "id" in i['location_details']:
             location = Location(**{"id": i['location_details']['id'],
@@ -331,6 +333,7 @@ def add_product_with_attributes(items):
                                    "gps": i['location_details'].get('gpc'),
                                    "address": i['location_details'].get('address'),
                                    "circle": i['location_details'].get('circle'),
+                                   "time": i['location_details'].get('time'),
                                    })
             locations.append(location)
 
@@ -348,6 +351,42 @@ def add_product_with_attributes(items):
     upsert_products(products)
     upsert_providers(providers)
     upsert_locations(locations)
+    return items
+
+
+def add_product_with_attributes_incremental_flow(items):
+    products, final_attrs, final_attr_values = [], [], []
+    for i in items:
+        attributes, variants, variant_group_local_id = [], [], None
+        item_details = i["item_details"]
+        tags = item_details["tags"]
+        attr_codes = []
+        for t in tags:
+            if t["code"] == "attribute":
+                attributes = t["list"]
+
+        if 'parent_item_id' in item_details and item_details['parent_item_id']:
+            final_parent_item_id = f"{i['provider_details']['id']}_{item_details['parent_item_id']}"
+            attrs, attr_values = transform_item_into_product_attributes(i["id"], item_details["category_id"],
+                                                                        attributes, final_parent_item_id)
+            attr_codes = [a.code for a in attrs]
+            final_attrs.extend(attrs)
+            final_attr_values.extend(attr_values)
+
+        if i["type"] == "customization":
+            i["customisation_group_id"], i["customisation_nested_group_id"] = get_self_and_nested_customisation_group_id(i)
+
+        p = {"id": i["id"],
+             "product_code": item_details["descriptor"].get("code"),
+             "product_name": item_details["descriptor"].get("name"),
+             "category": item_details["category_id"],
+             "attribute_codes": attr_codes}
+
+        products.append(p)
+
+    upsert_product_attributes(final_attrs)
+    upsert_product_attribute_values(final_attr_values)
+    upsert_products_incremental_flow(products)
     return items
 
 
@@ -399,6 +438,14 @@ def upsert_products(products: List[Product]):
         mongo.collection_upsert_one(collection, filter_criteria, update_data)
 
 
+def upsert_products_incremental_flow(products: List[dict]):
+    collection = get_mongo_collection('product')
+    for p in products:
+        filter_criteria = {"id": p["id"]}
+        update_data = {'$set': p}
+        mongo.collection_upsert_one(collection, filter_criteria, update_data)
+
+
 def upsert_providers(products: List[Provider]):
     collection = get_mongo_collection('provider')
     for p in products:
@@ -407,11 +454,27 @@ def upsert_providers(products: List[Provider]):
         mongo.collection_upsert_one(collection, filter_criteria, update_data)
 
 
+def upsert_providers_incremental_flow(products: List[dict]):
+    collection = get_mongo_collection('provider')
+    for p in products:
+        filter_criteria = {"id": p["id"]}
+        update_data = {'$set': p}
+        mongo.collection_upsert_one(collection, filter_criteria, update_data)
+
+
 def upsert_locations(locations: List[Location]):
     collection = get_mongo_collection('location')
     for p in locations:
         filter_criteria = {"id": p.id}
         update_data = {'$set': p.dict()}
+        mongo.collection_upsert_one(collection, filter_criteria, update_data)
+
+
+def upsert_locations_incremental_flow(locations: List[dict]):
+    collection = get_mongo_collection('location')
+    for p in locations:
+        filter_criteria = {"id": p["id"]}
+        update_data = {'$set': p}
         mongo.collection_upsert_one(collection, filter_criteria, update_data)
 
 
@@ -445,6 +508,84 @@ def add_search_catalogues(bpp_response):
         #                                                                       {"context.message_id": message_id}),
         #                                   "filters": get_filters_out_of_items(items)
         #                               })
+        return get_ack_response(context=context, ack=True)
+    else:
+        return get_ack_response(context=context, ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
+
+
+def add_incremental_search_catalogues(bpp_response):
+    log(f"Adding incremental search catalogs with message-id: {bpp_response['context']['message_id']} for {bpp_response['context']['bpp_id']}")
+    catalog = bpp_response[constant.MESSAGE][constant.CATALOG]
+    bpp_providers = catalog.get(constant.BPP_PROVIDERS, [])
+    bpp_provider_first = bpp_providers[0]
+    if "items" in bpp_provider_first:
+        return add_incremental_search_catalogues_for_items_update(bpp_response)
+    elif "locations" in bpp_provider_first:
+        return add_incremental_search_catalogues_for_locations_update(bpp_response)
+    else:
+        return add_incremental_search_catalogues_for_provider_update(bpp_response)
+
+
+def add_incremental_search_catalogues_for_items_update(bpp_response):
+    context = bpp_response[constant.CONTEXT]
+    if constant.MESSAGE not in bpp_response:
+        return get_ack_response(context=context, ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
+    catalog = bpp_response[constant.MESSAGE][constant.CATALOG]
+    items = flatten_catalog_into_item_entries(catalog, context)
+
+    if len(items) == 0:
+        return get_ack_response(context=context, ack=True)
+    search_collection = get_mongo_collection('on_search_items')
+    is_successful = True
+
+    items = add_product_with_attributes_incremental_flow(items)
+    for i in items:
+        new_i = project(i, ["id", "item_details", "attributes", "is_first", "type", "customisation_group_id",
+                            "customisation_nested_group_id"])
+        # Upsert a single document
+        filter_criteria = {"id": i['id']}
+        update_data = {'$set': new_i}  # Update data to be inserted or updated
+        is_successful = is_successful and mongo.collection_upsert_one(search_collection, filter_criteria, update_data)
+
+    if is_successful:
+        return get_ack_response(context=context, ack=True)
+    else:
+        return get_ack_response(context=context, ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
+
+
+def add_incremental_search_catalogues_for_locations_update(bpp_response):
+    context = bpp_response[constant.CONTEXT]
+    is_successful = True
+    mongo_collection = get_mongo_collection('location')
+    catalog = bpp_response[constant.MESSAGE][constant.CATALOG]
+    bpp_providers = catalog.get(constant.BPP_PROVIDERS, [])
+    for p in bpp_providers:
+        locations = p["locations"]
+        for l in locations:
+            l["id"] = f"{context[constant.BPP_ID]}_{p['id']}_{l['id']}"
+            filter_criteria = {"id": l['id']}
+            update_data = {'$set': l}  # Update data to be inserted or updated
+            is_successful = is_successful and mongo.collection_upsert_one(mongo_collection, filter_criteria, update_data)
+
+    if is_successful:
+        return get_ack_response(context=context, ack=True)
+    else:
+        return get_ack_response(context=context, ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
+
+
+def add_incremental_search_catalogues_for_provider_update(bpp_response):
+    context = bpp_response[constant.CONTEXT]
+    is_successful = True
+    mongo_collection = get_mongo_collection('provider')
+    catalog = bpp_response[constant.MESSAGE][constant.CATALOG]
+    bpp_providers = catalog.get(constant.BPP_PROVIDERS, [])
+    for p in bpp_providers:
+        p["id"] = f"{context[constant.BPP_ID]}_{p['id']}"
+        filter_criteria = {"id": p['id']}
+        update_data = {'$set': p}  # Update data to be inserted or updated
+        is_successful = is_successful and mongo.collection_upsert_one(mongo_collection, filter_criteria, update_data)
+
+    if is_successful:
         return get_ack_response(context=context, ack=True)
     else:
         return get_ack_response(context=context, ack=False, error=DatabaseError.ON_WRITE_ERROR.value)

@@ -67,6 +67,7 @@ class Provider(BaseModel):
     descriptor: dict
     ttl: Optional[str]
     tags: Optional[List[dict]]
+    time: Optional[dict]
 
 
 class Location(BaseModel):
@@ -77,3 +78,4 @@ class Location(BaseModel):
     gps: Optional[str]
     address: Optional[dict]
     circle: Optional[dict]
+    time: Optional[dict]
