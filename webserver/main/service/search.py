@@ -18,9 +18,22 @@ from main.utils.cryptic_utils import create_authorisation_header
 from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_or_bpp, MeasureTime
 
 
+def enrich_provider_with_unique_id(provider, context):
+    provider["local_id"] = provider.get(constant.ID)
+    provider[constant.ID] = f"{context[constant.BPP_ID]}_{provider.get(constant.ID)}"
+    return provider
+
+
+def enrich_location_with_unique_id(location, provider_id):
+    location["local_id"] = location.get(constant.ID)
+    location[constant.ID] = f"{provider_id}_{location[constant.ID]}"
+    return location
+
+
 def enrich_provider_details_into_items(provider, item):
     provider_details = dict()
     provider_details[constant.ID] = provider.get(constant.ID)
+    provider_details["local_id"] = provider.get("local_id")
     provider_details[constant.DESCRIPTOR] = provider.get(constant.DESCRIPTOR)
     item[constant.PROVIDER_DETAILS] = provider_details
     return item
@@ -28,7 +41,7 @@ def enrich_provider_details_into_items(provider, item):
 
 def enrich_location_details_into_items(locations, item):
     try:
-        location = next(i for i in locations if i[constant.ID] == item[constant.ITEM_DETAILS].get(constant.LOCATION_ID))
+        location = next(i for i in locations if i["local_id"] == item[constant.ITEM_DETAILS].get(constant.LOCATION_ID))
     except:
         location = {}
     item[constant.LOCATION_DETAILS] = location
@@ -96,7 +109,7 @@ def enrich_created_at_timestamp_in_item(item):
 
 
 def enrich_unique_id_in_item(item):
-    item["id"] = f"{item['context']['bpp_id']}_{item['provider_details']['id']}_{item['item_details']['id']}"
+    item["id"] = f"{item['provider_details']['id']}_{item['item_details']['id']}"
     return item
 
 
@@ -153,11 +166,12 @@ def flatten_catalog_into_item_entries(catalog, context):
         bpp_descriptor = catalog.get(constant.BPP_DESCRIPTOR)
         bpp_fulfillments = catalog.get(constant.BPP_FULFILLMENTS)
         bpp_providers = catalog.get(constant.BPP_PROVIDERS)
+        bpp_providers = [enrich_provider_with_unique_id(p, context) for p in bpp_providers]
 
         for p in bpp_providers:
-            provider_locations = p.pop(constant.LOCATIONS)
+            provider_locations = [enrich_location_with_unique_id(l, p[constant.ID]) for l in p.pop(constant.LOCATIONS, [])]
             provider_categories = p.pop(constant.CATEGORIES, [])
-            provider_items = p.pop(constant.ITEMS)
+            provider_items = p.pop(constant.ITEMS, [])
             provider_items = [{"item_details": i} for i in provider_items]
             [i.update({"fulfillments": bpp_fulfillments}) for i in provider_items]
             [i.update({"providers": bpp_providers}) for i in provider_items]
@@ -218,7 +232,7 @@ def transform_item_into_customisation_group(org_id, local_id, custom_group, cate
 
 def transform_item_categories(item):
     variant_groups, custom_menus, customisation_groups = [], [], []
-    provider_id = f"{item['context']['bpp_id']}_{item['provider_details']['id']}"
+    provider_id = item['provider_details']['id']
     categories = item["categories"]
     for c in categories:
         variants, variant_group_local_id = [], None
@@ -249,7 +263,7 @@ def transform_item_categories(item):
 def get_self_and_nested_customisation_group_id(item):
     customisation_group_id, customisation_nested_group_id = None, None
     tags = item["item_details"]["tags"]
-    provider_id = f"{item['context']['bpp_id']}_{item['provider_details']['id']}"
+    provider_id = item['provider_details']['id']
     for t in tags:
         if t["code"] == "parent":
             customisation_group_id = f'{provider_id}_{t["list"][0]["value"]}'
@@ -276,11 +290,11 @@ def add_product_with_attributes(items):
         custom_menu_ids, variant_group_id = [], None
         for c in custom_menu_configs:
             [cm_id, item_rank] = c.split(":")
-            custom_menu_ids.append(f"{i['context']['bpp_id']}_{i['provider_details']['id']}_{cm_id}")
+            custom_menu_ids.append(f"{i['provider_details']['id']}_{cm_id}")
         i["custom_menus"] = custom_menu_ids
 
         if 'parent_item_id' in item_details and item_details['parent_item_id']:
-            final_parent_item_id = f"{i['context']['bpp_id']}_{i['provider_details']['id']}_{item_details['parent_item_id']}"
+            final_parent_item_id = f"{i['provider_details']['id']}_{item_details['parent_item_id']}"
             for v in variant_groups:
                 if final_parent_item_id == v.id:
                     variant_group_id = v.id
@@ -302,18 +316,18 @@ def add_product_with_attributes(items):
                        "customisation_groups": [c.id for c in customisation_groups],
                        "attribute_codes": attr_codes,
                        })
-        provider = Provider(**{"id": f"{i['context']['bpp_id']}_{i['provider_details']['id']}",
-                               "local_id": i['provider_details']['id'],
+        provider = Provider(**{"id": i['provider_details']['id'],
+                               "local_id": i['provider_details']['local_id'],
                                "domain": i['context']['domain'],
                                "ttl": i['provider_details'].get('ttl'),
                                "descriptor": i['provider_details']['descriptor'],
                                "tags": i['provider_details'].get('tags'),
                                })
         if i['location_details'] and "id" in i['location_details']:
-            location = Location(**{"id": f"{i['context']['bpp_id']}_{i['provider_details']['id']}_{i['location_details']['id']}",
-                                   "local_id": i['location_details']['id'],
+            location = Location(**{"id": i['location_details']['id'],
+                                   "local_id": i['location_details']['local_id'],
                                    "domain": i['context']['domain'],
-                                   "provider": f"{i['context']['bpp_id']}_{i['provider_details']['id']}",
+                                   "provider": i['provider_details']['id'],
                                    "gps": i['location_details'].get('gpc'),
                                    "address": i['location_details'].get('address'),
                                    "circle": i['location_details'].get('circle'),
@@ -422,15 +436,15 @@ def add_search_catalogues(bpp_response):
         is_successful = is_successful and mongo.collection_upsert_one(search_collection, filter_criteria, update_data)
 
     if is_successful:
-        message_id = bpp_response[constant.CONTEXT]["message_id"]
-        post_count_response_to_client("on_search",
-                                      bpp_response[constant.CONTEXT]["core_version"],
-                                      {
-                                          "messageId": message_id,
-                                          "count": mongo.collection_get_count(search_collection,
-                                                                              {"context.message_id": message_id}),
-                                          "filters": get_filters_out_of_items(items)
-                                      })
+        # message_id = bpp_response[constant.CONTEXT]["message_id"]
+        # post_count_response_to_client("on_search",
+        #                               bpp_response[constant.CONTEXT]["core_version"],
+        #                               {
+        #                                   "messageId": message_id,
+        #                                   "count": mongo.collection_get_count(search_collection,
+        #                                                                       {"context.message_id": message_id}),
+        #                                   "filters": get_filters_out_of_items(items)
+        #                               })
         return get_ack_response(context=context, ack=True)
     else:
         return get_ack_response(context=context, ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
@@ -462,7 +476,9 @@ def get_query_object(**kwargs):
     if kwargs['rating']:
         query_object.update({'item_details.rating.value': {'$gte': kwargs['rating']}})
     if kwargs['provider_ids']:
-        query_object.update({'item_details.provider_details.id': {'$in': [x.strip() for x in kwargs['provider_ids']]}})
+        query_object.update({'provider_details.id': {'$in': [x.strip() for x in kwargs['provider_ids']]}})
+    if kwargs['location_ids']:
+        query_object.update({'location_details.id': {'$in': [x.strip() for x in kwargs['location_ids']]}})
     if kwargs['category_ids']:
         query_object.update({'item_details.category_id': {'$in': [x.strip() for x in kwargs['category_ids']]}})
     if kwargs['fulfillment_ids']:

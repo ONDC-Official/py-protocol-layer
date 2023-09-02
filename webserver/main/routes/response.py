@@ -20,6 +20,7 @@ class GetCataloguesForMessageId(Resource):
         parser.add_argument("name", dest="name", type=str, required=False)
         parser.add_argument("customMenu", dest="custom_menu", type=str, required=False)
         parser.add_argument("providerIds", dest="provider_ids", type=lambda x: x.split(","), required=False)
+        parser.add_argument("locationIds", dest="location_ids", type=lambda x: x.split(","), required=False)
         parser.add_argument("categoryIds", dest="category_ids", type=lambda x: x.split(","), required=False)
         parser.add_argument("fulfillmentIds", dest="fulfillment_ids", type=lambda x: x.split(","), required=False)
         parser.add_argument("sortField", dest="sort_field", required=False, choices=[constant.PRICE, constant.RATING])
