@@ -283,6 +283,7 @@ def add_product_with_attributes(items):
             final_parent_item_id = f"{i['context']['bpp_id']}_{i['provider_details']['id']}_{item_details['parent_item_id']}"
             for v in variant_groups:
                 if final_parent_item_id == v.id:
+                    variant_group_id = v.id
                     attrs, attr_values = transform_item_into_product_attributes(i["id"], item_details["category_id"],
                                                                                 attributes,  final_parent_item_id)
                     attr_codes = [a.code for a in attrs]
