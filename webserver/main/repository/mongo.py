@@ -16,11 +16,11 @@ def collection_insert_one(mongo_collection, entry):
         return False
 
 
-@MeasureTime
+# @MeasureTime
 def collection_upsert_one(mongo_collection, filter_criteria, update_data):
     try:
         mongo_collection.update_one(filter_criteria, update_data, upsert=True)
-        log(f"Entry upserted to collection {mongo_collection.name} successfully!")
+        # log(f"Entry upserted to collection {mongo_collection.name} successfully!")
         return True
     except:
         log_error(f"Entry upsertion to collection {mongo_collection.name} failed!")
@@ -49,7 +49,7 @@ def collection_insert_many(mongo_collection, entries):
         return False
 
 
-@MeasureTime
+# @MeasureTime
 def collection_find_all(mongo_collection, query_object, sort_field=None, sort_order=pymongo.ASCENDING,
                         skip=0, limit=50):
     try:

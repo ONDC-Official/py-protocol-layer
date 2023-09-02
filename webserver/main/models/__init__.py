@@ -1,5 +1,4 @@
 import json
-from flask import request, g
 from pymongo import MongoClient
 
 from main.config import get_config_by_name
@@ -15,6 +14,8 @@ class JsonObject:
 
 
 def initialize_before_calls(app):
+    from flask import request, g
+
     @app.before_request
     def set_page(page=1):
         page = int(request.args.get('page', 1))

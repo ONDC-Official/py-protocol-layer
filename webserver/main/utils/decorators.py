@@ -4,15 +4,12 @@ import timeit
 import traceback
 from functools import wraps
 
-from flask import request
-from flask_expects_json import expects_json
-from flask_restx import abort
-
 from main.utils.cryptic_utils import verify_authorisation_header
 from main.utils.lookup_utils import get_bpp_public_key_from_header
 
 
 def expects_json_handling_validation(*args, **kwargs):
+    from flask_expects_json import expects_json
     try:
         return expects_json(*args, **kwargs)
     except:
@@ -31,6 +28,8 @@ def check_for_exception(func):
 
 
 def validate_auth_header(func):
+    from flask import request
+    from flask_restx import abort
     def wrapper(*args, **kwargs):
         auth_header = request.headers.get('Authorization')
         bg_or_bpp_public_key = get_bpp_public_key_from_header(auth_header)

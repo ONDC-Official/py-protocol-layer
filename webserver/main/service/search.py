@@ -416,7 +416,7 @@ def upsert_locations(locations: List[Location]):
 
 
 def add_search_catalogues(bpp_response):
-    log(f"Received on_search call of {bpp_response['context']['message_id']} for {bpp_response['context']['bpp_id']}")
+    log(f"Adding search catalogs with message-id: {bpp_response['context']['message_id']} for {bpp_response['context']['bpp_id']}")
     context = bpp_response[constant.CONTEXT]
     if constant.MESSAGE not in bpp_response:
         return get_ack_response(context=context, ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
@@ -639,3 +639,7 @@ def get_location_details(location_id):
     custom_menu = mongo.collection_find_one(mongo_collection, {"id": location_id})
     return custom_menu
 
+
+def dump_on_search_payload(payload):
+    collection = get_mongo_collection('on_search_dump')
+    mongo.collection_insert_one(collection, payload)

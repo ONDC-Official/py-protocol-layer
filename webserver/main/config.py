@@ -38,6 +38,8 @@ class Config:
     REGISTRY_BASE_URL = "https://pilot-gateway-1.beckn.nsdl.co.in"
     TTL_IN_SECONDS = int(os.getenv("TTL_IN_SECONDS", "3600"))
     VERIFICATION_ENABLE = os.getenv("VERIFICATION_ENABLE", "True") == "True"
+    RABBITMQ_QUEUE_NAME = os.getenv("RABBITMQ_QUEUE_NAME", "bpp_protocol")
+    RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
 
 
 class DevelopmentConfig(Config):
