@@ -22,6 +22,7 @@ services:
       BAP_ID: ${BAP_ID}
       VERIFICATION_ENABLE: ${VERIFICATION_ENABLE}
       FLASK_SERVER: "True"
+      QUEUE_ENABLE: "True"
     expose:
       - 5555
     ports:
