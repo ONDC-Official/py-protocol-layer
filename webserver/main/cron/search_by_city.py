@@ -27,10 +27,6 @@ def make_http_requests_for_search_by_city():
                 "message": {
                     "intent":
                         {
-                            "category":
-                                {
-                                    "id": "Foodgrains"
-                                },
                             "fulfillment":
                                 {
                                     "type": "Delivery"

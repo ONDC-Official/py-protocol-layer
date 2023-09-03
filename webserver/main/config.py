@@ -40,6 +40,7 @@ class Config:
     VERIFICATION_ENABLE = os.getenv("VERIFICATION_ENABLE", "True") == "True"
     RABBITMQ_QUEUE_NAME = os.getenv("RABBITMQ_QUEUE_NAME", "bpp_protocol")
     RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
+    QUEUE_ENABLE = os.getenv("QUEUE_ENABLE", "False") == "True"
 
 
 class DevelopmentConfig(Config):

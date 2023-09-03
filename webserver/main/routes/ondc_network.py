@@ -5,6 +5,7 @@ from flask import request
 from flask_restx import Namespace, Resource
 
 from main import constant
+from main.config import get_config_by_name
 from main.repository.ack_response import get_ack_response
 from main.service import send_message_to_queue_for_given_request
 from main.service.common import add_bpp_response
@@ -24,16 +25,22 @@ class GatewayOnSearch(Resource):
         # validate schema based on context version
         resp = validate_payload_schema_based_on_version(request_payload, 'on_search')
         if resp is None:
-            unique_id = str(uuid.uuid4())
-            request_payload["id"] = unique_id
-            dump_on_search_payload(request_payload)
             request_type = request.headers.get("X-ONDC-Search-Response", "full")
-            message = {
-                "unique_id": unique_id,
-                "request_type": request_type,
-            }
-            send_message_to_queue_for_given_request(message)
-            return get_ack_response(request_payload[constant.CONTEXT], ack=True)
+            if get_config_by_name('QUEUE_ENABLE'):
+                unique_id = str(uuid.uuid4())
+                request_payload["id"] = unique_id
+                dump_on_search_payload(request_payload)
+                message = {
+                    "unique_id": unique_id,
+                    "request_type": request_type,
+                }
+                send_message_to_queue_for_given_request(message)
+                return get_ack_response(request_payload[constant.CONTEXT], ack=True)
+            else:
+                if request_type == "full":
+                    return add_search_catalogues(request_payload)
+                elif request_type == "incr":
+                    return add_incremental_search_catalogues(request_payload)
             # add search catalogs based on context version
             # return add_search_catalogues(request_payload)
         else:
