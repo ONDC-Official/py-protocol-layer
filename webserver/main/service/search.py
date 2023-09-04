@@ -110,6 +110,7 @@ def enrich_created_at_timestamp_in_item(item):
 
 
 def enrich_unique_id_in_item(item):
+    item["local_id"] = item['item_details']['id']
     item["id"] = f"{item['provider_details']['id']}_{item['item_details']['id']}"
     return item
 
