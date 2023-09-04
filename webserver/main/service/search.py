@@ -147,11 +147,12 @@ def enrich_is_first_flag_for_items(items):
         variant_group_local_id, variants = None, []
         categories = i["categories"]
         for c in categories:
-            variant_group_local_id = c["id"]
-            tags = c["tags"]
-            for t in tags:
-                if t["code"] == "attr":
-                    variants.append(t["list"])
+            if i["item_details"].get("parent_item_id") == c["id"]:
+                variant_group_local_id = c["id"]
+                tags = c["tags"]
+                for t in tags:
+                    if t["code"] == "attr":
+                        variants.append(t["list"])
         if len(variants) == 0:
             i["is_first"] = True
         else:
