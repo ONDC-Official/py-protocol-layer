@@ -196,10 +196,10 @@ def flatten_catalog_into_item_entries(catalog, context):
     return item_entries
 
 
-def transform_item_into_product_attributes(product_id, category, attributes, variant_group_id):
+def transform_item_into_product_attributes(product_id, category, attributes, variant_group_id, domain):
     attrs, attr_values = [], []
     for a in attributes:
-        attr = ProductAttribute(**{"code": a["code"], "category": category})
+        attr = ProductAttribute(**{"code": a["code"], "category": category, "domain": domain})
         attr_value = ProductAttributeValue(**{"product": product_id, "category": category, "attribute_code": a["code"],
                                               "value": a["value"], "variant_group_id": variant_group_id})
         attrs.append(attr)
@@ -300,7 +300,8 @@ def add_product_with_attributes(items):
                 if final_parent_item_id == v.id:
                     variant_group_id = v.id
                     attrs, attr_values = transform_item_into_product_attributes(i["id"], item_details["category_id"],
-                                                                                attributes,  final_parent_item_id)
+                                                                                attributes,  final_parent_item_id,
+                                                                                i["context"]["domain"])
                     attr_codes = [a.code for a in attrs]
                     final_attrs.extend(attrs)
                     final_attr_values.extend(attr_values)
@@ -368,7 +369,8 @@ def add_product_with_attributes_incremental_flow(items):
         if 'parent_item_id' in item_details and item_details['parent_item_id']:
             final_parent_item_id = f"{i['provider_details']['id']}_{item_details['parent_item_id']}"
             attrs, attr_values = transform_item_into_product_attributes(i["id"], item_details["category_id"],
-                                                                        attributes, final_parent_item_id)
+                                                                        attributes, final_parent_item_id,
+                                                                        i["context"]["domain"])
             attr_codes = [a.code for a in attrs]
             final_attrs.extend(attrs)
             final_attr_values.extend(attr_values)
@@ -746,9 +748,10 @@ def get_locations(**kwargs):
     return providers
 
 
-def get_item_attributes(category):
+def get_item_attributes(**kwargs):
     mongo_collection = get_mongo_collection("product_attribute")
-    item_attributes = mongo.collection_find_all(mongo_collection, {"category": category})
+    query_object = {k: v for k, v in kwargs.items() if v is not None}
+    item_attributes = mongo.collection_find_all(mongo_collection, query_object)
     return item_attributes
 
 
