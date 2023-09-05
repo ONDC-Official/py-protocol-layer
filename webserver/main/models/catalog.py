@@ -21,6 +21,7 @@ class ProductAttribute(BaseModel):
     code: str
     category: str
     domain: str
+    provider: str
     sub_category1: Optional[str]
     sub_category2: Optional[str]
     sub_category3: Optional[str]

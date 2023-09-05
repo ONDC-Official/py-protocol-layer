@@ -198,11 +198,13 @@ def flatten_catalog_into_item_entries(catalog, context):
     return item_entries
 
 
-def transform_item_into_product_attributes(product_id, category, attributes, variant_group_id, domain):
+def transform_item_into_product_attributes(item, attributes, variant_group_id):
     attrs, attr_values = [], []
+    category = item["item_details"]["category_id"]
     for a in attributes:
-        attr = ProductAttribute(**{"code": a["code"], "category": category, "domain": domain})
-        attr_value = ProductAttributeValue(**{"product": product_id, "category": category, "attribute_code": a["code"],
+        attr = ProductAttribute(**{"code": a["code"], "category": category, "domain": item["context"]["domain"],
+                                   "provider": item["provider_details"]["id"]})
+        attr_value = ProductAttributeValue(**{"product": item["id"], "category": category, "attribute_code": a["code"],
                                               "value": a["value"], "variant_group_id": variant_group_id})
         attrs.append(attr)
         attr_values.append(attr_value)
@@ -305,9 +307,7 @@ def add_product_with_attributes(items):
             for v in variant_groups:
                 if final_parent_item_id == v.id:
                     variant_group_id = v.id
-                    attrs, attr_values = transform_item_into_product_attributes(i["id"], item_details["category_id"],
-                                                                                attributes,  final_parent_item_id,
-                                                                                i["context"]["domain"])
+                    attrs, attr_values = transform_item_into_product_attributes(i, attributes, final_parent_item_id)
                     attr_codes = [a.code for a in attrs]
                     final_attrs.extend(attrs)
                     final_attr_values.extend(attr_values)
@@ -374,9 +374,7 @@ def add_product_with_attributes_incremental_flow(items):
 
         if 'parent_item_id' in item_details and item_details['parent_item_id']:
             final_parent_item_id = f"{i['provider_details']['id']}_{item_details['parent_item_id']}"
-            attrs, attr_values = transform_item_into_product_attributes(i["id"], item_details["category_id"],
-                                                                        attributes, final_parent_item_id,
-                                                                        i["context"]["domain"])
+            attrs, attr_values = transform_item_into_product_attributes(i, attributes, final_parent_item_id)
             attr_codes = [a.code for a in attrs]
             final_attrs.extend(attrs)
             final_attr_values.extend(attr_values)
@@ -401,7 +399,7 @@ def add_product_with_attributes_incremental_flow(items):
 def upsert_product_attributes(product_attributes: List[ProductAttribute]):
     collection = get_mongo_collection('product_attribute')
     for p in product_attributes:
-        filter_criteria = {"id": p.code}
+        filter_criteria = {"id": f"{p.provider}_{p.code}"}
         update_data = {'$set': p.dict()}
         mongo.collection_upsert_one(collection, filter_criteria, update_data)
 
