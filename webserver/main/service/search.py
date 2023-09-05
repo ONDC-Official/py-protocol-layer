@@ -288,6 +288,9 @@ def add_product_with_attributes(items):
         for t in tags:
             if t["code"] == "attribute":
                 attributes = t["list"]
+            elif t["code"] == "custom_group":
+                custom_group_list = t["list"]
+                item_customisation_group_ids = [f"{i['provider_details']['id']}_{c['value']}" for c in custom_group_list]
 
         variant_groups, custom_menus, customisation_groups = transform_item_categories(i)
         custom_menu_configs = item_details.get("category_ids", [])
@@ -311,7 +314,6 @@ def add_product_with_attributes(items):
 
         if len(customisation_groups) > 0 and i["type"] == "customization":
             i["customisation_group_id"], i["customisation_nested_group_id"] = get_self_and_nested_customisation_group_id(i)
-            item_customisation_group_ids.append(i["customisation_group_id"])
 
         p = Product(**{"id": i["id"],
                        "product_code": item_details["descriptor"].get("code"),
@@ -723,11 +725,12 @@ def get_item_details(item_id):
     on_search_item["customisation_items"] = customisation_items
 
     # Related Products
-    related_products = mongo.collection_find_all(product_collection, {"variant_group": variant_group_id})["data"]
-    related_product_ids = [r["id"] for r in related_products]
-    related_products_with_details = mongo.collection_find_all(search_collection,
-                                                              {"id": {'$in': [x.strip() for x in related_product_ids]}})["data"]
-    on_search_item["related_items"] = related_products_with_details
+    if variant_group_id:
+        related_products = mongo.collection_find_all(product_collection, {"variant_group": variant_group_id})["data"]
+        related_product_ids = [r["id"] for r in related_products]
+        related_products_with_details = mongo.collection_find_all(search_collection,
+                                                                  {"id": {'$in': [x.strip() for x in related_product_ids]}})["data"]
+        on_search_item["related_items"] = related_products_with_details
     return on_search_item
 
 
