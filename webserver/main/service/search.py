@@ -279,6 +279,7 @@ def get_self_and_nested_customisation_group_id(item):
 def add_product_with_attributes(items):
     products, final_attrs, final_attr_values = [], [], []
     providers, locations, final_variant_groups, final_custom_menus, final_customisation_groups = [], [], [], [], []
+    item_customisation_group_ids = []
     for i in items:
         attributes, variants, variant_group_local_id = [], [], None
         item_details = i["item_details"]
@@ -310,6 +311,7 @@ def add_product_with_attributes(items):
 
         if len(customisation_groups) > 0 and i["type"] == "customization":
             i["customisation_group_id"], i["customisation_nested_group_id"] = get_self_and_nested_customisation_group_id(i)
+            item_customisation_group_ids.append(i["customisation_group_id"])
 
         p = Product(**{"id": i["id"],
                        "product_code": item_details["descriptor"].get("code"),
@@ -317,7 +319,7 @@ def add_product_with_attributes(items):
                        "category": item_details["category_id"],
                        "variant_group": variant_group_id,
                        "custom_menus": custom_menu_ids,
-                       "customisation_groups": [c.id for c in customisation_groups],
+                       "customisation_groups": item_customisation_group_ids,
                        "attribute_codes": attr_codes,
                        })
         provider = Provider(**{"id": i['provider_details']['id'],
