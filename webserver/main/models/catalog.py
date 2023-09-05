@@ -31,6 +31,7 @@ class ProductAttributeValue(BaseModel):
     product: str
     category: str
     attribute_code: str
+    provider: str
     value: str
     variant_group_id: Optional[str]
 

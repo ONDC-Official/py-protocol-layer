@@ -6,7 +6,7 @@ from main.service.search import gateway_search
 
 
 def make_http_requests_for_search_by_city():
-    city_list = ["std:080"]
+    city_list = ["*"]
     domain_list = ["ONDC:RET10"]
     for c in city_list:
         for d in domain_list:
@@ -40,3 +40,7 @@ def make_http_requests_for_search_by_city():
                 }
             }
             gateway_search(search_payload)
+
+
+if __name__ == '__main__':
+    make_http_requests_for_search_by_city()

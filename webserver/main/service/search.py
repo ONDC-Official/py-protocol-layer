@@ -205,7 +205,9 @@ def transform_item_into_product_attributes(item, attributes, variant_group_id):
         attr = ProductAttribute(**{"code": a["code"], "category": category, "domain": item["context"]["domain"],
                                    "provider": item["provider_details"]["id"]})
         attr_value = ProductAttributeValue(**{"product": item["id"], "category": category, "attribute_code": a["code"],
-                                              "value": a["value"], "variant_group_id": variant_group_id})
+                                              "value": a["value"], "variant_group_id": variant_group_id,
+                                              "provider": item["provider_details"]["id"]
+                                              })
         attrs.append(attr)
         attr_values.append(attr_value)
     return attrs, attr_values
@@ -729,6 +731,8 @@ def get_item_details(item_id):
         related_products_with_details = mongo.collection_find_all(search_collection,
                                                                   {"id": {'$in': [x.strip() for x in related_product_ids]}})["data"]
         on_search_item["related_items"] = related_products_with_details
+    else:
+        on_search_item["related_items"] = []
     return on_search_item
 
 
@@ -760,11 +764,10 @@ def get_item_attributes(**kwargs):
     return item_attributes
 
 
-def get_item_attribute_values(category, attribute_code):
+def get_item_attribute_values(**kwargs):
     mongo_collection = get_mongo_collection("product_attribute_value")
-    item_attribute_values = mongo.collection_find_distinct(mongo_collection, {"category": category,
-                                                                              "attribute_code": attribute_code},
-                                                           distinct="value")
+    query_object = {k: v for k, v in kwargs.items() if v is not None}
+    item_attribute_values = mongo.collection_find_distinct(mongo_collection, query_object, distinct="value")
     return item_attribute_values
 
 
