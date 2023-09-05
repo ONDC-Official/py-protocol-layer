@@ -55,7 +55,6 @@ class GetResponseForMessageId(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument("messageId", dest='message_id', required=True)
         parser.add_argument("requestType", dest='request_type', required=True)
-        parser.add_argument("version", dest='version', default="1.2.0")
         return parser.parse_args()
 
     def get(self):

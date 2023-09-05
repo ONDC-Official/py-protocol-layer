@@ -35,8 +35,6 @@ def add_bpp_response(bpp_response, request_type):
 
 def get_query_object(**kwargs):
     query_object = {"context.message_id": kwargs['message_id']}
-    if "version" in kwargs:
-        query_object.update({"context.version": kwargs['version']})
     return query_object
 
 
