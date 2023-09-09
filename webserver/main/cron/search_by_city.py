@@ -95,6 +95,14 @@ def make_http_requests_for_search_by_city(search_type: SearchType):
             gateway_search(search_payload, headers)
 
 
+def make_full_catalog_search_requests():
+    make_http_requests_for_search_by_city(SearchType.FULL)
+
+
+def make_incremental_catalog_search_requests():
+    make_http_requests_for_search_by_city(SearchType.INC)
+
+
 if __name__ == '__main__':
     make_http_requests_for_search_by_city(SearchType.FULL)
     make_http_requests_for_search_by_city(SearchType.INC)
