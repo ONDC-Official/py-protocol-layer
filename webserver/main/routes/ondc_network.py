@@ -6,6 +6,7 @@ from flask_restx import Namespace, Resource
 
 from main import constant
 from main.config import get_config_by_name
+from main.models.catalog import SearchType
 from main.repository.ack_response import get_ack_response
 from main.service import send_message_to_queue_for_given_request
 from main.service.common import add_bpp_response
@@ -37,9 +38,9 @@ class GatewayOnSearch(Resource):
                 send_message_to_queue_for_given_request(message)
                 return get_ack_response(request_payload[constant.CONTEXT], ack=True)
             else:
-                if request_type == "full":
+                if request_type == SearchType.FULL.value:
                     return add_search_catalogues(request_payload)
-                elif request_type == "incr":
+                elif request_type == SearchType.INC.value:
                     return add_incremental_search_catalogues(request_payload)
             # add search catalogs based on context version
             # return add_search_catalogues(request_payload)

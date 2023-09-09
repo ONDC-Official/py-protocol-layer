@@ -600,13 +600,14 @@ def add_incremental_search_catalogues_for_provider_update(bpp_response):
 
 
 @MeasureTime
-def gateway_search(search_request):
+def gateway_search(search_request, headers={}):
     request_type = 'search'
     gateway_url = fetch_subscriber_url_from_lookup(request_type)
     search_url = f"{gateway_url}{request_type}" if gateway_url.endswith("/") else f"{gateway_url}/{request_type}"
     auth_header = create_authorisation_header(search_request)
     log(f"making request to bg or bpp with {search_request}")
-    return post_on_bg_or_bpp(search_url, payload=search_request, headers={'Authorization': auth_header})
+    headers.update({'Authorization': auth_header})
+    return post_on_bg_or_bpp(search_url, payload=search_request, headers=headers)
 
 
 def get_query_object(**kwargs):
