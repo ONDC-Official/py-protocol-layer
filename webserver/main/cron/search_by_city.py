@@ -33,7 +33,7 @@ def make_http_requests_for_search_by_city(search_type: SearchType):
     india_tz = pytz.timezone("Asia/Kolkata")
     start_time = datetime.now(india_tz).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     end_time = (datetime.now(india_tz) + timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-    for c in city_list:
+    for c in ["std:080"]:
         for d in domain_list:
             headers = {'X-ONDC-Search-Response': search_type.value}
             if search_type == SearchType.FULL:
