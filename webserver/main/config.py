@@ -49,7 +49,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
     ENV = True
     # SQLALCHEMY_DATABASE_URI = "postgresql://flask:flask@localhost:5433/flask"
-    BAP_URL = "http://localhost:9002/protocol/v1"
+    BAP_URL = os.getenv("BAP_URL", "http://localhost:9900/protocol/v1")
     MONGO_DATABASE_HOST = "localhost"
     MONGO_DATABASE_PORT = 27017
     MONGO_DATABASE_NAME = "sandbox_bap"

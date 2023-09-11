@@ -4,7 +4,7 @@ from enum import Enum
 
 
 class SearchType(Enum):
-    FULL = "full",
+    FULL = "full"
     INC = "inc"
 
 

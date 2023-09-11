@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 import pytz
 
+from main.config import get_config_by_name
 from main.models.catalog import SearchType
 from main.request_models.schema import Domain
 from main.service.search import gateway_search
@@ -84,8 +85,8 @@ def make_http_requests_for_search_by_city(search_type: SearchType):
                     "country": "IND",
                     "city": c,
                     "core_version": "1.2.0",
-                    "bap_id": os.getenv("BAP_ID"),
-                    "bap_uri": os.getenv("BAP_URL"),
+                    "bap_id": get_config_by_name("BAP_ID"),
+                    "bap_uri": get_config_by_name("BAP_URL"),
                     "transaction_id": str(uuid.uuid4()),
                     "message_id": str(uuid.uuid4()),
                     "timestamp": start_time,
