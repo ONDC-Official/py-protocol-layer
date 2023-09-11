@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import pytz
 
 from main.models.catalog import SearchType
+from main.request_models.schema import Domain
 from main.service.search import gateway_search
 
 
@@ -27,7 +28,7 @@ def make_http_requests_for_search_by_city(search_type: SearchType):
                  'std:0431', 'std:0424', 'std:04344', 'std:08676', 'std:0278', 'std:0542', 'std:0562', 'std:0671',
                  'std:05862', 'std:0288', 'std:02637', 'std:0141', 'std:01421', 'std:011', 'std:05271', 'std:05542',
                  'std:05282', 'std:08288']
-    domain_list = ["ONDC:RET10", "ONDC:RET11", "ONDC:RET12"]
+    domain_list = [e.value for e in Domain]
     india_tz = pytz.timezone("Asia/Kolkata")
     start_time = datetime.now(india_tz).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     end_time = (datetime.now(india_tz) + timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
