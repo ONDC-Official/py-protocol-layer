@@ -21,7 +21,7 @@ from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_o
 
 def enrich_provider_with_unique_id(provider, context):
     provider["local_id"] = provider.get(constant.ID)
-    provider[constant.ID] = f"{context[constant.BPP_ID]}_{provider.get(constant.ID)}"
+    provider[constant.ID] = f"{context[constant.BPP_ID]}_{context[constant.DOMAIN]}_{provider.get(constant.ID)}"
     return provider
 
 
@@ -335,11 +335,14 @@ def add_product_with_attributes(items):
                                "time": i['provider_details'].get('time'),
                                })
         if i['location_details'] and "id" in i['location_details']:
+            coordinates_str = i['location_details'].get('gps', "0, 0").split(",")
+            coordinates = [float(c) for c in coordinates_str]
             location = Location(**{"id": i['location_details']['id'],
                                    "local_id": i['location_details']['local_id'],
                                    "domain": i['context']['domain'],
                                    "provider": i['provider_details']['id'],
-                                   "gps": i['location_details'].get('gpc'),
+                                   "provider_name": i['provider_details']['descriptor']['name'],
+                                   "gps": coordinates,
                                    "address": i['location_details'].get('address'),
                                    "circle": i['location_details'].get('circle'),
                                    "time": i['location_details'].get('time'),
@@ -753,8 +756,20 @@ def get_providers(**kwargs):
 
 def get_locations(**kwargs):
     mongo_collection = get_mongo_collection("location")
+    lat = kwargs.pop("latitude", None)
+    long = kwargs.pop("longitude", None)
     query_object = {k: v for k, v in kwargs.items() if v is not None}
-    providers = mongo.collection_find_all(mongo_collection, query_object)
+    if lat and long:
+        query_object.update(
+            {"gps":
+                 {"$near":
+                      {"$geometry": {"type": "Point", "coordinates": [long, lat]},
+                       "$maxDistance": 10000
+                      }
+                 }
+            }
+        )
+    providers = mongo.collection_find_all(mongo_collection, query_object, geo_spatial=True)
     return providers
 
 

@@ -1,5 +1,6 @@
 import json
-from pymongo import MongoClient
+from pymongo import MongoClient, GEOSPHERE
+from pymongo.collection import Collection
 
 from main.config import get_config_by_name
 from main.logger.custom_logging import log
@@ -40,6 +41,7 @@ def create_all_ttl_indexes():
     collection_names = ["on_select", "on_init", "on_confirm", "on_cancel", "on_status", "on_support",
                         "on_track", "on_update", "on_rating"]
     [create_ttl_index(c) for c in collection_names]
+    get_mongo_collection("location").create_index([("gps", GEOSPHERE)])
 
 
 def create_ttl_index(collection_name):

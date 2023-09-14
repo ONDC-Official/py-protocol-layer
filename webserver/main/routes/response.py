@@ -127,6 +127,8 @@ class GetItemLocations(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument("domain", required=False)
         parser.add_argument("provider", required=False)
+        parser.add_argument("latitude", required=False, type=float)
+        parser.add_argument("longitude", required=False, type=float)
         return parser.parse_args()
 
     def get(self):

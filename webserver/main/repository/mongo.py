@@ -51,7 +51,7 @@ def collection_insert_many(mongo_collection, entries):
 
 # @MeasureTime
 def collection_find_all(mongo_collection, query_object, sort_field=None, sort_order=pymongo.ASCENDING,
-                        skip=0, limit=50):
+                        skip=0, limit=50, geo_spatial=False):
     try:
         log(f"Getting entries from collection {mongo_collection.name}")
         catalogue_objects = mongo_collection.find(query_object)
@@ -60,8 +60,11 @@ def collection_find_all(mongo_collection, query_object, sort_field=None, sort_or
             catalogue_objects = catalogue_objects.sort([(sort_field, sort_order),
                                                         (secondary_sort_field, secondary_sort_order)])
         catalogue_objects = catalogue_objects.skip(skip).limit(limit)
-        count = mongo_collection.count_documents(query_object)
         catalogues = [dict(c) for c in catalogue_objects]
+        if geo_spatial:
+            count = len(catalogues)
+        else:
+            count = mongo_collection.count_documents(query_object)
         for c in catalogues:
             c.pop('_id')
             c.pop('created_at', None)
