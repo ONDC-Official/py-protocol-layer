@@ -298,10 +298,14 @@ def add_product_with_attributes(items):
 
         variant_groups, custom_menus, customisation_groups = transform_item_categories(i)
         custom_menu_configs = item_details.get("category_ids", [])
-        custom_menu_ids, variant_group_id = [], None
+        custom_menu_new_list, variant_group_id = [], None
         for c in custom_menu_configs:
             [cm_id, item_rank] = c.split(":")
-            custom_menu_ids.append(f"{i['provider_details']['id']}_{cm_id}")
+            cm = {"id": cm_id, "rank": item_rank}
+            custom_menu_new_list.append(cm)
+
+        custom_menu_new_list = sorted(custom_menu_new_list, key=lambda x: x["rank"])
+        custom_menu_ids = [f"{i['provider_details']['id']}_{cm['id']}" for cm in custom_menu_new_list]
         i["custom_menus"] = custom_menu_ids
 
         if 'parent_item_id' in item_details and item_details['parent_item_id']:
