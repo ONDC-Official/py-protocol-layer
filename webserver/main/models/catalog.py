@@ -83,7 +83,7 @@ class Location(BaseModel):
     local_id: str
     domain: str
     provider: str
-    provider_name: str
+    provider_descriptor: dict
     gps: list
     address: Optional[dict]
     circle: Optional[dict]

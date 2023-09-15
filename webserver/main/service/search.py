@@ -345,7 +345,7 @@ def add_product_with_attributes(items):
                                    "local_id": i['location_details']['local_id'],
                                    "domain": i['context']['domain'],
                                    "provider": i['provider_details']['id'],
-                                   "provider_name": i['provider_details']['descriptor']['name'],
+                                   "provider_descriptor": i['provider_details']['descriptor'],
                                    "gps": coordinates,
                                    "address": i['location_details'].get('address'),
                                    "circle": i['location_details'].get('circle'),
