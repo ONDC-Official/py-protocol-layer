@@ -762,13 +762,14 @@ def get_locations(**kwargs):
     mongo_collection = get_mongo_collection("location")
     lat = kwargs.pop("latitude", None)
     long = kwargs.pop("longitude", None)
+    radius = kwargs.pop("radius", 10)
     query_object = {k: v for k, v in kwargs.items() if v is not None}
     if lat and long:
         query_object.update(
             {"gps":
                  {"$near":
                       {"$geometry": {"type": "Point", "coordinates": [long, lat]},
-                       "$maxDistance": 10000
+                       "$maxDistance": radius*1000
                       }
                  }
             }

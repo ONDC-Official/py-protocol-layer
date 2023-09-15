@@ -129,6 +129,7 @@ class GetItemLocations(Resource):
         parser.add_argument("provider", required=False)
         parser.add_argument("latitude", required=False, type=float)
         parser.add_argument("longitude", required=False, type=float)
+        parser.add_argument("radius", required=False, type=float, default=10)
         return parser.parse_args()
 
     def get(self):
