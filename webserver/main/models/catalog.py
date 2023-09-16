@@ -20,6 +20,7 @@ class Product(BaseModel):
     sub_category1: Optional[str]
     sub_category2: Optional[str]
     sub_category3: Optional[str]
+    timestamp: str
 
 
 class ProductAttribute(BaseModel):
@@ -30,6 +31,7 @@ class ProductAttribute(BaseModel):
     sub_category1: Optional[str]
     sub_category2: Optional[str]
     sub_category3: Optional[str]
+    timestamp: str
 
 
 class ProductAttributeValue(BaseModel):
@@ -39,6 +41,7 @@ class ProductAttributeValue(BaseModel):
     provider: str
     value: str
     variant_group_id: Optional[str]
+    timestamp: str
 
 
 class VariantGroup(BaseModel):
@@ -46,6 +49,7 @@ class VariantGroup(BaseModel):
     local_id: str
     organisation: str
     attribute_codes: list
+    timestamp: str
 
 
 class CustomMenu(BaseModel):
@@ -57,6 +61,7 @@ class CustomMenu(BaseModel):
     parent_category_id: Optional[str]
     descriptor: dict
     tags: List[dict]
+    timestamp: str
 
 
 class CustomisationGroup(BaseModel):
@@ -66,6 +71,7 @@ class CustomisationGroup(BaseModel):
     parent_category_id: Optional[str]
     descriptor: dict
     tags: List[dict]
+    timestamp: str
 
 
 class Provider(BaseModel):
@@ -76,6 +82,7 @@ class Provider(BaseModel):
     ttl: Optional[str]
     tags: Optional[List[dict]]
     time: Optional[dict]
+    timestamp: str
 
 
 class Location(BaseModel):
@@ -88,3 +95,4 @@ class Location(BaseModel):
     address: Optional[dict]
     circle: Optional[dict]
     time: Optional[dict]
+    timestamp: str

@@ -17,9 +17,14 @@ def collection_insert_one(mongo_collection, entry):
 
 
 # @MeasureTime
-def collection_upsert_one(mongo_collection, filter_criteria, update_data):
+def collection_upsert_one(mongo_collection, filter_criteria, data):
     try:
-        mongo_collection.update_one(filter_criteria, update_data, upsert=True)
+        if mongo_collection.find_one(filter_criteria):
+            filter_criteria.update({"timestamp": {"$lte": data['timestamp']}})
+            mongo_collection.update_one(filter_criteria, {'$set': data})
+        else:
+            mongo_collection.insert_one(data)
+        # mongo_collection.update_one(filter_criteria, update_data, upsert=True)
         # log(f"Entry upserted to collection {mongo_collection.name} successfully!")
         return True
     except:
