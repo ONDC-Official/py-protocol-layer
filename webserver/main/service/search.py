@@ -768,7 +768,7 @@ def get_locations(**kwargs):
         query_object.update(
             {"gps":
                  {"$near":
-                      {"$geometry": {"type": "Point", "coordinates": [long, lat]},
+                      {"$geometry": {"type": "Point", "coordinates": [lat, long]},
                        "$maxDistance": radius*1000
                       }
                  }
