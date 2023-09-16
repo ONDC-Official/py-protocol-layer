@@ -1,8 +1,5 @@
-import os
 import uuid
 from datetime import datetime, timedelta
-
-import pytz
 
 from main.config import get_config_by_name
 from main.models.catalog import SearchType
@@ -10,7 +7,7 @@ from main.request_models.schema import Domain
 from main.service.search import gateway_search
 
 
-def make_http_requests_for_search_by_city(search_type: SearchType):
+def make_http_requests_for_search_by_city(search_type: SearchType, mode="start"):
     city_list = ['std:06274', 'std:0451', 'std:0120', 'std:0512', 'std:05842', 'std:0522', 'std:06243', 'std:04286',
                  'std:05547', 'std:0474', 'std:0121', 'std:04266', 'std:04142', 'std:0551', 'std:0124', 'std:0591',
                  'std:0364', 'std:04254', 'std:079', 'std:0129', 'std:06152', 'std:08922', 'std:04362', 'std:05263',
@@ -30,9 +27,8 @@ def make_http_requests_for_search_by_city(search_type: SearchType):
                  'std:05862', 'std:0288', 'std:02637', 'std:0141', 'std:01421', 'std:011', 'std:05271', 'std:05542',
                  'std:05282', 'std:08288']
     domain_list = [e.value for e in Domain]
-    india_tz = pytz.timezone("Asia/Kolkata")
-    start_time = datetime.now(india_tz).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-    end_time = (datetime.now(india_tz) + timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    start_time = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    end_time = (datetime.utcnow() + timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     for c in ["std:080"]:
         for d in domain_list:
             headers = {'X-ONDC-Search-Response': search_type.value}
@@ -65,12 +61,8 @@ def make_http_requests_for_search_by_city(search_type: SearchType):
                                     "list":
                                         [
                                             {
-                                                "code":"start_time",
-                                                "value":start_time
-                                            },
-                                            {
-                                                "code":"end_time",
-                                                "value":end_time
+                                                "code":"mode",
+                                                "value":mode
                                             }
                                         ]
                                 }
@@ -101,10 +93,15 @@ def make_full_catalog_search_requests():
     make_http_requests_for_search_by_city(SearchType.FULL)
 
 
-def make_incremental_catalog_search_requests():
-    make_http_requests_for_search_by_city(SearchType.INC)
+def make_incremental_catalog_search_requests(mode):
+    make_http_requests_for_search_by_city(SearchType.INC, mode)
+
+
+def make_search_operation_along_with_incremental():
+    make_incremental_catalog_search_requests("stop")
+    make_full_catalog_search_requests()
+    make_incremental_catalog_search_requests("start")
 
 
 if __name__ == '__main__':
-    make_http_requests_for_search_by_city(SearchType.FULL)
-    make_http_requests_for_search_by_city(SearchType.INC)
+    make_search_operation_along_with_incremental()

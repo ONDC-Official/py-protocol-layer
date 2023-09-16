@@ -13,10 +13,18 @@ class FullCatalogSearch(Resource):
         return {"status": "success"}, 200
 
 
-@cron_namespace.route("/cron/search/full-incremental")
+@cron_namespace.route("/cron/search/incremental-start")
 class IncrementalCatalogSearch(Resource):
 
     def post(self):
-        make_incremental_catalog_search_requests()
+        make_incremental_catalog_search_requests(mode="start")
+        return {"status": "success"}, 200
+
+
+@cron_namespace.route("/cron/search/incremental-stop")
+class IncrementalCatalogSearch(Resource):
+
+    def post(self):
+        make_incremental_catalog_search_requests(mode="stop")
         return {"status": "success"}, 200
 
