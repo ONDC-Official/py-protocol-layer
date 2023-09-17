@@ -27,8 +27,8 @@ def make_http_requests_for_search_by_city(search_type: SearchType, mode="start")
                  'std:05862', 'std:0288', 'std:02637', 'std:0141', 'std:01421', 'std:011', 'std:05271', 'std:05542',
                  'std:05282', 'std:08288']
     domain_list = [e.value for e in Domain]
-    start_time = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-    end_time = (datetime.utcnow() + timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    end_time = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    start_time = (datetime.utcnow() - timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     for c in ["std:080"]:
         for d in domain_list:
             headers = {'X-ONDC-Search-Response': search_type.value}
@@ -47,28 +47,58 @@ def make_http_requests_for_search_by_city(search_type: SearchType, mode="start")
                     }
                 }
             else:
-                message = {
-                    "intent": {
-                        "payment":
+                if mode == "start_and_stop":
+                    message = {
+                        "intent":
                             {
-                                "@ondc/org/buyer_app_finder_fee_type":"percent",
-                                "@ondc/org/buyer_app_finder_fee_amount":"3"
-                            },
-                        "tags":
-                            [
-                                {
-                                    "code":"catalog_inc",
-                                    "list":
-                                        [
-                                            {
-                                                "code":"mode",
-                                                "value":mode
-                                            }
-                                        ]
-                                }
-                            ]
+                                "payment":
+                                    {
+                                        "@ondc/org/buyer_app_finder_fee_type":"percent",
+                                        "@ondc/org/buyer_app_finder_fee_amount":"3"
+                                    },
+                                "tags":
+                                    [
+                                        {
+                                            "code":"catalog_inc",
+                                            "list":
+                                                [
+                                                    {
+                                                        "code":"start_time",
+                                                        "value":start_time
+                                                    },
+                                                    {
+                                                        "code":"end_time",
+                                                        "value":end_time
+                                                    }
+                                                ]
+                                        }
+                                    ]
+                            }
                     }
-                }
+
+                else:
+                    message = {
+                        "intent": {
+                            "payment":
+                                {
+                                    "@ondc/org/buyer_app_finder_fee_type":"percent",
+                                    "@ondc/org/buyer_app_finder_fee_amount":"3"
+                                },
+                            "tags":
+                                [
+                                    {
+                                        "code":"catalog_inc",
+                                        "list":
+                                            [
+                                                {
+                                                    "code":"mode",
+                                                    "value":mode
+                                                }
+                                            ]
+                                    }
+                                ]
+                        }
+                    }
 
             search_payload = {
                 "context": {
@@ -81,7 +111,7 @@ def make_http_requests_for_search_by_city(search_type: SearchType, mode="start")
                     "bap_uri": get_config_by_name("BAP_URL"),
                     "transaction_id": str(uuid.uuid4()),
                     "message_id": str(uuid.uuid4()),
-                    "timestamp": start_time,
+                    "timestamp": end_time,
                     "ttl": "PT30S"
                 },
                 "message": message
