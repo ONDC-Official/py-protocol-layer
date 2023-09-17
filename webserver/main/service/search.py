@@ -729,7 +729,8 @@ def get_item_details(item_id):
         variant_group = mongo.collection_find_one(variant_group_collection, {"id": variant_group_id})
         variant_attrs = variant_group["attribute_codes"]
         variant_value_list = mongo.collection_find_all(attr_value_collection, {"variant_group_id": variant_group_id,
-                                                                               "attribute_code": {'$in': variant_attrs}})["data"]
+                                                                               "attribute_code": {'$in': variant_attrs}},
+                                                       limit=None)["data"]
         on_search_item["variant_attr_values"] = variant_value_list
 
     # Customisation Group and Items
@@ -740,7 +741,8 @@ def get_item_details(item_id):
                                                     {"context.bpp_id": on_search_item["context"]["bpp_id"],
                                                      "provider_details.id": on_search_item["provider_details"]["id"],
                                                      "type": "customization",
-                                                     "customisation_group_id": {'$in': customisation_group_ids}})["data"]
+                                                     "customisation_group_id": {'$in': customisation_group_ids}},
+                                                    limit=None)["data"]
     on_search_item["customisation_groups"] = customisation_groups
     on_search_item["customisation_items"] = customisation_items
 
@@ -793,7 +795,7 @@ def get_locations(**kwargs):
 def get_item_attributes(**kwargs):
     mongo_collection = get_mongo_collection("product_attribute")
     query_object = {k: v for k, v in kwargs.items() if v is not None}
-    item_attributes = mongo.collection_find_all(mongo_collection, query_object)
+    item_attributes = mongo.collection_find_all(mongo_collection, query_object, limit=None)
     return item_attributes
 
 
