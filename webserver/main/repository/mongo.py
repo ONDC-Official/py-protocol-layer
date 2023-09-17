@@ -66,6 +66,8 @@ def collection_find_all(mongo_collection, query_object, sort_field=None, sort_or
                                                         (secondary_sort_field, secondary_sort_order)])
         if skip and limit:
             catalogue_objects = catalogue_objects.skip(skip).limit(limit)
+        else:
+            limit = 1
         catalogues = [dict(c) for c in catalogue_objects]
         if geo_spatial:
             count = len(catalogues)
