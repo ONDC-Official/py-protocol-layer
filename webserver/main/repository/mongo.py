@@ -59,7 +59,11 @@ def collection_find_all(mongo_collection, query_object, sort_field=None, sort_or
                         skip=0, limit=50, geo_spatial=False):
     try:
         log(f"Getting entries from collection {mongo_collection.name}")
-        catalogue_objects = mongo_collection.find(query_object)
+        if mongo_collection.name == "on_search_items":
+            catalogue_objects = mongo_collection.find(query_object, {"categories": 0, "providers": 0, "locations": 0,
+                                                                     "fulfillments": 0, "context": 0})
+        else:
+            catalogue_objects = mongo_collection.find(query_object)
         if sort_field:
             secondary_sort_field, secondary_sort_order = ID, pymongo.ASCENDING
             catalogue_objects = catalogue_objects.sort([(sort_field, sort_order),
@@ -98,7 +102,11 @@ def collection_find_distinct(mongo_collection, query_object, distinct=None):
 
 @MeasureTime
 def collection_find_one(mongo_collection, query_object):
-    catalog = mongo_collection.find_one(query_object)
+    if mongo_collection.name == "on_search_items":
+        catalog = mongo_collection.find_one(query_object, {"categories": 0, "providers": 0, "locations": 0,
+                                                           "fulfillments": 0})
+    else:
+        catalog = mongo_collection.find_one(query_object)
     if catalog:
         catalog.pop('_id')
         catalog.pop('created_at', None)
