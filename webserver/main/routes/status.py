@@ -4,7 +4,7 @@ from flask_restx import Namespace, Resource, reqparse
 from jsonschema import validate
 from main.utils.logger import get_logger
 
-from main.service.common import add_bpp_response, get_bpp_response_for_message_id, bpp_post_call
+from main.service.common import add_bpp_response, get_bpp_response_for_message_id, bpp_post_call,log_time_difference
 from main.service.utils import validate_auth_header
 from main.utils.schema_utils import get_json_schema_for_given_path, get_json_schema_for_response
 
@@ -34,6 +34,7 @@ class AddStatusResponse(Resource):
         resp = add_bpp_response(g.data, request_type='on_status')
         response_schema = get_json_schema_for_response('/on_status')
         validate(resp, response_schema)
+        logger.info(resp)
         return resp
 
 
@@ -47,5 +48,9 @@ class GetStatusResponseForMessageId(Resource):
 
     def get(self):
         args = self.create_parser_with_args()
-        return get_bpp_response_for_message_id(request_type='on_status', **args)
+        status_request = get_bpp_response_for_message_id(request_type='status', **args)
+        on_status_response = get_bpp_response_for_message_id(request_type='on_status', **args)
+
+        log_time_difference(status_request,on_status_response)
+        return on_status_response
 

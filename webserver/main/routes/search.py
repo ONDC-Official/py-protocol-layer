@@ -31,6 +31,7 @@ class AddSearchCatalogues(Resource):
         resp = add_search_catalogues(g.data)
         response_schema = get_json_schema_for_response('/on_search')
         validate(resp, response_schema)
+        logger.info(resp)
         return resp
 
 
