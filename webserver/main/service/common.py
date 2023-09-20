@@ -74,5 +74,5 @@ def log_time_difference(requested_payload, reponse ):
     dt1 = datetime.fromisoformat(request_timestamp.replace('Z', '+00:00'))
     dt2 = datetime.fromisoformat(response_time.replace('Z', '+00:00'))
     time_difference = dt2 - dt1
-    logger.info(f"transaction_id: {requested_payload[0]['context']['transaction_id']}, action:{requested_payload[0]['context']['action']}time_difference: {time_difference}")
+    logger.info(f"transaction_id: {requested_payload[0]['context']['transaction_id']}, action:{requested_payload[0]['context']['action']}, time_difference: {time_difference}")
     return time_difference
