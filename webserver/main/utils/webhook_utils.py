@@ -71,6 +71,7 @@ def post_on_bg_or_bpp(url, payload, headers={}):
     logger.info(f"headers: {headers}, payload: {payload}")
     raw_data = json.dumps(payload, separators=(',', ':'))
     response_text, status_code = requests_post(url, raw_data, headers=headers)
+    logger.info(f"response: {response_text}, payload: {payload}")
     return json.loads(response_text), status_code
 
 
