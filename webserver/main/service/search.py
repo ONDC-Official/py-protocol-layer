@@ -497,6 +497,7 @@ def upsert_locations_incremental_flow(locations: List[dict]):
         mongo.collection_upsert_one(collection, filter_criteria, p)
 
 
+@check_for_exception
 def add_search_catalogues(bpp_response):
     log(f"Adding search catalogs with message-id: {bpp_response['context']['message_id']} for {bpp_response['context']['bpp_id']}")
     context = bpp_response[constant.CONTEXT]
@@ -532,6 +533,7 @@ def add_search_catalogues(bpp_response):
         return get_ack_response(context=context, ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
 
 
+@check_for_exception
 def add_incremental_search_catalogues(bpp_response):
     log(f"Adding incremental search catalogs with message-id: {bpp_response['context']['message_id']} for {bpp_response['context']['bpp_id']}")
     catalog = bpp_response[constant.MESSAGE][constant.CATALOG]
