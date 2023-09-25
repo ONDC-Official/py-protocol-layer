@@ -15,8 +15,11 @@ from main.logger.custom_logging import log
 from main.repository.ack_response import get_ack_response
 from main.utils.cryptic_utils import verify_authorisation_header
 from main.utils.lookup_utils import get_bpp_public_key_from_header
+from main.utils.logger import get_logger
 
 URL_SPLITTER = "?"
+
+logger = get_logger()
 
 
 def get_unique_id(entity_prefix):
@@ -59,6 +62,10 @@ def handle_stop_iteration(func):
 
 def validate_auth_header(func):
     def wrapper(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        action_type=json.loads(request.data.decode("utf-8"))["context"]["action"]
+        logger.info(f"action: {action_type}, header: {auth_header}")
+
         if get_config_by_name("VERIFICATION_ENABLE"):
             auth_header = request.headers.get('Authorization')
             if auth_header and verify_authorisation_header(auth_header, request.data.decode("utf-8"),
