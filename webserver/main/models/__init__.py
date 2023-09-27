@@ -39,7 +39,7 @@ def init_database():
 
 def create_all_ttl_indexes():
     collection_names = ["on_select", "on_init", "on_confirm", "on_cancel", "on_status", "on_support",
-                        "on_track", "on_update", "on_rating"]
+                        "on_track", "on_update", "on_rating", "on_search_dump", "request_dump"]
     [create_ttl_index(c) for c in collection_names]
     get_mongo_collection("location").create_index([("gps", GEOSPHERE)])
 
