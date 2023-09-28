@@ -550,6 +550,16 @@ class Tags(BaseModel):
     )
 
 
+class TagChild(BaseModel):
+    code: str
+    value: str
+
+
+class Tag(BaseModel):
+    code: str
+    list: List[TagChild]
+
+
 class Range1(BaseModel):
     start: Optional[datetime] = None
     end: Optional[datetime] = None
@@ -1094,7 +1104,7 @@ class Item(BaseModel):
         alias='./ondc-statutory_reqs_prepackaged_food',
         description='<br> mandatory attributes include the following<br> ingredients_info<br> nutritional_info<br> additives_info<br> net_quantity<br> contact_details_consumer_care<br>',
     )
-    tags: Optional[Tags] = None
+    tags: List[Tag] = []
 
 
 class Location(BaseModel):
@@ -1435,7 +1445,7 @@ class Category(BaseModel):
     parent_category_id: Optional[IdModel] = None
     descriptor: Optional[Descriptor] = None
     time: Optional[Time] = None
-    tags: Optional[Tags] = None
+    tags: List[Tag] = []
 
 
 class FeedbackForm(BaseModel):
@@ -1492,7 +1502,7 @@ class Fulfillment(BaseModel):
     )
     end: Optional[End] = Field(None, description='Details on the end of fulfillment')
     rateable: Optional[Rateable] = None
-    tags: Optional[Tags] = None
+    tags: List[Tag] = []
 
 
 class Operator(Person):
@@ -1542,7 +1552,7 @@ class Provider(BaseModel):
         None, description='Time after which catalog has to be refreshed'
     )
     rateable: Optional[Rateable] = None
-    tags: Optional[Tags] = None
+    tags: List[Tag] = []
 
 
 class Rating(BaseModel):
@@ -1616,7 +1626,7 @@ class Intent(BaseModel):
     category: Optional[Category] = None
     offer: Optional[Offer] = None
     item: Optional[Item] = None
-    tags: Optional[Tags] = None
+    tags: List[Tag] = []
 
 
 class ResolutionProvider(BaseModel):
