@@ -7,8 +7,8 @@ from main.request_models.schema import Domain
 from main.service.search import gateway_search
 
 
-def make_http_requests_for_search_by_city(search_type: SearchType, mode="start"):
-    domain_list = [e.value for e in Domain]
+def make_http_requests_for_search_by_city(search_type: SearchType, domains=None, cities=None, mode="start"):
+    domain_list = [e.value for e in Domain] if domains is None else domains
     end_time = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     start_time = (datetime.utcnow() - timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     if search_type == SearchType.FULL:
@@ -29,7 +29,7 @@ def make_http_requests_for_search_by_city(search_type: SearchType, mode="start")
                      'std:0820', 'std:04112', 'std:02692', 'std:0135', 'std:01461', 'std:0832', 'std:06466', 'std:02752',
                      'std:0431', 'std:0424', 'std:04344', 'std:08676', 'std:0278', 'std:0542', 'std:0562', 'std:0671',
                      'std:05862', 'std:0288', 'std:02637', 'std:0141', 'std:01421', 'std:011', 'std:05271', 'std:05542',
-                     'std:05282', 'std:08288']
+                     'std:05282', 'std:08288'] if cities is None else cities
         message = {
             "intent": {
                 "fulfillment":
@@ -44,7 +44,7 @@ def make_http_requests_for_search_by_city(search_type: SearchType, mode="start")
             }
         }
     else:
-        city_list = ["*"]
+        city_list = ["*"] if cities is None else cities
         if mode == "start_and_stop":
             message = {
                 "intent":
@@ -119,18 +119,18 @@ def make_http_requests_for_search_by_city(search_type: SearchType, mode="start")
             gateway_search(search_payload, headers)
 
 
-def make_full_catalog_search_requests():
-    make_http_requests_for_search_by_city(SearchType.FULL)
+def make_full_catalog_search_requests(domains=None, cities=None):
+    make_http_requests_for_search_by_city(SearchType.FULL, domains=domains, cities=cities)
 
 
-def make_incremental_catalog_search_requests(mode):
-    make_http_requests_for_search_by_city(SearchType.INC, mode)
+def make_incremental_catalog_search_requests(domains=None, cities=None, mode="start"):
+    make_http_requests_for_search_by_city(domains, cities, SearchType.INC, mode)
 
 
 def make_search_operation_along_with_incremental():
-    make_incremental_catalog_search_requests("stop")
+    make_incremental_catalog_search_requests(mode="stop")
     make_full_catalog_search_requests()
-    make_incremental_catalog_search_requests("start")
+    make_incremental_catalog_search_requests(mode="start")
 
 
 if __name__ == '__main__':
