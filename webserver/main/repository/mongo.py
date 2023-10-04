@@ -7,13 +7,8 @@ from main.utils.decorators import MeasureTime
 
 @MeasureTime
 def collection_insert_one(mongo_collection, entry):
-    try:
-        mongo_collection.insert_one(entry)
-        log(f"Entry inserted to collection {mongo_collection.name} successfully!")
-        return True
-    except:
-        log_error(f"Entry insertion to collection {mongo_collection.name} failed!")
-        return False
+    resp = mongo_collection.insert_one(entry)
+    return resp.inserted_id
 
 
 # @MeasureTime

@@ -63,4 +63,10 @@ def bpp_post_call(request_type, request_payload):
 
 def dump_request_payload(action, payload):
     collection = get_mongo_collection('request_dump')
-    mongo.collection_insert_one(collection, {"action": action, "request": payload})
+    return mongo.collection_insert_one(collection, {"action": action, "request": payload})
+
+
+def update_dumped_request_with_response(object_id, response):
+    collection = get_mongo_collection('request_dump')
+    filter_criteria = {"_id": object_id}
+    collection.update_one(filter_criteria, {'$set': {"response": response}})
