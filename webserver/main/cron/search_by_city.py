@@ -124,7 +124,7 @@ def make_full_catalog_search_requests(domains=None, cities=None):
 
 
 def make_incremental_catalog_search_requests(domains=None, cities=None, mode="start"):
-    make_http_requests_for_search_by_city(domains, cities, SearchType.INC, mode)
+    make_http_requests_for_search_by_city(SearchType.INC, domains, cities, mode)
 
 
 def make_search_operation_along_with_incremental():
