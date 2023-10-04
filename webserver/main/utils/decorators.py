@@ -4,6 +4,7 @@ import timeit
 import traceback
 from functools import wraps
 
+from main.config import get_config_by_name
 from main.utils.cryptic_utils import verify_authorisation_header
 from main.utils.lookup_utils import get_bpp_public_key_from_header
 
@@ -41,6 +42,26 @@ def validate_auth_header(func):
     wrapper.__doc__ = func.__doc__
     wrapper.__name__ = func.__name__
     return wrapper
+
+
+def token_required(f):
+    from flask import request
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+
+        if 'X-API-KEY' in request.headers:
+            token = request.headers.get('X-API-KEY')
+
+        if not token:
+            return {'message': 'Token is missing'}, 401
+
+        if token != get_config_by_name("API_TOKEN"):
+            return {'message': 'your token is wrong'}, 401
+
+        return f(*args, **kwargs)
+    return decorated
 
 
 def MeasureTime(f):

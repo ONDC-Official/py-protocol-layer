@@ -41,6 +41,7 @@ class Config:
     RABBITMQ_QUEUE_NAME = os.getenv("RABBITMQ_QUEUE_NAME", "bpp_protocol")
     RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
     QUEUE_ENABLE = os.getenv("QUEUE_ENABLE", "False") == "True"
+    API_TOKEN = os.getenv("API_TOKEN", "testing_random_123")
 
 
 class DevelopmentConfig(Config):

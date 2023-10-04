@@ -1,8 +1,17 @@
 from flask_restx import Namespace, Resource, reqparse
 
 from main.cron.search_by_city import make_full_catalog_search_requests, make_incremental_catalog_search_requests
+from main.utils.decorators import token_required
 
-cron_namespace = Namespace('cron', description='Cron Job Namespace')
+authorizations = {
+    'apikey': {
+        'type': 'apiKey',
+        'in': 'header',
+        'name': 'X-API-KEY'
+    }
+}
+
+cron_namespace = Namespace('cron', description='Cron Job Namespace', authorizations=authorizations)
 
 
 @cron_namespace.route("/cron/search/full-catalog")
@@ -14,7 +23,8 @@ class FullCatalogSearch(Resource):
         parser.add_argument("cities", type=str, action='append')
         return parser.parse_args()
 
-
+    @cron_namespace.doc(security='apikey')
+    @token_required
     def post(self):
         args = self.create_parser_with_args()
         make_full_catalog_search_requests(args['domains'], args['cities'])
@@ -30,6 +40,8 @@ class IncrementalCatalogSearch(Resource):
         parser.add_argument("cities", type=str, action='append')
         return parser.parse_args()
 
+    @cron_namespace.doc(security='apikey')
+    @token_required
     def post(self):
         args = self.create_parser_with_args()
         make_incremental_catalog_search_requests(args['domains'], args['cities'], mode="start_and_stop")
@@ -45,6 +57,8 @@ class IncrementalCatalogSearch(Resource):
         parser.add_argument("cities", type=str, action='append')
         return parser.parse_args()
 
+    @cron_namespace.doc(security='apikey')
+    @token_required
     def post(self):
         args = self.create_parser_with_args()
         make_incremental_catalog_search_requests(args['domains'], args['cities'], mode="start")
@@ -60,6 +74,8 @@ class IncrementalCatalogSearch(Resource):
         parser.add_argument("cities", type=str, action='append')
         return parser.parse_args()
 
+    @cron_namespace.doc(security='apikey')
+    @token_required
     def post(self):
         args = self.create_parser_with_args()
         make_incremental_catalog_search_requests(args['domains'], args['cities'], mode="stop")
