@@ -118,8 +118,6 @@ class Document(BaseModel):
 
 
 class Domain(Enum):
-    nic2004_52110 = 'nic2004:52110'
-    nic2004_60232 = 'nic2004:60232'
     ONDC_RET10 = 'ONDC:RET10'
     ONDC_RET11 = 'ONDC:RET11'
     ONDC_RET12 = 'ONDC:RET12'

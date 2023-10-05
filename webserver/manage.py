@@ -12,7 +12,7 @@ scheduler = APScheduler()
 
 if __name__ == "__main__":
     if os.getenv("ENV") is not None:
-        scheduler.add_job(id='Search Request for Full Catalog', func=make_search_operation_along_with_incremental,
-                          trigger=CronTrigger.from_crontab("30 19 * * *"))
+        scheduler.add_job('Search Request for Full Catalog', make_search_operation_along_with_incremental,
+                          trigger='cron', hour="1", minute="0")
         scheduler.start()
         app.run(host="0.0.0.0", port=app.config["PORT"])
