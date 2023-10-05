@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource, reqparse
 
-from main.cron.search_by_city import make_full_catalog_search_requests, make_incremental_catalog_search_requests
+from main.cron.search_by_city import make_full_catalog_search_requests, make_incremental_catalog_search_requests, \
+    make_search_operation_along_with_incremental
 from main.utils.decorators import token_required
 
 authorizations = {
@@ -81,3 +82,12 @@ class IncrementalCatalogSearch(Resource):
         make_incremental_catalog_search_requests(args['domains'], args['cities'], mode="stop")
         return {"status": "success"}, 200
 
+
+@cron_namespace.route("/cron/search/full-and-incremental")
+class IncrementalCatalogSearch(Resource):
+
+    @cron_namespace.doc(security='apikey')
+    @token_required
+    def post(self):
+        make_search_operation_along_with_incremental()
+        return {"status": "success"}, 200
