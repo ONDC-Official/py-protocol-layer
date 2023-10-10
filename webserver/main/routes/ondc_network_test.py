@@ -25,6 +25,8 @@ class GatewayOnSearch(Resource):
         request_payload = request.get_json()
         # validate schema based on context version
         resp = validate_payload_schema_based_on_version(request_payload, 'on_search')
+        if resp is None:
+            return get_ack_response(context=request_payload[constant.CONTEXT], ack=True)
         return resp
 
 
@@ -35,6 +37,8 @@ class AddSelectResponse(Resource):
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_select')
+        if resp is None:
+            return get_ack_response(context=request_payload[constant.CONTEXT], ack=True)
         return resp
 
 
@@ -45,6 +49,8 @@ class AddInitResponse(Resource):
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_init')
+        if resp is None:
+            return get_ack_response(context=request_payload[constant.CONTEXT], ack=True)
         return resp
 
 
@@ -55,6 +61,8 @@ class AddConfirmResponse(Resource):
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_confirm')
+        if resp is None:
+            return get_ack_response(context=request_payload[constant.CONTEXT], ack=True)
         return resp
 
 
@@ -65,6 +73,8 @@ class AddCancelResponse(Resource):
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_cancel')
+        if resp is None:
+            return get_ack_response(context=request_payload[constant.CONTEXT], ack=True)
         return resp
 
 
@@ -75,6 +85,8 @@ class AddCancellationReasonsResponse(Resource):
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_cancellation_reasons')
+        if resp is None:
+            return get_ack_response(context=request_payload[constant.CONTEXT], ack=True)
         return resp
 
 
@@ -85,6 +97,8 @@ class AddIssueResponse(Resource):
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_issue')
+        if resp is None:
+            return get_ack_response(context=request_payload[constant.CONTEXT], ack=True)
         return resp
 
 
@@ -95,6 +109,8 @@ class AddIssueStatusResponse(Resource):
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_issue_status')
+        if resp is None:
+            return get_ack_response(context=request_payload[constant.CONTEXT], ack=True)
         return resp
 
 
@@ -105,6 +121,8 @@ class AddRatingResponse(Resource):
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_rating')
+        if resp is None:
+            return get_ack_response(context=request_payload[constant.CONTEXT], ack=True)
         return resp
 
 
@@ -115,6 +133,8 @@ class AddStatusResponse(Resource):
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_status')
+        if resp is None:
+            return get_ack_response(context=request_payload[constant.CONTEXT], ack=True)
         return resp
 
 
@@ -125,6 +145,8 @@ class AddSupportResponse(Resource):
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_support')
+        if resp is None:
+            return get_ack_response(context=request_payload[constant.CONTEXT], ack=True)
         return resp
 
 
@@ -135,6 +157,8 @@ class AddTrackResponse(Resource):
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_track')
+        if resp is None:
+            return get_ack_response(context=request_payload[constant.CONTEXT], ack=True)
         return resp
 
 
@@ -145,4 +169,6 @@ class AddUpdateResponse(Resource):
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_update')
+        if resp is None:
+            return get_ack_response(context=request_payload[constant.CONTEXT], ack=True)
         return resp

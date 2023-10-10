@@ -995,6 +995,10 @@ class Descriptor(BaseModel):
     field_3d_render: Optional[AnyUrl] = Field(None, alias='3d_render')
 
 
+class Descriptor2(Descriptor):
+    images: List[Image]
+
+
 class Dimensions(BaseModel):
     length: Optional[Scalar] = None
     breadth: Optional[Scalar] = None
@@ -1245,6 +1249,7 @@ class Location2(Location):
 
 class Item2(Item):
     quantity: Optional[ItemQuantity] = None
+    tags: List[Tag]
 
 
 class State(BaseModel):
