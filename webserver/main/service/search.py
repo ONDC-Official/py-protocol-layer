@@ -257,7 +257,7 @@ def transform_item_categories(item):
         variants, variant_group_local_id = [], None
         local_id = c["id"]
         category_type = "variant_group"
-        tags = c["tags"]
+        tags = c.get("tags", [])
         for t in tags:
             if t["code"] == "type":
                 category_type = t["list"][0]["value"]
