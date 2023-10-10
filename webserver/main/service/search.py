@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 from typing import List, Tuple
+import re
 
 import pymongo
 from funcy import project
@@ -641,7 +642,7 @@ def get_query_object(**kwargs):
         query_object.update({'item_details.price.value': {'$lte': kwargs['price_max']}})
 
     if kwargs['name']:
-        query_object.update({'item_details.descriptor.name': {"$regex": kwargs["name"]}})
+        query_object.update({'item_details.descriptor.name': re.compile(kwargs["name"], re.IGNORECASE)})
     if kwargs['custom_menu']:
         query_object.update({'custom_menus': kwargs['custom_menu']})
     if kwargs['rating']:

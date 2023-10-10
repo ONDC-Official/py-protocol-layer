@@ -1,6 +1,5 @@
 import json
 from pymongo import MongoClient, GEOSPHERE
-from pymongo.collection import Collection
 
 from main.config import get_config_by_name
 from main.logger.custom_logging import log
@@ -33,11 +32,11 @@ def init_database():
     mongo_client = MongoClient(database_host, database_port, maxPoolSize=10)
     mongo_db = mongo_client[database_name]
     log(f"Connection to mongodb://{database_host}:{database_port} is successful!")
-    create_all_ttl_indexes()
+    create_all_indexes()
     log(f"Created indexes if not already present!")
 
 
-def create_all_ttl_indexes():
+def create_all_indexes():
     collection_names = ["on_select", "on_init", "on_confirm", "on_cancel", "on_status", "on_support",
                         "on_track", "on_update", "on_rating", "on_search_dump", "request_dump"]
     [create_ttl_index(c) for c in collection_names]
