@@ -1057,7 +1057,7 @@ class Item(BaseModel):
     descriptor: Optional[Descriptor] = None
     price: Optional[Price] = None
     category_id: Optional[IdModel] = None
-    category_ids: Optional[List[constr(regex=r'^\d+:\d+$')]] = []
+    category_ids: Optional[List[constr(regex=r'^\w+:\d+$')]] = []
     fulfillment_id: Optional[IdModel2] = None
     rating: Optional[ValueModel] = None
     location_id: Optional[IdModel4] = None
