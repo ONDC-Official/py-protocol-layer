@@ -48,6 +48,19 @@ class GetCataloguesForMessageId(Resource):
         return get_item_details(item_id)
 
 
+@response_namespace.route("/item-details")
+class GetCataloguesForMessageId(Resource):
+
+    def create_parser_with_args(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("id", required=True)
+        return parser.parse_args()
+
+    def get(self):
+        args = self.create_parser_with_args()
+        return get_item_details(args['id'])
+
+
 @response_namespace.route("/response")
 class GetResponseForMessageId(Resource):
 
@@ -156,3 +169,42 @@ class GetLocation(Resource):
 
     def get(self, location_id):
         return get_location_details(location_id)
+
+
+@response_namespace.route("/custom-menu-details")
+class GetCustomMenu(Resource):
+
+    def create_parser_with_args(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("id", required=True)
+        return parser.parse_args()
+
+    def get(self):
+        args = self.create_parser_with_args()
+        return get_custom_menu_details(args['id'])
+
+
+@response_namespace.route("/provider-details")
+class GetProvider(Resource):
+
+    def create_parser_with_args(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("id", required=True)
+        return parser.parse_args()
+
+    def get(self):
+        args = self.create_parser_with_args()
+        return get_provider_details(args['id'])
+
+
+@response_namespace.route("/location-details")
+class GetLocation(Resource):
+
+    def create_parser_with_args(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("id", required=True)
+        return parser.parse_args()
+
+    def get(self):
+        args = self.create_parser_with_args()
+        return get_location_details(args['id'])
