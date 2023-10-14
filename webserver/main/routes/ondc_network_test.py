@@ -1,16 +1,9 @@
-import json
-import uuid
-
 from flask import request
 from flask_restx import Namespace, Resource
 
 from main import constant
-from main.config import get_config_by_name
-from main.models.catalog import SearchType
 from main.repository.ack_response import get_ack_response
-from main.service import send_message_to_queue_for_given_request
-from main.service.common import add_bpp_response, dump_request_payload
-from main.service.search import add_search_catalogues, dump_on_search_payload, add_incremental_search_catalogues
+from main.service.search import add_search_catalogues_for_test
 from main.service.utils import validate_auth_header
 from main.utils.validation import validate_payload_schema_based_on_version
 
@@ -26,7 +19,7 @@ class GatewayOnSearch(Resource):
         # validate schema based on context version
         resp = validate_payload_schema_based_on_version(request_payload, 'on_search')
         if resp is None:
-            return get_ack_response(context=request_payload[constant.CONTEXT], ack=True)
+            return add_search_catalogues_for_test(request_payload)
         return resp
 
 

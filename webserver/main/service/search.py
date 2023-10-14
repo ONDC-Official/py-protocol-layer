@@ -292,7 +292,7 @@ def get_self_and_nested_customisation_group_id(item):
     return customisation_group_id, customisation_nested_group_id
 
 
-def add_product_with_attributes(items):
+def add_product_with_attributes(items, db_insert=True):
     products, final_attrs, final_attr_values = [], [], []
     providers, locations, final_variant_groups, final_custom_menus, final_customisation_groups = [], [], [], [], []
     item_customisation_group_ids = []
@@ -374,14 +374,15 @@ def add_product_with_attributes(items):
         final_custom_menus.extend(custom_menus)
         final_customisation_groups.extend(customisation_groups)
 
-    upsert_product_attributes(final_attrs)
-    upsert_product_attribute_values(final_attr_values)
-    upsert_variant_groups(final_variant_groups)
-    upsert_custom_menus(final_custom_menus)
-    upsert_customisation_groups(final_customisation_groups)
-    upsert_products(products)
-    upsert_providers(providers)
-    upsert_locations(locations)
+    if db_insert:
+        upsert_product_attributes(final_attrs)
+        upsert_product_attribute_values(final_attr_values)
+        upsert_variant_groups(final_variant_groups)
+        upsert_custom_menus(final_custom_menus)
+        upsert_customisation_groups(final_customisation_groups)
+        upsert_products(products)
+        upsert_providers(providers)
+        upsert_locations(locations)
     return items
 
 
@@ -520,18 +521,24 @@ def add_search_catalogues(bpp_response):
         is_successful = is_successful and mongo.collection_upsert_one(search_collection, filter_criteria, i)
 
     if is_successful:
-        # message_id = bpp_response[constant.CONTEXT]["message_id"]
-        # post_count_response_to_client("on_search",
-        #                               bpp_response[constant.CONTEXT]["core_version"],
-        #                               {
-        #                                   "messageId": message_id,
-        #                                   "count": mongo.collection_get_count(search_collection,
-        #                                                                       {"context.message_id": message_id}),
-        #                                   "filters": get_filters_out_of_items(items)
-        #                               })
         return get_ack_response(context=context, ack=True)
     else:
         return get_ack_response(context=context, ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
+
+
+def add_search_catalogues_for_test(bpp_response):
+    log(f"Adding search catalogs(for test) with message-id: {bpp_response['context']['message_id']} for {bpp_response['context']['bpp_id']}")
+    context = bpp_response[constant.CONTEXT]
+    if constant.MESSAGE not in bpp_response:
+        return get_ack_response(context=context, ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
+    catalog = bpp_response[constant.MESSAGE][constant.CATALOG]
+    items = flatten_catalog_into_item_entries(catalog, context)
+
+    if len(items) == 0:
+        return get_ack_response(context=context, ack=True)
+
+    add_product_with_attributes(items, db_insert=False)
+    return get_ack_response(context=context, ack=True)
 
 
 @check_for_exception
