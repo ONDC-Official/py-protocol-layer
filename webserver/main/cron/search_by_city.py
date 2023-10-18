@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from main.config import get_config_by_name
 from main.models.catalog import SearchType
 from main.request_models.schema import Domain
+from main.service.common import dump_request_payload, update_dumped_request_with_response
 from main.service.search import gateway_search
 
 
@@ -116,7 +117,9 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
                 },
                 "message": message
             }
-            gateway_search(search_payload, headers)
+            entry_object_id = dump_request_payload("search", search_payload)
+            resp = gateway_search(search_payload, headers)
+            update_dumped_request_with_response(entry_object_id, resp)
 
 
 def make_full_catalog_search_requests(domains=None, cities=None):
