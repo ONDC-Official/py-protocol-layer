@@ -7,6 +7,7 @@ from functools import wraps
 import requests
 from retry import retry
 
+from main import constant
 from main.config import get_config_by_name
 from main.logger.custom_logging import log
 
@@ -43,14 +44,16 @@ def requests_post(url, raw_data, headers=None):
 
 
 @MeasureTime
-def post_count_response_to_client(route, payload):
+def post_count_response_to_client(route, schema_version, payload):
     client_webhook_endpoint = get_config_by_name('CLIENT_WEBHOOK_ENDPOINT')
+    version = "v1" if schema_version != "1.2.0" else "v2"
+
     if "issue" in route:
         client_webhook_endpoint = client_webhook_endpoint.replace(
             "clientApi", "issueApi")
     try:
         status_code = requests_post_with_retries(
-            f"{client_webhook_endpoint}/{route}", payload=payload)
+            f"{client_webhook_endpoint}/{version}/{route}", payload=payload)
     except requests.exceptions.HTTPError:
         status_code = 400
     except requests.exceptions.ConnectionError:
@@ -67,6 +70,7 @@ def post_on_bg_or_bpp(url, payload, headers={}):
     headers.update({'Content-Type': 'application/json'})
     raw_data = json.dumps(payload, separators=(',', ':'))
     response_text, status_code = requests_post(url, raw_data, headers=headers)
+    log(f"Request Status: {status_code}, {response_text}")
     return json.loads(response_text), status_code
 
 

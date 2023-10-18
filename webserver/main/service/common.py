@@ -23,6 +23,7 @@ def add_bpp_response(bpp_response, request_type):
     if is_successful:
         message_id = bpp_response[constant.CONTEXT]["message_id"]
         post_count_response_to_client(request_type,
+                                      bpp_response[constant.CONTEXT]["core_version"],
                                       {
                                           "messageId": message_id,
                                           "count": 1
@@ -48,8 +49,8 @@ def get_query_object(**kwargs):
     return query_object
 
 
-def get_bpp_response_for_message_id(request_type, **kwargs):
-    search_collection = get_mongo_collection(request_type)
+def get_bpp_response_for_message_id(**kwargs):
+    search_collection = get_mongo_collection(kwargs['request_type'])
     query_object = get_query_object(**kwargs)
     bpp_response = mongo.collection_find_all(search_collection, query_object, sort_field="created_at",
                                              sort_order=pymongo.DESCENDING)
@@ -69,3 +70,14 @@ def bpp_post_call(request_type, request_payload):
     bpp_url_with_route = f"{bpp_url}{request_type}" if bpp_url.endswith("/") else f"{bpp_url}/{request_type}"
     auth_header = create_authorisation_header(request_payload)
     return post_on_bg_or_bpp(bpp_url_with_route, payload=request_payload, headers={'Authorization': auth_header})
+
+
+def dump_request_payload(action, payload):
+    collection = get_mongo_collection('request_dump')
+    return mongo.collection_insert_one(collection, {"action": action, "request": payload})
+
+
+def update_dumped_request_with_response(object_id, response):
+    collection = get_mongo_collection('request_dump')
+    filter_criteria = {"_id": object_id}
+    collection.update_one(filter_criteria, {'$set': {"response": response}})

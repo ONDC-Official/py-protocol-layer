@@ -1,6 +1,5 @@
 import json
-from flask import request, g
-from pymongo import MongoClient
+from pymongo import MongoClient, GEOSPHERE
 
 from main.config import get_config_by_name
 from main.logger.custom_logging import log
@@ -15,6 +14,8 @@ class JsonObject:
 
 
 def initialize_before_calls(app):
+    from flask import request, g
+
     @app.before_request
     def set_page(page=1):
         page = int(request.args.get('page', 1))
@@ -28,17 +29,18 @@ def init_database():
     database_host = get_config_by_name('MONGO_DATABASE_HOST')
     database_port = get_config_by_name('MONGO_DATABASE_PORT')
     database_name = get_config_by_name('MONGO_DATABASE_NAME')
-    mongo_client = MongoClient(database_host, database_port,maxPoolSize=10)
+    mongo_client = MongoClient(database_host, database_port, maxPoolSize=10)
     mongo_db = mongo_client[database_name]
     log(f"Connection to mongodb://{database_host}:{database_port} is successful!")
-    create_all_ttl_indexes()
+    create_all_indexes()
     log(f"Created indexes if not already present!")
 
 
-def create_all_ttl_indexes():
-    collection_names = ["on_search_items", "on_select", "on_init", "on_confirm", "on_cancel", "on_status", "on_support",
-                        "on_track", "on_update", "on_rating"]
+def create_all_indexes():
+    collection_names = ["on_select", "on_init", "on_confirm", "on_cancel", "on_status", "on_support",
+                        "on_track", "on_update", "on_rating", "on_search_dump", "request_dump"]
     [create_ttl_index(c) for c in collection_names]
+    get_mongo_collection("location").create_index([("gps", GEOSPHERE)])
 
 
 def create_ttl_index(collection_name):

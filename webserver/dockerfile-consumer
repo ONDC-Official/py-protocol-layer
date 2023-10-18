@@ -1,0 +1,29 @@
+FROM ubuntu:18.04
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update --fix-missing && apt-get install -y  python3.7 python3.7-dev python3-pip python3.7-venv supervisor virtualenv
+
+RUN mkdir -p /dataorc/app
+
+ENV SRC /dataorc/app
+WORKDIR /dataorc/app
+
+RUN virtualenv -p python3.7 restapi
+
+COPY consumer_requirements.txt .
+
+RUN restapi/bin/pip3 install --no-cache-dir -r consumer_requirements.txt
+
+ENV LC_ALL=C
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+
+RUN echo en_us.UTF-8 UTF-8 >> /etc/locale.gen
+
+RUN mkdir /var/log/consumer/
+
+RUN printenv >> /etc/environment
+
+COPY . .
+
+CMD /dataorc/app/restapi/bin/python3.7 -m protocol_consumer

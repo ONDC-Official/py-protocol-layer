@@ -1,0 +1,68 @@
+version: '2'
+
+services:
+
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bap-protocol-webserver
+    depends_on:
+      - rabbitmq
+      - mongo
+    environment:
+      ENV: prod
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      MONGO_DATABASE_HOST: ${MONGO_DATABASE_HOST}
+      BAP_URL: ${BAP_URL}
+      CLIENT_WEBHOOK_ENDPOINT: ${CLIENT_WEBHOOK_ENDPOINT}
+      BAP_PRIVATE_KEY: ${BAP_PRIVATE_KEY}
+      BAP_UNIQUE_KEY_ID: ${BAP_UNIQUE_KEY_ID}
+      BAP_PUBLIC_KEY: ${BAP_PUBLIC_KEY}
+      BAP_ID: ${BAP_ID}
+      VERIFICATION_ENABLE: ${VERIFICATION_ENABLE}
+      FLASK_SERVER: "True"
+      QUEUE_ENABLE: "True"
+    expose:
+      - 5555
+    ports:
+      - 5555:5555
+
+
+  consumer:
+    build:
+      context: .
+      dockerfile: dockerfile-consumer
+    container_name: bap-protocol-consumer
+    depends_on:
+      - rabbitmq
+      - mongo
+    environment:
+      ENV: prod
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      BAP_PRIVATE_KEY: ${BAP_PRIVATE_KEY}
+      BAP_UNIQUE_KEY_ID: ${BAP_UNIQUE_KEY_ID}
+      BAP_PUBLIC_KEY: ${BAP_PUBLIC_KEY}
+      BAP_ID: ${BAP_ID}
+      FLASK_SERVER: "False"
+
+
+  rabbitmq:
+    image: rabbitmq:3.10-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+
+
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - "./data:/data/db"

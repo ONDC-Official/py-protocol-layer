@@ -35,9 +35,13 @@ class Config:
     BAP_PUBLIC_KEY = os.getenv("BAP_PUBLIC_KEY", "some-key")
     BAP_ID = os.getenv("BAP_ID", "buyer-app.ondc.org")
     BAP_UNIQUE_KEY_ID = os.getenv("BAP_UNIQUE_KEY_ID", "207")
-    REGISTRY_BASE_URL = "https://pilot-gateway-1.beckn.nsdl.co.in"
+    REGISTRY_BASE_URL = "https://staging.registry.ondc.org"
     TTL_IN_SECONDS = int(os.getenv("TTL_IN_SECONDS", "3600"))
     VERIFICATION_ENABLE = os.getenv("VERIFICATION_ENABLE", "True") == "True"
+    RABBITMQ_QUEUE_NAME = os.getenv("RABBITMQ_QUEUE_NAME", "bpp_protocol")
+    RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
+    QUEUE_ENABLE = os.getenv("QUEUE_ENABLE", "False") == "True"
+    API_TOKEN = os.getenv("API_TOKEN", "testing_random_123")
 
 
 class DevelopmentConfig(Config):
@@ -46,7 +50,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
     ENV = True
     # SQLALCHEMY_DATABASE_URI = "postgresql://flask:flask@localhost:5433/flask"
-    BAP_URL = "http://localhost:9002/protocol/v1"
+    BAP_URL = os.getenv("BAP_URL", "http://localhost:9900/protocol/v1")
     MONGO_DATABASE_HOST = "localhost"
     MONGO_DATABASE_PORT = 27017
     MONGO_DATABASE_NAME = "sandbox_bap"
