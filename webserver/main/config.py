@@ -42,6 +42,7 @@ class Config:
     RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
     QUEUE_ENABLE = os.getenv("QUEUE_ENABLE", "False") == "True"
     API_TOKEN = os.getenv("API_TOKEN", "testing_random_123")
+    MAX_CONSUME_MESSAGE_TIME = int(os.getenv("MAX_CONSUME_MESSAGE_TIME", "30"))
 
 
 class DevelopmentConfig(Config):

@@ -1,7 +1,8 @@
 import functools
 import json
 import threading
-import time
+from threading import Timer
+
 
 import pika
 
@@ -62,8 +63,24 @@ def consume_message(connection, channel, queue_name, consume_fn):
         thread_id = threading.get_ident()
         log(f'Thread id: {thread_id} Delivery tag: {delivery_tag} Message body: {body}')
         cb = functools.partial(callback, channel, delivery_tag, body)
-        consume_fn(body)
+        # Use a Timer to enforce a maximum processing time for each message
+        message_timer = Timer(get_config_by_name("MAX_CONSUME_MESSAGE_TIME"), mark_message_as_failed,
+                              args=(delivery_tag, body))
+        message_timer.start()
+
+        try:
+            consume_fn(body)
+        except Exception as e:
+            log_error(f"Error processing message {body}: {e}")
+            mark_message_as_failed(delivery_tag, body)
+
+        message_timer.cancel()  # Cancel the timer as the message processing is completed
         connection.add_callback_threadsafe(cb)
+
+    def mark_message_as_failed(delivery_tag, body):
+        # You can implement logic here to handle failed messages
+        log_error(f"Marking message as failed: {body}")
+        channel.basic_nack(delivery_tag, requeue=False)
 
     def on_message(ch, method_frame, header_frame, body):
         delivery_tag = method_frame.delivery_tag
@@ -76,6 +93,7 @@ def consume_message(connection, channel, queue_name, consume_fn):
 
     channel.basic_consume(queue=queue_name, on_message_callback=on_message_callback, auto_ack=False)
     log('Waiting for messages:')
+
     try:
         channel.start_consuming()
     except KeyboardInterrupt:
