@@ -20,7 +20,7 @@ def consume_fn(message_string):
         unique_id = payload["unique_id"]
         collection = get_mongo_collection('on_search_dump')
         on_search_payload = mongo.collection_find_one(collection, {"id": unique_id})
-        if on_search_payload:
+        if on_search_payload and on_search_payload['context']['bpp_id'] not in ['ref-app-seller-staging-v2.ondc.org']:
             on_search_payload.pop("id", None)
             if payload["request_type"] == SearchType.FULL.value:
                 add_search_catalogues(on_search_payload)
