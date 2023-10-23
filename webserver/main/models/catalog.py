@@ -16,7 +16,7 @@ class Product(BaseModel):
     custom_menus: Optional[List[str]]
     customisation_groups: List[str]
     attribute_codes: list
-    category: str
+    category: Optional[str]
     sub_category1: Optional[str]
     sub_category2: Optional[str]
     sub_category3: Optional[str]

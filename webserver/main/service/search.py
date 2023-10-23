@@ -336,7 +336,7 @@ def add_product_with_attributes(items, db_insert=True):
         p = Product(**{"id": i["id"],
                        "product_code": item_details["descriptor"].get("code"),
                        "product_name": item_details["descriptor"].get("name"),
-                       "category": item_details["category_id"],
+                       "category": item_details.get("category_id"),
                        "variant_group": variant_group_id,
                        "custom_menus": custom_menu_ids,
                        "customisation_groups": item_customisation_group_ids,
