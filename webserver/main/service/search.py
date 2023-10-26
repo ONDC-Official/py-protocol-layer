@@ -839,4 +839,5 @@ def get_location_details(location_id):
 
 def dump_on_search_payload(payload):
     collection = get_mongo_collection('on_search_dump')
+    payload["created_at"] = datetime.utcnow()
     mongo.collection_insert_one(collection, payload)

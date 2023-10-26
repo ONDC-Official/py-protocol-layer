@@ -64,7 +64,8 @@ def bpp_post_call(request_type, request_payload):
 
 def dump_request_payload(action, payload):
     collection = get_mongo_collection('request_dump')
-    return mongo.collection_insert_one(collection, {"action": action, "request": payload})
+    return mongo.collection_insert_one(collection, {"action": action, "request": payload,
+                                                    "created_at": datetime.utcnow()})
 
 
 def update_dumped_request_with_response(object_id, response):
