@@ -425,7 +425,7 @@ def add_product_with_attributes_incremental_flow(items):
 def upsert_product_attributes(product_attributes: List[ProductAttribute]):
     collection = get_mongo_collection('product_attribute')
     for p in product_attributes:
-        filter_criteria = {"id": f"{p.provider}_{p.code}"}
+        filter_criteria = {"provider": p.provider, "code": p.code}
         mongo.collection_upsert_one(collection, filter_criteria, p.dict())
 
 

@@ -1,5 +1,5 @@
 import json
-from pymongo import MongoClient, GEOSPHERE
+from pymongo import MongoClient, GEOSPHERE, TEXT
 
 from main.config import get_config_by_name
 from main.logger.custom_logging import log
@@ -37,17 +37,19 @@ def init_database():
 
 
 def create_all_indexes():
-    collection_names = ["on_select", "on_init", "on_confirm", "on_cancel", "on_status", "on_support",
-                        "on_track", "on_update", "on_rating", "on_search_dump", "request_dump"]
-    [create_ttl_index(c) for c in collection_names]
+    [create_ttl_index(c) for c in ["on_select", "on_init", "on_confirm", "on_cancel", "on_status", "on_support",
+                                   "on_track", "on_update", "on_rating"]]
+    [create_ttl_index(c, ttl_in_seconds=7*24*60*60) for c in ["on_search_dump", "request_dump", "on_search_items",
+                                                              "provider", "custom_menu"]]
+    get_mongo_collection("on_search_items").create_index([('id', TEXT)], name='id_index')
     get_mongo_collection("location").create_index([("gps", GEOSPHERE)])
 
 
-def create_ttl_index(collection_name):
+def create_ttl_index(collection_name, ttl_in_seconds=None):
     # check if index already exists
     if "created_at_ttl" in get_mongo_collection(collection_name).index_information():
         return
-    ttl_in_seconds = get_config_by_name('TTL_IN_SECONDS')
+    ttl_in_seconds = ttl_in_seconds if ttl_in_seconds else get_config_by_name('TTL_IN_SECONDS')
     get_mongo_collection(collection_name).create_index("created_at", name="created_at_ttl",
                                                        expireAfterSeconds=ttl_in_seconds)
 
