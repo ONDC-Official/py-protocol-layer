@@ -18,9 +18,9 @@ def consume_fn(message_string):
         payload = json.loads(message_string)
         log(f"Got the payload {payload}!")
 
-        doc_id = payload["doc_id"]
+        doc_id = ObjectId(payload["doc_id"])
         collection = get_mongo_collection('on_search_dump')
-        on_search_payload = mongo.collection_find_one(collection, {"_id": ObjectId(doc_id)})
+        on_search_payload = mongo.collection_find_one(collection, {"_id": doc_id})
         if on_search_payload and on_search_payload['context']['bpp_id'] not in ['ref-app-seller-staging-v2.ondc.org']:
             on_search_payload.pop("id", None)
             if payload["request_type"] == SearchType.FULL.value:

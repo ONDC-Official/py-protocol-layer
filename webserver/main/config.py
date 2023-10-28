@@ -43,7 +43,7 @@ class Config:
     QUEUE_ENABLE = os.getenv("QUEUE_ENABLE", "False") == "True"
     API_TOKEN = os.getenv("API_TOKEN", "testing_random_123")
     MAX_CONSUME_MESSAGE_TIME = int(os.getenv("MAX_CONSUME_MESSAGE_TIME", "30"))
-    CONSUMER_MAX_WORKERS = int(os.getenv("CONSUMER_MAX_WORKERS", "2"))
+    CONSUMER_MAX_WORKERS = int(os.getenv("CONSUMER_MAX_WORKERS", "100"))
 
 
 class DevelopmentConfig(Config):
