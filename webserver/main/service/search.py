@@ -521,8 +521,10 @@ def add_search_catalogues(bpp_response):
         is_successful = is_successful and mongo.collection_upsert_one(search_collection, filter_criteria, i)
 
     if is_successful:
+        log(f"Search catalogs added successfully, message-id: {bpp_response['context']['message_id']} for {bpp_response['context']['bpp_id']}")
         return get_ack_response(context=context, ack=True)
     else:
+        log(f"Search catalogs failed while adding, message-id: {bpp_response['context']['message_id']} for {bpp_response['context']['bpp_id']}")
         return get_ack_response(context=context, ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
 
 
@@ -840,4 +842,11 @@ def get_location_details(location_id):
 def dump_on_search_payload(payload):
     collection = get_mongo_collection('on_search_dump')
     payload["created_at"] = datetime.utcnow()
-    mongo.collection_insert_one(collection, payload)
+    payload["status"] = "PENDING"
+    return mongo.collection_insert_one(collection, payload)
+
+
+def update_on_search_dump_status(object_id, status):
+    collection = get_mongo_collection('on_search_dump')
+    filter_criteria = {"_id": object_id}
+    collection.update_one(filter_criteria, {'$set': {"status": status}})

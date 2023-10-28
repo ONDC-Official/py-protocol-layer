@@ -28,11 +28,9 @@ class GatewayOnSearch(Resource):
         if resp is None:
             request_type = request.headers.get("X-ONDC-Search-Response", "full")
             if get_config_by_name('QUEUE_ENABLE'):
-                unique_id = str(uuid.uuid4())
-                request_payload["id"] = unique_id
-                dump_on_search_payload(request_payload)
+                doc_id = dump_on_search_payload(request_payload)
                 message = {
-                    "unique_id": unique_id,
+                    "doc_id": str(doc_id),
                     "request_type": request_type,
                 }
                 send_message_to_queue_for_given_request(message)
