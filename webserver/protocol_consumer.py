@@ -21,7 +21,7 @@ def consume_fn(message_string):
         doc_id = ObjectId(payload["doc_id"])
         collection = get_mongo_collection('on_search_dump')
         on_search_payload = mongo.collection_find_one(collection, {"_id": doc_id})
-        if on_search_payload and on_search_payload['context']['bpp_id'] not in ['ref-app-seller-staging-v2.ondc.org']:
+        if on_search_payload:
             on_search_payload.pop("id", None)
             if payload["request_type"] == SearchType.FULL.value:
                 update_on_search_dump_status(doc_id, "IN-PROGRESS")
