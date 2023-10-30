@@ -11,8 +11,6 @@ from main.service.search import gateway_search
 def make_http_requests_for_search_by_city(search_type: SearchType, domains=None, cities=None, mode="start"):
     domain_list = [e.value for e in Domain] if domains is None else domains
     end_time = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-    transaction_id = str(uuid.uuid4())
-    message_id = str(uuid.uuid4())
     start_time = (datetime.utcnow() - timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     if search_type == SearchType.FULL:
         city_list = ['std:06274', 'std:0451', 'std:0120', 'std:0512', 'std:05842', 'std:0522', 'std:06243', 'std:04286',
@@ -112,8 +110,8 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
                     "core_version": "1.2.0",
                     "bap_id": get_config_by_name("BAP_ID"),
                     "bap_uri": get_config_by_name("BAP_URL"),
-                    "transaction_id": transaction_id,
-                    "message_id": message_id,
+                    "transaction_id": str(uuid.uuid4()),
+                    "message_id": str(uuid.uuid4()),
                     "timestamp": end_time,
                     "ttl": "PT30S"
                 },
