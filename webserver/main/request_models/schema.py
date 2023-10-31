@@ -1143,7 +1143,7 @@ class Location1(BaseModel):
 
 class Provider1(BaseModel):
     id: Optional[IdModel5] = None
-    locations: Optional[List[Location1]] = Field(None, max_items=1)
+    locations: Optional[List[Location1]] = Field(None)
 
 
 class Item1(BaseModel):
