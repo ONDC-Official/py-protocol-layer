@@ -8,9 +8,8 @@ from main.utils.webhook_utils import lookup_call
 
 def fetch_subscriber_url_from_lookup(request_type, subscriber_id=None, domain=None):
     subscriber_type = SubscriberType.BG.name if request_type == 'search' else SubscriberType.BPP.name
-    domain = domain if domain else get_config_by_name('DOMAIN')
-    payload = {"type": subscriber_type, "country": get_config_by_name('COUNTRY_CODE'),
-               "domain": domain}
+    payload = {"type": subscriber_type, "country": get_config_by_name('COUNTRY_CODE')}
+    payload.update({"domain": domain}) if domain and domain != '*' else None
     payload.update({"subscriber_id": subscriber_id}) if subscriber_id else None
     updated_payload = format_registry_request_for_pre_prod(payload) if os.getenv("ENV") == "pre_prod" else payload
     response, status_code = lookup_call(f"{get_config_by_name('REGISTRY_BASE_URL')}/lookup",
