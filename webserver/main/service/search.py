@@ -426,77 +426,96 @@ def upsert_product_attributes(product_attributes: List[ProductAttribute]):
     collection = get_mongo_collection('product_attribute')
     for p in product_attributes:
         filter_criteria = {"provider": p.provider, "code": p.code}
-        mongo.collection_upsert_one(collection, filter_criteria, p.dict())
+        p_dict = p.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_product_attribute_values(product_attribute_values: List[ProductAttributeValue]):
     collection = get_mongo_collection('product_attribute_value')
     for p in product_attribute_values:
         filter_criteria = {"product": p.product, "attribute_code": p.attribute_code}
-        mongo.collection_upsert_one(collection, filter_criteria, p.dict())
+        p_dict = p.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_variant_groups(variant_groups: List[VariantGroup]):
     collection = get_mongo_collection('variant_group')
     for v in variant_groups:
         filter_criteria = {"id": v.id}
-        mongo.collection_upsert_one(collection, filter_criteria, v.dict())
+        p_dict = v.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_custom_menus(custom_menus: List[CustomMenu]):
     collection = get_mongo_collection('custom_menu')
     for v in custom_menus:
         filter_criteria = {"id": v.id}
-        mongo.collection_upsert_one(collection, filter_criteria, v.dict())
+        p_dict = v.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_customisation_groups(customisation_groups: List[CustomisationGroup]):
     collection = get_mongo_collection('customisation_group')
     for v in customisation_groups:
         filter_criteria = {"id": v.id}
-        mongo.collection_upsert_one(collection, filter_criteria, v.dict())
+        p_dict = v.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_products(products: List[Product]):
     collection = get_mongo_collection('product')
     for p in products:
         filter_criteria = {"id": p.id}
-        mongo.collection_upsert_one(collection, filter_criteria, p.dict())
+        p_dict = p.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_products_incremental_flow(products: List[dict]):
     collection = get_mongo_collection('product')
-    for p in products:
-        filter_criteria = {"id": p["id"]}
-        mongo.collection_upsert_one(collection, filter_criteria, p)
+    for p_dict in products:
+        filter_criteria = {"id": p_dict["id"]}
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_providers(products: List[Provider]):
     collection = get_mongo_collection('provider')
     for p in products:
         filter_criteria = {"id": p.id}
-        mongo.collection_upsert_one(collection, filter_criteria, p.dict())
+        p_dict = p.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_providers_incremental_flow(products: List[dict]):
     collection = get_mongo_collection('provider')
-    for p in products:
-        filter_criteria = {"id": p["id"]}
-        mongo.collection_upsert_one(collection, filter_criteria, p)
+    for p_dict in products:
+        filter_criteria = {"id": p_dict["id"]}
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_locations(locations: List[Location]):
     collection = get_mongo_collection('location')
     for p in locations:
         filter_criteria = {"id": p.id}
-        mongo.collection_upsert_one(collection, filter_criteria, p.dict())
+        p_dict = p.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_locations_incremental_flow(locations: List[dict]):
     collection = get_mongo_collection('location')
-    for p in locations:
-        filter_criteria = {"id": p["id"]}
-        mongo.collection_upsert_one(collection, filter_criteria, p)
+    for p_dict in locations:
+        filter_criteria = {"id": p_dict["id"]}
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 @check_for_exception
@@ -517,6 +536,7 @@ def add_search_catalogues(bpp_response):
     for i in items:
         # Upsert a single document
         i["timestamp"] = i["context"]["timestamp"]
+        i["created_at"] = datetime.utcnow()
         filter_criteria = {"id": i['id']}
         is_successful = is_successful and mongo.collection_upsert_one(search_collection, filter_criteria, i)
 
@@ -577,6 +597,7 @@ def add_incremental_search_catalogues_for_items_update(bpp_response):
                                 "customisation_nested_group_id"])
             # Upsert a single document
             filter_criteria = {"id": i["id"]}
+            new_i["created_at"] = datetime.utcnow()
             new_i["timestamp"] = i["context"]["timestamp"]
             is_successful = is_successful and mongo.collection_upsert_one(search_collection, filter_criteria, new_i)
         else:
@@ -598,6 +619,7 @@ def add_incremental_search_catalogues_for_locations_update(bpp_response):
         for l in locations:
             l["id"] = f"{context[constant.BPP_ID]}_{context[constant.DOMAIN]}_{p['id']}_{l['id']}"
             l["timestamp"] = context["timestamp"]
+            l["created_at"] = datetime.utcnow()
             if check_if_entity_present_for_given_id("location", l["id"]):
                 filter_criteria = {"id": l['id']}
                 mongo.collection_upsert_one(mongo_collection, filter_criteria, l)
@@ -618,6 +640,7 @@ def add_incremental_search_catalogues_for_provider_update(bpp_response):
     for p in bpp_providers:
         p["id"] = f"{context[constant.BPP_ID]}_{context[constant.DOMAIN]}_{p['id']}"
         p["timestamp"] = context["timestamp"]
+        p["created_at"] = datetime.utcnow()
         if check_if_entity_present_for_given_id("provider", p["id"]):
             filter_criteria = {"id": p['id']}
             mongo.collection_upsert_one(mongo_collection, filter_criteria, p)
