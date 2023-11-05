@@ -292,23 +292,48 @@ def get_self_and_nested_customisation_group_id(item):
     return customisation_group_id, customisation_nested_group_id
 
 
+def update_item_customisation_group_ids_with_children(existing_ids, items):
+    new_ids = []
+    for cid in existing_ids:
+        for i in items:
+            if i["type"] == "customization":
+                tags = i['item_details'].get("tags", [])
+                flag = False
+                for t in tags:
+                    if t["code"] == "parent":
+                        flag = t["list"][0]["value"] == cid
+
+                if flag:
+                    for t in tags:
+                        if t["code"] == "child":
+                            t_list = t["list"]
+                            for l in t_list:
+                                new_ids.append(l['value'])
+    if len(new_ids) > 0:
+        new_ids.extend(update_item_customisation_group_ids_with_children(new_ids, items))
+    return new_ids
+
+
 def add_product_with_attributes(items, db_insert=True):
     products, final_attrs, final_attr_values = [], [], []
     providers, locations, final_variant_groups, final_custom_menus, final_customisation_groups = [], [], [], [], []
-    item_customisation_group_ids = []
+    item_cg_ids = []
     for i in items:
         attributes, variants, variant_group_local_id = [], [], None
         item_details = i["item_details"]
         tags = item_details["tags"]
+        variant_groups, custom_menus, customisation_groups = transform_item_categories(i)
+
         attr_codes = []
         for t in tags:
             if t["code"] == "attribute":
                 attributes = t["list"]
             elif t["code"] == "custom_group":
                 custom_group_list = t["list"]
-                item_customisation_group_ids = [f"{i['provider_details']['id']}_{c['value']}" for c in custom_group_list]
+                old_item_cg_ids = [c['value'] for c in custom_group_list]
+                old_item_cg_ids.extend(update_item_customisation_group_ids_with_children(old_item_cg_ids, items))
+                item_cg_ids = [f"{i['provider_details']['id']}_{cg}" for cg in old_item_cg_ids]
 
-        variant_groups, custom_menus, customisation_groups = transform_item_categories(i)
         custom_menu_configs = item_details.get("category_ids", [])
         custom_menu_new_list, variant_group_id = [], None
         for c in custom_menu_configs:
@@ -339,7 +364,7 @@ def add_product_with_attributes(items, db_insert=True):
                        "category": item_details.get("category_id"),
                        "variant_group": variant_group_id,
                        "custom_menus": custom_menu_ids,
-                       "customisation_groups": item_customisation_group_ids,
+                       "customisation_groups": item_cg_ids,
                        "attribute_codes": attr_codes,
                        "timestamp": i["context"]["timestamp"],
                        })
