@@ -1254,6 +1254,11 @@ class Item2(Item):
     tags: List[Tag]
 
 
+class OnSearchItem(Item):
+    quantity: ItemQuantity
+    tags: List[Tag]
+
+
 class State(BaseModel):
     descriptor: Optional[Descriptor] = None
     updated_at: Optional[datetime] = None
@@ -1446,7 +1451,7 @@ class Cancellation(BaseModel):
 
 
 class Category(BaseModel):
-    id: Optional[Union[str, int]] = Field(None, description='Unique id of the category')
+    id: str = Field(None, description='Unique id of the category')
     parent_category_id: Optional[IdModel] = None
     descriptor: Optional[Descriptor] = None
     time: Optional[Time] = None
@@ -1560,6 +1565,25 @@ class Provider(BaseModel):
     tags: List[Tag] = []
 
 
+class OnSearchProvider(BaseModel):
+    id: Union[str, int] = Field(..., description='Id of the provider')
+    descriptor: Optional[Descriptor] = None
+    category_id: Optional[str] = Field(None, description='Category Id of the provider')
+    rating: Optional[ValueModel] = None
+    time: Optional[Time] = None
+    categories: Optional[List[Category]] = None
+    fulfillments: Optional[List[Fulfillment]] = None
+    payments: Optional[List[Payment]] = None
+    locations: Optional[List[Location2]] = None
+    offers: Optional[List[Offer]] = None
+    items: Optional[List[OnSearchItem]] = None
+    exp: Optional[datetime] = Field(
+        None, description='Time after which catalog has to be refreshed'
+    )
+    rateable: Optional[Rateable] = None
+    tags: List[Tag] = []
+
+
 class Rating(BaseModel):
     rating_category: Optional[str] = Field(
         None, description='Category of the object being rated'
@@ -1612,7 +1636,7 @@ class Catalog(BaseModel):
     )
     bpp_payments: Optional[List[Payment]] = Field(None, alias='bpp/payments')
     bpp_offers: Optional[List[Offer]] = Field(None, alias='bpp/offers')
-    bpp_providers: List[Provider] = Field(..., alias='bpp/providers')
+    bpp_providers: List[OnSearchProvider] = Field(..., alias='bpp/providers')
     exp: Optional[datetime] = Field(
         None, description='Time after which catalog has to be refreshed'
     )
@@ -1621,17 +1645,6 @@ class Catalog(BaseModel):
 class Feedback(BaseModel):
     feedback_form: Optional[FeedbackForm] = None
     feedback_url: Optional[FeedbackUrl] = None
-
-
-class Intent(BaseModel):
-    descriptor: Optional[Descriptor] = None
-    provider: Optional[Provider] = None
-    fulfillment: Optional[Fulfillment] = None
-    payment: Optional[Payment] = None
-    category: Optional[Category] = None
-    offer: Optional[Offer] = None
-    item: Optional[Item] = None
-    tags: List[Tag] = []
 
 
 class ResolutionProvider(BaseModel):
