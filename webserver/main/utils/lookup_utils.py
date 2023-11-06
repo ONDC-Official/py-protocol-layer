@@ -27,7 +27,7 @@ def fetch_subscriber_url_from_lookup(request_type, subscriber_id=None, domain=No
 
 def get_bpp_public_key_from_header(auth_header):
     header_parts = get_filter_dictionary_or_operation(auth_header.replace("Signature ", ""))
-    unique_key_id_field = "ukId" if os.getenv("ENV") == "pre_prod" else "unique_key_id"
+    unique_key_id_field = "ukId"
     payload = {
         "domain": get_config_by_name('DOMAIN'),
         "country": get_config_by_name('COUNTRY_CODE'),
