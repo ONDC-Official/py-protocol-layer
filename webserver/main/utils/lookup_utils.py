@@ -36,7 +36,7 @@ def get_bpp_public_key_from_header(auth_header):
     response, status_code = lookup_call(f"{get_config_by_name('REGISTRY_BASE_URL')}/lookup",
                                         payload=payload)
 
-    if status_code == 200:
-        return response[0]['signing_public_key']
+    if status_code == 200 and len(response) > 0:
+        return response[0].get('signing_public_key', None)
     else:
         return None
