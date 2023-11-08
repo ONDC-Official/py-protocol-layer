@@ -6,9 +6,11 @@ from main.models.catalog import SearchType
 from main.request_models.schema import Domain
 from main.service.common import dump_request_payload, update_dumped_request_with_response
 from main.service.search import gateway_search
+from main.utils.parallel_processing_utils import io_bound_parallel_computation
 
 
 def make_http_requests_for_search_by_city(search_type: SearchType, domains=None, cities=None, mode="start"):
+    search_payload_list = []
     domain_list = [e.value for e in Domain] if domains is None else domains
     end_time = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     start_time = (datetime.utcnow() - timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
@@ -99,7 +101,6 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
             }
 
     for d in domain_list:
-        headers = {'X-ONDC-Search-Response': search_type.value}
         for c in city_list:
             search_payload = {
                 "context": {
@@ -117,9 +118,16 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
                 },
                 "message": message
             }
-            entry_object_id = dump_request_payload("search", search_payload)
-            resp = gateway_search(search_payload, headers)
-            update_dumped_request_with_response(entry_object_id, resp)
+            search_payload_list.append(search_payload)
+
+    io_bound_parallel_computation(lambda x: dump_request_and_make_gateway_search(search_type, x), search_payload_list)
+
+
+def dump_request_and_make_gateway_search(search_type, search_payload):
+    headers = {'X-ONDC-Search-Response': search_type.value}
+    entry_object_id = dump_request_payload("search", search_payload)
+    resp = gateway_search(search_payload, headers)
+    update_dumped_request_with_response(entry_object_id, resp)
 
 
 def make_full_catalog_search_requests(domains=None, cities=None):
