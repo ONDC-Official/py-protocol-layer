@@ -1531,7 +1531,7 @@ class Order(BaseModel):
     offers: Optional[List[Offer1]] = None
     documents: Optional[List[Document]] = None
     billing: Optional[Billing] = None
-    fulfillments: Optional[List[Fulfillment]] = None
+    fulfillments: Optional[List[dict]] = None
     quote: Optional[Quotation] = None
     payment: Optional[Payment] = None
     created_at: Optional[datetime] = None
