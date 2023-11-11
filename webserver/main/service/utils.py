@@ -61,8 +61,10 @@ def validate_auth_header(func):
     def wrapper(*args, **kwargs):
         if get_config_by_name("VERIFICATION_ENABLE"):
             auth_header = request.headers.get('Authorization')
+            domain = request.get_json().get("context", {}).get("domain")
             if auth_header and verify_authorisation_header(auth_header, request.data.decode("utf-8"),
-                                                           public_key=get_bpp_public_key_from_header(auth_header)):
+                                                           public_key=get_bpp_public_key_from_header(auth_header,
+                                                                                                     domain)):
                 return func(*args, **kwargs)
             context = json.loads(request.data)[constant.CONTEXT]
             return get_ack_response(context=context, ack=False, error={

@@ -28,22 +28,6 @@ def check_for_exception(func):
     return _wrapper
 
 
-def validate_auth_header(func):
-    from flask import request
-    from flask_restx import abort
-    def wrapper(*args, **kwargs):
-        auth_header = request.headers.get('Authorization')
-        bg_or_bpp_public_key = get_bpp_public_key_from_header(auth_header)
-        if auth_header and verify_authorisation_header(auth_header, request.get_json(),
-                                                       public_key=bg_or_bpp_public_key):
-            return func(*args, **kwargs)
-        abort(403, message="Unauthorized!")
-
-    wrapper.__doc__ = func.__doc__
-    wrapper.__name__ = func.__name__
-    return wrapper
-
-
 def token_required(f):
     from flask import request
 
