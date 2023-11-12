@@ -66,7 +66,10 @@ def consume_message(connection, channel, queue_name, consume_fn):
         except Exception as e:
             log_error(f"Error processing message {body}: {e}")
 
-        connection.add_callback_threadsafe(cb)
+        if connection and connection.is_open:
+            connection.add_callback_threadsafe(cb)
+        else:
+            log_error("Connection is closed. Cannot add callback.")
 
     def on_message(ch, method_frame, header_frame, body):
         delivery_tag = method_frame.delivery_tag
