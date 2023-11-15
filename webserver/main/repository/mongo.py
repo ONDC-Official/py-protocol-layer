@@ -96,13 +96,14 @@ def collection_find_distinct(mongo_collection, query_object, distinct=None):
 
 
 @MeasureTime
-def collection_find_one(mongo_collection, query_object):
+def collection_find_one(mongo_collection, query_object, keep_created_at=False):
     if mongo_collection.name == "on_search_items":
         catalog = mongo_collection.find_one(query_object, {})
     else:
         catalog = mongo_collection.find_one(query_object)
     if catalog:
         catalog.pop('_id')
+    if not keep_created_at:
         catalog.pop('created_at', None)
     return catalog
 

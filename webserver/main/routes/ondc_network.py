@@ -7,10 +7,12 @@ from flask_restx import Namespace, Resource
 from main import constant
 from main.config import get_config_by_name
 from main.models.catalog import SearchType
+from main.models.error import BaseError
 from main.repository.ack_response import get_ack_response
 from main.service import send_message_to_queue_for_given_request
 from main.service.common import add_bpp_response, dump_request_payload, update_dumped_request_with_response
-from main.service.search import add_search_catalogues, dump_on_search_payload, add_incremental_search_catalogues
+from main.service.search import add_search_catalogues, dump_on_search_payload, add_incremental_search_catalogues, \
+    check_if_search_request_present_and_valid
 from main.service.utils import validate_auth_header
 from main.utils.validation import validate_payload_schema_based_on_version
 
@@ -25,6 +27,12 @@ class GatewayOnSearch(Resource):
         request_payload = request.get_json()
         # validate schema based on context version
         resp = validate_payload_schema_based_on_version(request_payload, 'on_search')
+        context = request_payload[constant.CONTEXT]
+        if not check_if_search_request_present_and_valid(context["domain"], context["transaction_id"]):
+            return get_ack_response(context=context, ack=False,
+                                    error={"type": BaseError.POLICY_ERROR.value, "code": "20000",
+                                           "message": "No search request was made with given domain and transaction_id "
+                                                      "in last 30 minutes!"}), 400
         if resp is None:
             request_type = request.headers.get("X-ONDC-Search-Response", "full")
             if get_config_by_name('QUEUE_ENABLE'):

@@ -27,6 +27,17 @@ def check_if_entity_present_for_given_id(collection_name, entity_id):
     return collection_find_one(collection, filter_criteria) is not None
 
 
+def check_if_search_request_present_and_valid(domain, transaction_id):
+    collection = get_mongo_collection("request_dump")
+    filter_criteria = {"action": "search", "request.context.domain": domain, "request.context.transaction_id": transaction_id}
+    search_request = collection_find_one(collection, filter_criteria, keep_created_at=True)
+    if search_request:
+        minutes_diff = (datetime.utcnow() - search_request['created_at']).total_seconds() // 60
+        if minutes_diff < 30:
+            return True
+    return False
+
+
 def enrich_provider_with_unique_id(provider, context):
     provider["local_id"] = provider.get(constant.ID)
     provider[constant.ID] = f"{context[constant.BPP_ID]}_{context[constant.DOMAIN]}_{provider.get(constant.ID)}"
@@ -549,6 +560,7 @@ def add_search_catalogues(bpp_response):
     context = bpp_response[constant.CONTEXT]
     if constant.MESSAGE not in bpp_response:
         return get_ack_response(context=context, ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
+
     catalog = bpp_response[constant.MESSAGE][constant.CATALOG]
     items = flatten_catalog_into_item_entries(catalog, context)
 
