@@ -73,6 +73,9 @@ def consume_message(connection, channel, queue_name, consume_fn):
 
     def on_message(ch, method_frame, header_frame, body):
         delivery_tag = method_frame.delivery_tag
+        if len(ch.consumer_tags) == 0:
+            log_error("Nobody is listening. Stopping the consumer!")
+            return
         t = threading.Thread(target=do_work, args=(delivery_tag, body))
         t.start()
         threads.append(t)
