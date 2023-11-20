@@ -28,11 +28,11 @@ class GatewayOnSearch(Resource):
         # validate schema based on context version
         resp = validate_payload_schema_based_on_version(request_payload, 'on_search')
         context = request_payload[constant.CONTEXT]
-        if not check_if_search_request_present_and_valid(context["domain"], context["transaction_id"]):
-            return get_ack_response(context=context, ack=False,
-                                    error={"type": BaseError.POLICY_ERROR.value, "code": "20000",
-                                           "message": "No search request was made with given domain and transaction_id "
-                                                      "in last 30 minutes!"}), 400
+        # if not check_if_search_request_present_and_valid(context["domain"], context["transaction_id"]):
+        #     return get_ack_response(context=context, ack=False,
+        #                             error={"type": BaseError.POLICY_ERROR.value, "code": "20000",
+        #                                    "message": "No search request was made with given domain and transaction_id "
+        #                                               "in last 30 minutes!"}), 400
         if resp is None:
             request_type = request.headers.get("X-ONDC-Search-Response", "full")
             if get_config_by_name('QUEUE_ENABLE'):
