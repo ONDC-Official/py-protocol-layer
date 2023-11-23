@@ -313,15 +313,18 @@ def update_item_customisation_group_ids_with_children(existing_ids, items):
                 for t in tags:
                     if t["code"] == "parent":
                         flag = t["list"][0]["value"] == cid
+                        if flag:
+                            break
 
                 if flag:
                     for t in tags:
                         if t["code"] == "child":
                             t_list = t["list"]
                             for l in t_list:
-                                new_ids.append(l['value'])
+                                if l['value'] not in existing_ids:
+                                    new_ids.append(l['value'])
     if len(new_ids) > 0:
-        new_ids.extend(update_item_customisation_group_ids_with_children(new_ids, items))
+        new_ids.extend(update_item_customisation_group_ids_with_children(list(set(new_ids)), items))
     return new_ids
 
 
