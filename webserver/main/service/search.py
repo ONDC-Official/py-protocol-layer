@@ -303,7 +303,7 @@ def get_self_and_nested_customisation_group_id(item):
     return customisation_group_id, customisation_nested_group_id
 
 
-def update_item_customisation_group_ids_with_children(existing_ids, items):
+def update_item_customisation_group_ids_with_children(existing_ids, items, all_ids=[]):
     new_ids = []
     for cid in existing_ids:
         for i in items:
@@ -321,10 +321,12 @@ def update_item_customisation_group_ids_with_children(existing_ids, items):
                         if t["code"] == "child":
                             t_list = t["list"]
                             for l in t_list:
-                                if l['value'] not in existing_ids:
+                                if l['value'] not in all_ids:
                                     new_ids.append(l['value'])
+
+    all_ids += new_ids
     if len(new_ids) > 0:
-        new_ids.extend(update_item_customisation_group_ids_with_children(list(set(new_ids)), items))
+        new_ids.extend(update_item_customisation_group_ids_with_children(list(set(new_ids)), items, all_ids))
     return new_ids
 
 
@@ -345,7 +347,7 @@ def add_product_with_attributes(items, db_insert=True):
             elif t["code"] == "custom_group":
                 custom_group_list = t["list"]
                 old_item_cg_ids = [c['value'] for c in custom_group_list]
-                old_item_cg_ids.extend(update_item_customisation_group_ids_with_children(old_item_cg_ids, items))
+                old_item_cg_ids.extend(update_item_customisation_group_ids_with_children(old_item_cg_ids, items, old_item_cg_ids))
                 item_cg_ids = [f"{i['provider_details']['id']}_{cg}" for cg in old_item_cg_ids]
 
         custom_menu_configs = item_details.get("category_ids", [])
