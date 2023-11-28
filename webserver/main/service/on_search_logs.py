@@ -24,5 +24,5 @@ def get_on_search_payloads(**kwargs):
     query_object = get_query_object(**kwargs)
     sort_field, sort_order = 'created_at', pymongo.DESCENDING
     on_search_payloads = mongo.collection_find_all(on_search_dump_collection, query_object, sort_field, sort_order,
-                                                   limit=None)['data']
+                                                   limit=100)['data']
     return on_search_payloads
