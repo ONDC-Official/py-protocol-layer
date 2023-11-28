@@ -10,6 +10,7 @@ from main import constant
 from main.models.error import BaseError
 from main.repository.ack_response import get_ack_response
 from main.routes.cron import cron_namespace
+from main.routes.logs import logs_namespace
 from main.routes.ondc_network import ondc_network_namespace
 from main.routes.client import client_namespace
 from main.routes.ondc_network_test import ondc_network_test_namespace
@@ -64,3 +65,4 @@ api.add_namespace(client_namespace, path='/protocol')
 api.add_namespace(response_namespace, path='/protocol')
 api.add_namespace(cron_namespace, path='/protocol')
 api.add_namespace(ondc_network_test_namespace, path='/protocol/test')
+api.add_namespace(logs_namespace, path='/protocol')
