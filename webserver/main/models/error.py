@@ -37,3 +37,9 @@ class RegistryLookupError(Enum):
         "code": "BAP_002",
         "message": "Error when reading from DB",
     }
+
+class IGMError(Enum):
+    DEADLINE_EXCEEDED = {
+        "code": "30000",
+        "message": "Invalid Request",
+    }
