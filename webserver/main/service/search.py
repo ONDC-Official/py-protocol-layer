@@ -411,10 +411,14 @@ def add_product_with_attributes(items, db_insert=True):
 
         products.append(p)
         providers.append(provider)
+        final_variant_groups = list({group.id: group for group in final_variant_groups}.values())
         final_variant_groups.extend(variant_groups)
+        final_custom_menus = list({group.id: group for group in final_custom_menus}.values())
         final_custom_menus.extend(custom_menus)
         final_customisation_groups.extend(customisation_groups)
+        final_customisation_groups = list({group.id: group for group in customisation_groups}.values())
 
+    providers = list({group.id: group for group in providers}.values())
     if db_insert:
         upsert_product_attributes(final_attrs)
         upsert_product_attribute_values(final_attr_values)
