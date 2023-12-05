@@ -13,13 +13,22 @@ from main.utils.schema_utils import get_json_schema_for_given_path, transform_js
 
 
 def validate_payload_schema_based_on_version(request_payload, request_type):
-    if request_payload[constant.CONTEXT]["core_version"] != "1.2.0":
-        # return validate_payload_schema_using_json_schema(request_payload, request_type)
+
+    # Issue action's core version should be 1.0.0
+    if request_payload[constant.CONTEXT]["core_version"] == "1.0.0":
+        if request_type == "issue" or request_type == "on_issue":
+            return validate_payload_schema_using_pydantic_classes(request_payload, request_type)
         return get_ack_response(context=request_payload["context"], ack=False,
                                 error={"type": BaseError.JSON_SCHEMA_ERROR.value, "code": "20000",
-                                       "message": "Version should be 1.2.0 !"}), 400
-    else:
+                                       "message": "Issue action version should be 1.0.0 !"}), 400
+
+    # Rest of the action methods should have 1.2.0
+    elif request_payload[constant.CONTEXT]["core_version"] == "1.2.0":
         return validate_payload_schema_using_pydantic_classes(request_payload, request_type)
+
+    return get_ack_response(context=request_payload["context"], ack=False,
+                            error={"type": BaseError.JSON_SCHEMA_ERROR.value, "code": "20000",
+                                   "message": "Version should be 1.2.0 !"}), 400
 
 
 def validate_payload_schema_using_json_schema(request_payload, request_type):
