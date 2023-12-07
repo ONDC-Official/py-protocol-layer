@@ -1,5 +1,6 @@
 import base64
 import datetime
+import os
 import re
 import uuid
 
@@ -126,4 +127,4 @@ if __name__ == '__main__':
     # os.environ["BAP_PUBLIC_KEY"] = public_key1
     auth_header1 = create_authorisation_header(request_body1)
     print(auth_header1)
-    print(verify_authorisation_header(auth_header1, request_body1))
+    print(verify_authorisation_header(auth_header1, json.dumps(request_body1, separators=(',', ':')), os.getenv("BAP_PUBLIC_KEY")))
