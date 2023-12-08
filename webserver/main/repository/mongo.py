@@ -108,6 +108,13 @@ def collection_find_one(mongo_collection, query_object, keep_created_at=False):
     return catalog
 
 
+def collection_find_one_with_sort(mongo_collection, query_object, sort_on):
+    catalog = mongo_collection.find_one(query_object, sort=[(sort_on, pymongo.DESCENDING)])
+    if catalog:
+        catalog.pop('_id')
+    return catalog
+
+
 @MeasureTime
 def collection_get_count(mongo_collection, query_object):
     count = mongo_collection.count_documents(query_object)
