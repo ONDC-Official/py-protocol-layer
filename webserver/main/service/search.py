@@ -915,7 +915,18 @@ def dump_on_search_payload(payload):
     return mongo.collection_insert_one(collection, payload)
 
 
-def update_on_search_dump_status(object_id, status):
+def update_on_search_dump_status(object_id, status, response_time=None):
     collection = get_mongo_collection('on_search_dump')
     filter_criteria = {"_id": object_id}
-    collection.update_one(filter_criteria, {'$set': {"status": status}})
+    value = {"status": status}
+    if response_time:
+        value["response_time"] = response_time
+    collection.update_one(filter_criteria, {'$set': value})
+
+
+def get_last_search_dump_timestamp(domain, city, transaction_id):
+    search_collection = get_mongo_collection('request_dump')
+    query_object = {"action": "search", "request.context.domain": domain, "request.context.city": city,
+                    "request.context.transaction_id": transaction_id}
+    catalog = mongo.collection_find_one_with_sort(search_collection, query_object, "created_at")
+    return catalog['created_at'] if catalog else None

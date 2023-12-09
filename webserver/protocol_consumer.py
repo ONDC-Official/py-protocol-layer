@@ -9,7 +9,8 @@ from main.logger.custom_logging import log, log_error
 from main.models import init_database, get_mongo_collection
 from main.models.catalog import SearchType
 from main.repository import mongo
-from main.service.search import add_search_catalogues, add_incremental_search_catalogues, update_on_search_dump_status
+from main.service.search import add_search_catalogues, add_incremental_search_catalogues, update_on_search_dump_status, \
+    get_last_search_dump_timestamp
 from main.utils.rabbitmq_utils import create_channel, declare_queue, consume_message, open_connection
 
 
@@ -20,13 +21,20 @@ def consume_fn(message_string):
 
         doc_id = ObjectId(payload["doc_id"])
         collection = get_mongo_collection('on_search_dump')
-        on_search_payload = mongo.collection_find_one(collection, {"_id": doc_id})
+        on_search_payload = mongo.collection_find_one(collection, {"_id": doc_id}, keep_created_at=True)
         if on_search_payload:
             on_search_payload.pop("id", None)
             if payload["request_type"] == SearchType.FULL.value:
-                update_on_search_dump_status(doc_id, "IN-PROGRESS")
-                add_search_catalogues(on_search_payload)
-                update_on_search_dump_status(doc_id, "FINISHED")
+                search_timestamp = get_last_search_dump_timestamp(on_search_payload["context"]["domain"],
+                                                                  on_search_payload["context"]["city"],
+                                                                  on_search_payload["context"]["transaction_id"])
+                if search_timestamp:
+                    response_time = (on_search_payload["created_at"] - search_timestamp).seconds
+                    update_on_search_dump_status(doc_id, "IN-PROGRESS", response_time)
+                    add_search_catalogues(on_search_payload)
+                    update_on_search_dump_status(doc_id, "FINISHED")
+                else:
+                    log_error(f"No search request found for given {on_search_payload['context']}")
             elif payload["request_type"] == SearchType.INC.value:
                 update_on_search_dump_status(doc_id, "IN-PROGRESS")
                 add_incremental_search_catalogues(on_search_payload)
