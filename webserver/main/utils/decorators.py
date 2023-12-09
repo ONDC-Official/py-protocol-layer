@@ -5,8 +5,6 @@ import traceback
 from functools import wraps
 
 from main.config import get_config_by_name
-from main.utils.cryptic_utils import verify_authorisation_header
-from main.utils.lookup_utils import get_bpp_public_key_from_header
 
 
 def expects_json_handling_validation(*args, **kwargs):
