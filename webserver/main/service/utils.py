@@ -59,7 +59,6 @@ def handle_stop_iteration(func):
 
 def validate_auth_header(func):
     def wrapper(*args, **kwargs):
-        log(f"Headers received: {dict(request.headers)}")
         if get_config_by_name("VERIFICATION_ENABLE"):
             auth_header = request.headers.get('Authorization')
             domain = request.get_json().get("context", {}).get("domain")
