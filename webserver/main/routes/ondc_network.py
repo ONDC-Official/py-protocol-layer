@@ -15,6 +15,7 @@ from main.service.common import add_bpp_response, dump_request_payload, update_d
 from main.service.search import add_search_catalogues, dump_on_search_payload, add_incremental_search_catalogues, \
     check_if_search_request_present_and_valid
 from main.service.utils import validate_auth_header
+from main.utils.decorators import MeasureTime
 from main.utils.validation import validate_payload_schema_based_on_version
 
 ondc_network_namespace = Namespace('ondc_network', description='ONDC Network Namespace')
@@ -23,6 +24,7 @@ ondc_network_namespace = Namespace('ondc_network', description='ONDC Network Nam
 @ondc_network_namespace.route("/v1/on_search")
 class GatewayOnSearch(Resource):
 
+    @MeasureTime
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
