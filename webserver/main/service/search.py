@@ -416,7 +416,7 @@ def add_product_with_attributes(items, db_insert=True):
         final_custom_menus = list({group.id: group for group in final_custom_menus}.values())
         final_custom_menus.extend(custom_menus)
         final_customisation_groups.extend(customisation_groups)
-        final_customisation_groups = list({group.id: group for group in customisation_groups}.values())
+        final_customisation_groups = list({group.id: group for group in final_customisation_groups}.values())
 
     providers = list({group.id: group for group in providers}.values())
     if db_insert:
