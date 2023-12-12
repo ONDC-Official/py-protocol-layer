@@ -1,3 +1,4 @@
+import time
 import uuid
 from datetime import datetime, timedelta
 
@@ -130,7 +131,9 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
             }
             search_payload_list.append(search_payload)
 
-    io_bound_parallel_computation(lambda x: dump_request_and_make_gateway_search(search_type, x), search_payload_list)
+    for x in search_payload_list:
+        dump_request_and_make_gateway_search(search_type, x)
+        time.sleep(1)
 
 
 def get_transaction_id_of_last_start(domain, city):
