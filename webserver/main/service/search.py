@@ -924,9 +924,8 @@ def update_on_search_dump_status(object_id, status, response_time=None):
     collection.update_one(filter_criteria, {'$set': value})
 
 
-def get_last_search_dump_timestamp(domain, city, transaction_id):
+def get_last_search_dump_timestamp(transaction_id):
     search_collection = get_mongo_collection('request_dump')
-    query_object = {"action": "search", "request.context.domain": domain, "request.context.city": city,
-                    "request.context.transaction_id": transaction_id}
+    query_object = {"action": "search", "request.context.transaction_id": transaction_id}
     catalog = mongo.collection_find_one_with_sort(search_collection, query_object, "created_at")
     return catalog['created_at'] if catalog else None

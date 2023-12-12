@@ -25,16 +25,15 @@ def consume_fn(message_string):
         if on_search_payload:
             on_search_payload.pop("id", None)
             if payload["request_type"] == SearchType.FULL.value:
-                search_timestamp = get_last_search_dump_timestamp(on_search_payload["context"]["domain"],
-                                                                  on_search_payload["context"]["city"],
-                                                                  on_search_payload["context"]["transaction_id"])
+                search_timestamp = get_last_search_dump_timestamp(on_search_payload["context"]["transaction_id"])
                 if search_timestamp:
                     response_time = (on_search_payload["created_at"] - search_timestamp).seconds
                     update_on_search_dump_status(doc_id, "IN-PROGRESS", response_time)
-                    add_search_catalogues(on_search_payload)
-                    update_on_search_dump_status(doc_id, "FINISHED")
                 else:
                     log_error(f"No search request found for given {on_search_payload['context']}")
+                    update_on_search_dump_status(doc_id, "IN-PROGRESS")
+                add_search_catalogues(on_search_payload)
+                update_on_search_dump_status(doc_id, "FINISHED")
             elif payload["request_type"] == SearchType.INC.value:
                 update_on_search_dump_status(doc_id, "IN-PROGRESS")
                 add_incremental_search_catalogues(on_search_payload)
