@@ -28,10 +28,12 @@ def fetch_subscriber_url_from_lookup(request_type, subscriber_id=None, domain=No
 
 def get_bpp_public_key_from_header(auth_header, domain):
     header_parts = get_filter_dictionary_or_operation(auth_header.replace("Signature ", ""))
+    subscriber_id = header_parts['keyId'].split("|")[0]
     unique_key_id = header_parts['keyId'].split("|")[1]
     payload = {
         "domain": domain,
         "country": get_config_by_name('COUNTRY_CODE'),
+        "subscriber_id": subscriber_id,
         "ukId": unique_key_id
     }
     response, status_code = lookup_call(f"{get_config_by_name('REGISTRY_BASE_URL')}/lookup",
