@@ -4,7 +4,6 @@ from flask_restx import Namespace, Resource
 from main import constant
 from main.repository.ack_response import get_ack_response
 from main.service.search import add_search_catalogues_for_test
-from main.service.utils import validate_auth_header
 from main.utils.validation import validate_payload_schema_based_on_version
 
 ondc_network_test_namespace = Namespace('ondc_network', description='ONDC Network Namespace')
@@ -13,7 +12,6 @@ ondc_network_test_namespace = Namespace('ondc_network', description='ONDC Networ
 @ondc_network_test_namespace.route("/v1/on_search")
 class GatewayOnSearch(Resource):
 
-    @validate_auth_header
     def post(self):
         request_payload = request.get_json()
         # validate schema based on context version
@@ -26,7 +24,6 @@ class GatewayOnSearch(Resource):
 @ondc_network_test_namespace.route("/v1/on_select")
 class AddSelectResponse(Resource):
 
-    @validate_auth_header
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_select')
@@ -38,7 +35,6 @@ class AddSelectResponse(Resource):
 @ondc_network_test_namespace.route("/v1/on_init")
 class AddInitResponse(Resource):
 
-    @validate_auth_header
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_init')
@@ -50,7 +46,6 @@ class AddInitResponse(Resource):
 @ondc_network_test_namespace.route("/v1/on_confirm")
 class AddConfirmResponse(Resource):
 
-    @validate_auth_header
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_confirm')
@@ -62,7 +57,6 @@ class AddConfirmResponse(Resource):
 @ondc_network_test_namespace.route("/v1/on_cancel")
 class AddCancelResponse(Resource):
 
-    @validate_auth_header
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_cancel')
@@ -74,7 +68,6 @@ class AddCancelResponse(Resource):
 @ondc_network_test_namespace.route("/v1/cancellation_reasons")
 class AddCancellationReasonsResponse(Resource):
 
-    @validate_auth_header
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_cancellation_reasons')
@@ -86,7 +79,6 @@ class AddCancellationReasonsResponse(Resource):
 @ondc_network_test_namespace.route("/v1/on_issue")
 class AddIssueResponse(Resource):
 
-    @validate_auth_header
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_issue')
@@ -98,7 +90,6 @@ class AddIssueResponse(Resource):
 @ondc_network_test_namespace.route("/v1/on_issue_status")
 class AddIssueStatusResponse(Resource):
 
-    @validate_auth_header
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_issue_status')
@@ -110,7 +101,6 @@ class AddIssueStatusResponse(Resource):
 @ondc_network_test_namespace.route("/v1/on_rating")
 class AddRatingResponse(Resource):
 
-    @validate_auth_header
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_rating')
@@ -122,7 +112,6 @@ class AddRatingResponse(Resource):
 @ondc_network_test_namespace.route("/v1/on_status")
 class AddStatusResponse(Resource):
 
-    @validate_auth_header
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_status')
@@ -134,7 +123,6 @@ class AddStatusResponse(Resource):
 @ondc_network_test_namespace.route("/v1/on_support")
 class AddSupportResponse(Resource):
 
-    @validate_auth_header
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_support')
@@ -146,7 +134,6 @@ class AddSupportResponse(Resource):
 @ondc_network_test_namespace.route("/v1/on_track")
 class AddTrackResponse(Resource):
 
-    @validate_auth_header
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_track')
@@ -158,7 +145,6 @@ class AddTrackResponse(Resource):
 @ondc_network_test_namespace.route("/v1/on_update")
 class AddUpdateResponse(Resource):
 
-    @validate_auth_header
     def post(self):
         request_payload = request.get_json()
         resp = validate_payload_schema_based_on_version(request_payload, 'on_update')

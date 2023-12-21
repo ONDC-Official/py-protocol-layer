@@ -5,7 +5,7 @@ from main.logger.custom_logging import log, log_error
 from main.utils.decorators import MeasureTime
 
 
-@MeasureTime
+# @MeasureTime
 def collection_insert_one(mongo_collection, entry):
     resp = mongo_collection.insert_one(entry)
     return resp.inserted_id
@@ -27,7 +27,7 @@ def collection_upsert_one(mongo_collection, filter_criteria, data):
         return False
 
 
-@MeasureTime
+# @MeasureTime
 def collection_upsert_many(mongo_collection, filter_criteria_list, update_data_list):
     try:
         mongo_collection.update_many({'$or': filter_criteria_list}, {'$set': update_data_list}, upsert=True)
@@ -38,7 +38,7 @@ def collection_upsert_many(mongo_collection, filter_criteria_list, update_data_l
         return False
 
 
-@MeasureTime
+# @MeasureTime
 def collection_insert_many(mongo_collection, entries):
     try:
         mongo_collection.insert_many(entries)
@@ -82,7 +82,7 @@ def collection_find_all(mongo_collection, query_object, sort_field=None, sort_or
         return None
 
 
-@MeasureTime
+# @MeasureTime
 def collection_find_distinct(mongo_collection, query_object, distinct=None):
     try:
         log(f"Getting distinct entries from collection {mongo_collection.name}")
@@ -105,6 +105,13 @@ def collection_find_one(mongo_collection, query_object, keep_created_at=False):
         catalog.pop('_id')
     if not keep_created_at:
         catalog.pop('created_at', None)
+    return catalog
+
+
+def collection_find_one_with_sort(mongo_collection, query_object, sort_on):
+    catalog = mongo_collection.find_one(query_object, sort=[(sort_on, pymongo.DESCENDING)])
+    if catalog:
+        catalog.pop('_id')
     return catalog
 
 

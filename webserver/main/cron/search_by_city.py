@@ -1,8 +1,12 @@
+import time
 import uuid
 from datetime import datetime, timedelta
 
 from main.config import get_config_by_name
+from main.logger.custom_logging import log_error
+from main.models import get_mongo_collection
 from main.models.catalog import SearchType
+from main.repository import mongo
 from main.request_models.schema import Domain
 from main.service.common import dump_request_payload, update_dumped_request_with_response
 from main.service.search import gateway_search
@@ -102,6 +106,13 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
 
     for d in domain_list:
         for c in city_list:
+            if search_type == SearchType.INC and mode == "stop":
+                transaction_id = get_transaction_id_of_last_start(d, c)
+                if transaction_id is None:
+                    log_error(f"Transaction-id not found for start for {d}")
+                    continue
+            else:
+                transaction_id = str(uuid.uuid4())
             search_payload = {
                 "context": {
                     "domain": d,
@@ -111,7 +122,7 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
                     "core_version": "1.2.0",
                     "bap_id": get_config_by_name("BAP_ID"),
                     "bap_uri": get_config_by_name("BAP_URL"),
-                    "transaction_id": str(uuid.uuid4()),
+                    "transaction_id": transaction_id,
                     "message_id": str(uuid.uuid4()),
                     "timestamp": end_time,
                     "ttl": "PT30S"
@@ -120,7 +131,17 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
             }
             search_payload_list.append(search_payload)
 
-    io_bound_parallel_computation(lambda x: dump_request_and_make_gateway_search(search_type, x), search_payload_list)
+    for x in search_payload_list:
+        dump_request_and_make_gateway_search(search_type, x)
+        time.sleep(1)
+
+
+def get_transaction_id_of_last_start(domain, city):
+    search_collection = get_mongo_collection('request_dump')
+    query_object = {"action": "search", "request.context.domain": domain, "request.context.city": city,
+                    "request.message.intent.tags.list.value": "start"}
+    catalog = mongo.collection_find_one_with_sort(search_collection, query_object, "created_at")
+    return catalog['request']['context']['transaction_id'] if catalog else None
 
 
 def dump_request_and_make_gateway_search(search_type, search_payload):
@@ -140,7 +161,6 @@ def make_incremental_catalog_search_requests(domains=None, cities=None, mode="st
 
 def make_search_operation_along_with_incremental():
     make_incremental_catalog_search_requests(mode="stop")
-    make_full_catalog_search_requests()
     make_incremental_catalog_search_requests(mode="start")
 
 

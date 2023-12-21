@@ -15,6 +15,7 @@ from main.service.common import add_bpp_response, dump_request_payload, update_d
 from main.service.search import add_search_catalogues, dump_on_search_payload, add_incremental_search_catalogues, \
     check_if_search_request_present_and_valid
 from main.service.utils import validate_auth_header
+from main.utils.decorators import MeasureTime
 from main.utils.validation import validate_payload_schema_based_on_version
 
 ondc_network_namespace = Namespace('ondc_network', description='ONDC Network Namespace')
@@ -23,6 +24,7 @@ ondc_network_namespace = Namespace('ondc_network', description='ONDC Network Nam
 @ondc_network_namespace.route("/v1/on_search")
 class GatewayOnSearch(Resource):
 
+    @MeasureTime
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
@@ -60,7 +62,7 @@ class AddSelectResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        log(f"Got the on_select request payload {request_payload}!")
+        log(f"Got the on_select request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_select')
         if resp is None:
             entry_object_id = dump_request_payload("on_select", request_payload)
@@ -79,7 +81,7 @@ class AddInitResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        log(f"Got the on_init request payload {request_payload}!")
+        log(f"Got the on_init request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_init')
         if resp is None:
             entry_object_id = dump_request_payload("on_init", request_payload)
@@ -98,7 +100,7 @@ class AddConfirmResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        log(f"Got the on_confirm request payload {request_payload}!")
+        log(f"Got the on_confirm request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_confirm')
         if resp is None:
             entry_object_id = dump_request_payload("on_confirm", request_payload)
@@ -117,7 +119,7 @@ class AddCancelResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        log(f"Got the on_cancel request payload {request_payload}!")
+        log(f"Got the on_cancel request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_cancel')
         if resp is None:
             entry_object_id = dump_request_payload("on_cancel", request_payload)
@@ -136,7 +138,7 @@ class AddCancellationReasonsResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        log(f"Got the cancellation_reasons request payload {request_payload}!")
+        log(f"Got the cancellation_reasons request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_cancellation_reasons')
         if resp is None:
             entry_object_id = dump_request_payload("on_cancellation_reasons", request_payload)
@@ -155,7 +157,7 @@ class AddIssueResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        log(f"Got the on_issue request payload {request_payload}!")
+        log(f"Got the on_issue request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_issue')
         if resp is None:
             entry_object_id = dump_request_payload("on_issue", request_payload)
@@ -174,7 +176,7 @@ class AddIssueStatusResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        log(f"Got the on_issue_status request payload {request_payload}!")
+        log(f"Got the on_issue_status request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_issue_status')
         if resp is None:
             entry_object_id = dump_request_payload("on_issue_status", request_payload)
@@ -193,7 +195,7 @@ class AddRatingResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        log(f"Got the on_rating request payload {request_payload}!")
+        log(f"Got the on_rating request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_rating')
         if resp is None:
             entry_object_id = dump_request_payload("on_rating", request_payload)
@@ -212,7 +214,7 @@ class AddStatusResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        log(f"Got the on_status request payload {request_payload}!")
+        log(f"Got the on_status request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_status')
         if resp is None:
             entry_object_id = dump_request_payload("on_status", request_payload)
@@ -231,7 +233,7 @@ class AddSupportResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        log(f"Got the on_support request payload {request_payload}!")
+        log(f"Got the on_support request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_support')
         if resp is None:
             entry_object_id = dump_request_payload("on_support", request_payload)
@@ -250,7 +252,7 @@ class AddTrackResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        log(f"Got the on_track request payload {request_payload}!")
+        log(f"Got the on_track request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_track')
         if resp is None:
             entry_object_id = dump_request_payload("on_track", request_payload)
@@ -269,7 +271,7 @@ class AddUpdateResponse(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        log(f"Got the on_update request payload {request_payload}!")
+        log(f"Got the on_update request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_update')
         if resp is None:
             entry_object_id = dump_request_payload("on_update", request_payload)
