@@ -290,7 +290,7 @@ class OnIssueRequest(BaseModel):
 
 class OnIssueStatusRequest(BaseModel):
     context: OnCallContext
-    message: OnIssueStatusMessage
+    message: dict
     error: Optional[Error]
 
 
