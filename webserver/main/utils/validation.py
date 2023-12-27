@@ -6,6 +6,7 @@ from flask import request
 from jsonschema.validators import validate
 
 from main import constant
+from main.logger.custom_logging import log
 from main.models.error import BaseError
 from main.repository.ack_response import get_ack_response
 from main.request_models.request import request_type_to_class_mapping
@@ -38,6 +39,7 @@ def validate_payload_schema_using_pydantic_classes(request_payload, request_type
     except pydantic.ValidationError as e:
         error_message = str(e)
         context = json.loads(request.data)[constant.CONTEXT]
+        log(e)
         return get_ack_response(context=context, ack=False,
                                 error={"type": BaseError.JSON_SCHEMA_ERROR.value, "code": "20000",
                                        "message": error_message}), 400
