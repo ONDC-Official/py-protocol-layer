@@ -192,6 +192,9 @@ class Type2(Enum):
     Delivery = 'Delivery'
     Delivery_and_Self_Pickup = 'Delivery and Self-Pickup'
     Reverse_QC = 'Reverse QC'
+    Cancel = 'Cancel'
+    Return = 'Return'
+    RTO = 'RTO'
 
 
 class Gps(BaseModel):
@@ -1533,7 +1536,7 @@ class Order(BaseModel):
     offers: Optional[List[Offer1]] = None
     documents: Optional[List[Document]] = None
     billing: Optional[Billing] = None
-    fulfillments: Optional[List[dict]] = None
+    fulfillments: Optional[List[Fulfillment]] = None
     quote: Optional[Quotation] = None
     payment: Optional[Payment] = None
     created_at: Optional[datetime] = None
