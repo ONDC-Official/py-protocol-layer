@@ -27,6 +27,17 @@ def check_if_entity_present_for_given_id(collection_name, entity_id):
     return collection_find_one(collection, filter_criteria) is not None
 
 
+def check_if_search_request_present_and_valid(domain, transaction_id):
+    collection = get_mongo_collection("request_dump")
+    filter_criteria = {"action": "search", "request.context.domain": domain, "request.context.transaction_id": transaction_id}
+    search_request = collection_find_one(collection, filter_criteria, keep_created_at=True)
+    if search_request:
+        minutes_diff = (datetime.utcnow() - search_request['created_at']).total_seconds() // 60
+        if minutes_diff < 30:
+            return True
+    return False
+
+
 def enrich_provider_with_unique_id(provider, context):
     provider["local_id"] = provider.get(constant.ID)
     provider[constant.ID] = f"{context[constant.BPP_ID]}_{context[constant.DOMAIN]}_{provider.get(constant.ID)}"
@@ -292,23 +303,53 @@ def get_self_and_nested_customisation_group_id(item):
     return customisation_group_id, customisation_nested_group_id
 
 
+def update_item_customisation_group_ids_with_children(existing_ids, items, all_ids=[]):
+    new_ids = []
+    for cid in existing_ids:
+        for i in items:
+            if i["type"] == "customization":
+                tags = i['item_details'].get("tags", [])
+                flag = False
+                for t in tags:
+                    if t["code"] == "parent":
+                        flag = t["list"][0]["value"] == cid
+                        if flag:
+                            break
+
+                if flag:
+                    for t in tags:
+                        if t["code"] == "child":
+                            t_list = t["list"]
+                            for l in t_list:
+                                if l['value'] not in all_ids:
+                                    new_ids.append(l['value'])
+
+    all_ids += new_ids
+    if len(new_ids) > 0:
+        new_ids.extend(update_item_customisation_group_ids_with_children(list(set(new_ids)), items, all_ids))
+    return new_ids
+
+
 def add_product_with_attributes(items, db_insert=True):
     products, final_attrs, final_attr_values = [], [], []
     providers, locations, final_variant_groups, final_custom_menus, final_customisation_groups = [], [], [], [], []
-    item_customisation_group_ids = []
+    item_cg_ids = []
     for i in items:
         attributes, variants, variant_group_local_id = [], [], None
         item_details = i["item_details"]
         tags = item_details["tags"]
+        variant_groups, custom_menus, customisation_groups = transform_item_categories(i)
+
         attr_codes = []
         for t in tags:
             if t["code"] == "attribute":
                 attributes = t["list"]
             elif t["code"] == "custom_group":
                 custom_group_list = t["list"]
-                item_customisation_group_ids = [f"{i['provider_details']['id']}_{c['value']}" for c in custom_group_list]
+                old_item_cg_ids = [c['value'] for c in custom_group_list]
+                old_item_cg_ids.extend(update_item_customisation_group_ids_with_children(old_item_cg_ids, items, old_item_cg_ids))
+                item_cg_ids = [f"{i['provider_details']['id']}_{cg}" for cg in old_item_cg_ids]
 
-        variant_groups, custom_menus, customisation_groups = transform_item_categories(i)
         custom_menu_configs = item_details.get("category_ids", [])
         custom_menu_new_list, variant_group_id = [], None
         for c in custom_menu_configs:
@@ -336,10 +377,10 @@ def add_product_with_attributes(items, db_insert=True):
         p = Product(**{"id": i["id"],
                        "product_code": item_details["descriptor"].get("code"),
                        "product_name": item_details["descriptor"].get("name"),
-                       "category": item_details["category_id"],
+                       "category": item_details.get("category_id"),
                        "variant_group": variant_group_id,
                        "custom_menus": custom_menu_ids,
-                       "customisation_groups": item_customisation_group_ids,
+                       "customisation_groups": item_cg_ids,
                        "attribute_codes": attr_codes,
                        "timestamp": i["context"]["timestamp"],
                        })
@@ -370,10 +411,14 @@ def add_product_with_attributes(items, db_insert=True):
 
         products.append(p)
         providers.append(provider)
+        final_variant_groups = list({group.id: group for group in final_variant_groups}.values())
         final_variant_groups.extend(variant_groups)
+        final_custom_menus = list({group.id: group for group in final_custom_menus}.values())
         final_custom_menus.extend(custom_menus)
         final_customisation_groups.extend(customisation_groups)
+        final_customisation_groups = list({group.id: group for group in final_customisation_groups}.values())
 
+    providers = list({group.id: group for group in providers}.values())
     if db_insert:
         upsert_product_attributes(final_attrs)
         upsert_product_attribute_values(final_attr_values)
@@ -425,78 +470,97 @@ def add_product_with_attributes_incremental_flow(items):
 def upsert_product_attributes(product_attributes: List[ProductAttribute]):
     collection = get_mongo_collection('product_attribute')
     for p in product_attributes:
-        filter_criteria = {"id": f"{p.provider}_{p.code}"}
-        mongo.collection_upsert_one(collection, filter_criteria, p.dict())
+        filter_criteria = {"provider": p.provider, "code": p.code}
+        p_dict = p.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_product_attribute_values(product_attribute_values: List[ProductAttributeValue]):
     collection = get_mongo_collection('product_attribute_value')
     for p in product_attribute_values:
         filter_criteria = {"product": p.product, "attribute_code": p.attribute_code}
-        mongo.collection_upsert_one(collection, filter_criteria, p.dict())
+        p_dict = p.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_variant_groups(variant_groups: List[VariantGroup]):
     collection = get_mongo_collection('variant_group')
     for v in variant_groups:
         filter_criteria = {"id": v.id}
-        mongo.collection_upsert_one(collection, filter_criteria, v.dict())
+        p_dict = v.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_custom_menus(custom_menus: List[CustomMenu]):
     collection = get_mongo_collection('custom_menu')
     for v in custom_menus:
         filter_criteria = {"id": v.id}
-        mongo.collection_upsert_one(collection, filter_criteria, v.dict())
+        p_dict = v.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_customisation_groups(customisation_groups: List[CustomisationGroup]):
     collection = get_mongo_collection('customisation_group')
     for v in customisation_groups:
         filter_criteria = {"id": v.id}
-        mongo.collection_upsert_one(collection, filter_criteria, v.dict())
+        p_dict = v.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_products(products: List[Product]):
     collection = get_mongo_collection('product')
     for p in products:
         filter_criteria = {"id": p.id}
-        mongo.collection_upsert_one(collection, filter_criteria, p.dict())
+        p_dict = p.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_products_incremental_flow(products: List[dict]):
     collection = get_mongo_collection('product')
-    for p in products:
-        filter_criteria = {"id": p["id"]}
-        mongo.collection_upsert_one(collection, filter_criteria, p)
+    for p_dict in products:
+        filter_criteria = {"id": p_dict["id"]}
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_providers(products: List[Provider]):
     collection = get_mongo_collection('provider')
     for p in products:
         filter_criteria = {"id": p.id}
-        mongo.collection_upsert_one(collection, filter_criteria, p.dict())
+        p_dict = p.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_providers_incremental_flow(products: List[dict]):
     collection = get_mongo_collection('provider')
-    for p in products:
-        filter_criteria = {"id": p["id"]}
-        mongo.collection_upsert_one(collection, filter_criteria, p)
+    for p_dict in products:
+        filter_criteria = {"id": p_dict["id"]}
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_locations(locations: List[Location]):
     collection = get_mongo_collection('location')
     for p in locations:
         filter_criteria = {"id": p.id}
-        mongo.collection_upsert_one(collection, filter_criteria, p.dict())
+        p_dict = p.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 def upsert_locations_incremental_flow(locations: List[dict]):
     collection = get_mongo_collection('location')
-    for p in locations:
-        filter_criteria = {"id": p["id"]}
-        mongo.collection_upsert_one(collection, filter_criteria, p)
+    for p_dict in locations:
+        filter_criteria = {"id": p_dict["id"]}
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
 @check_for_exception
@@ -505,6 +569,7 @@ def add_search_catalogues(bpp_response):
     context = bpp_response[constant.CONTEXT]
     if constant.MESSAGE not in bpp_response:
         return get_ack_response(context=context, ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
+
     catalog = bpp_response[constant.MESSAGE][constant.CATALOG]
     items = flatten_catalog_into_item_entries(catalog, context)
 
@@ -517,12 +582,15 @@ def add_search_catalogues(bpp_response):
     for i in items:
         # Upsert a single document
         i["timestamp"] = i["context"]["timestamp"]
+        i["created_at"] = datetime.utcnow()
         filter_criteria = {"id": i['id']}
         is_successful = is_successful and mongo.collection_upsert_one(search_collection, filter_criteria, i)
 
     if is_successful:
+        log(f"Search catalogs added successfully, message-id: {bpp_response['context']['message_id']} for {bpp_response['context']['bpp_id']}")
         return get_ack_response(context=context, ack=True)
     else:
+        log(f"Search catalogs failed while adding, message-id: {bpp_response['context']['message_id']} for {bpp_response['context']['bpp_id']}")
         return get_ack_response(context=context, ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
 
 
@@ -575,6 +643,7 @@ def add_incremental_search_catalogues_for_items_update(bpp_response):
                                 "customisation_nested_group_id"])
             # Upsert a single document
             filter_criteria = {"id": i["id"]}
+            new_i["created_at"] = datetime.utcnow()
             new_i["timestamp"] = i["context"]["timestamp"]
             is_successful = is_successful and mongo.collection_upsert_one(search_collection, filter_criteria, new_i)
         else:
@@ -596,6 +665,7 @@ def add_incremental_search_catalogues_for_locations_update(bpp_response):
         for l in locations:
             l["id"] = f"{context[constant.BPP_ID]}_{context[constant.DOMAIN]}_{p['id']}_{l['id']}"
             l["timestamp"] = context["timestamp"]
+            l["created_at"] = datetime.utcnow()
             if check_if_entity_present_for_given_id("location", l["id"]):
                 filter_criteria = {"id": l['id']}
                 mongo.collection_upsert_one(mongo_collection, filter_criteria, l)
@@ -616,6 +686,7 @@ def add_incremental_search_catalogues_for_provider_update(bpp_response):
     for p in bpp_providers:
         p["id"] = f"{context[constant.BPP_ID]}_{context[constant.DOMAIN]}_{p['id']}"
         p["timestamp"] = context["timestamp"]
+        p["created_at"] = datetime.utcnow()
         if check_if_entity_present_for_given_id("provider", p["id"]):
             filter_criteria = {"id": p['id']}
             mongo.collection_upsert_one(mongo_collection, filter_criteria, p)
@@ -631,7 +702,7 @@ def add_incremental_search_catalogues_for_provider_update(bpp_response):
 @MeasureTime
 def gateway_search(search_request, headers={}):
     request_type = 'search'
-    gateway_url = fetch_subscriber_url_from_lookup(request_type)
+    gateway_url = fetch_subscriber_url_from_lookup(request_type, domain=search_request['context']['domain'])
     search_url = f"{gateway_url}{request_type}" if gateway_url.endswith("/") else f"{gateway_url}/{request_type}"
     auth_header = create_authorisation_header(search_request)
     log(f"making request to bg or bpp with {search_request}")
@@ -839,4 +910,22 @@ def get_location_details(location_id):
 
 def dump_on_search_payload(payload):
     collection = get_mongo_collection('on_search_dump')
-    mongo.collection_insert_one(collection, payload)
+    payload["created_at"] = datetime.utcnow()
+    payload["status"] = "PENDING"
+    return mongo.collection_insert_one(collection, payload)
+
+
+def update_on_search_dump_status(object_id, status, response_time=None):
+    collection = get_mongo_collection('on_search_dump')
+    filter_criteria = {"_id": object_id}
+    value = {"status": status}
+    if response_time:
+        value["response_time"] = response_time
+    collection.update_one(filter_criteria, {'$set': value})
+
+
+def get_last_search_dump_timestamp(transaction_id):
+    search_collection = get_mongo_collection('request_dump')
+    query_object = {"action": "search", "request.context.transaction_id": transaction_id}
+    catalog = mongo.collection_find_one_with_sort(search_collection, query_object, "created_at")
+    return catalog['created_at'] if catalog else None

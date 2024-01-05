@@ -1,7 +1,5 @@
 import functools
-import json
 import threading
-import time
 
 import pika
 
@@ -34,7 +32,7 @@ def close_connection(connection):
 
 def create_channel(connection):
     channel = connection.channel()
-    channel.basic_qos(prefetch_count=1)
+    channel.basic_qos(prefetch_count=get_config_by_name('CONSUMER_MAX_WORKERS', 10))
     return channel
 
 
@@ -62,11 +60,22 @@ def consume_message(connection, channel, queue_name, consume_fn):
         thread_id = threading.get_ident()
         log(f'Thread id: {thread_id} Delivery tag: {delivery_tag} Message body: {body}')
         cb = functools.partial(callback, channel, delivery_tag, body)
-        consume_fn(body)
-        connection.add_callback_threadsafe(cb)
+
+        try:
+            consume_fn(body)
+        except Exception as e:
+            log_error(f"Error processing message {body}: {e}")
+
+        if connection and connection.is_open:
+            connection.add_callback_threadsafe(cb)
+        else:
+            log_error("Connection is closed. Cannot add callback.")
 
     def on_message(ch, method_frame, header_frame, body):
         delivery_tag = method_frame.delivery_tag
+        if len(ch.consumer_tags) == 0:
+            log_error("Nobody is listening. Stopping the consumer!")
+            return
         t = threading.Thread(target=do_work, args=(delivery_tag, body))
         t.start()
         threads.append(t)
@@ -76,6 +85,7 @@ def consume_message(connection, channel, queue_name, consume_fn):
 
     channel.basic_consume(queue=queue_name, on_message_callback=on_message_callback, auto_ack=False)
     log('Waiting for messages:')
+
     try:
         channel.start_consuming()
     except KeyboardInterrupt:

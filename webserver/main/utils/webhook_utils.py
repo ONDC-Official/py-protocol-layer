@@ -75,5 +75,8 @@ def post_on_bg_or_bpp(url, payload, headers={}):
 
 
 def lookup_call(url, payload, headers=None):
-    response = requests.post(url, json=payload, headers=headers)
-    return json.loads(response.text), response.status_code
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        return json.loads(response.text), response.status_code
+    except Exception as e:
+        return {"error": f"Something went wrong {e}!"}, 500

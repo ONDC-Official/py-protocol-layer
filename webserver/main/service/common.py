@@ -66,7 +66,8 @@ def get_bpp_response_for_message_id(**kwargs):
 def bpp_post_call(request_type, request_payload):
     subscriber_id = request_payload[constant.CONTEXT][constant.BPP_ID]
     bpp_url = request_payload[constant.CONTEXT]["bpp_uri"] if "bpp_uri" in request_payload[constant.CONTEXT]\
-        else fetch_subscriber_url_from_lookup(request_type, subscriber_id=subscriber_id)
+        else fetch_subscriber_url_from_lookup(request_type, subscriber_id=subscriber_id,
+                                              domain=request_payload[constant.CONTEXT][constant.DOMAIN])
     bpp_url_with_route = f"{bpp_url}{request_type}" if bpp_url.endswith("/") else f"{bpp_url}/{request_type}"
     auth_header = create_authorisation_header(request_payload)
     return post_on_bg_or_bpp(bpp_url_with_route, payload=request_payload, headers={'Authorization': auth_header})
@@ -74,7 +75,8 @@ def bpp_post_call(request_type, request_payload):
 
 def dump_request_payload(action, payload):
     collection = get_mongo_collection('request_dump')
-    return mongo.collection_insert_one(collection, {"action": action, "request": payload})
+    return mongo.collection_insert_one(collection, {"action": action, "request": payload,
+                                                    "created_at": datetime.utcnow()})
 
 
 def update_dumped_request_with_response(object_id, response):

@@ -1,3 +1,5 @@
+import threading
+
 from flask_restx import Namespace, Resource, reqparse
 
 from main.cron.search_by_city import make_full_catalog_search_requests, make_incremental_catalog_search_requests, \
@@ -24,11 +26,18 @@ class FullCatalogSearch(Resource):
         parser.add_argument("cities", type=str, action='append')
         return parser.parse_args()
 
+    def long_running_task(self, **kwargs):
+        args = kwargs.get('post_data', {})
+        make_full_catalog_search_requests(args['domains'], args['cities'])
+
     @cron_namespace.doc(security='apikey')
     @token_required
     def post(self):
         args = self.create_parser_with_args()
-        make_full_catalog_search_requests(args['domains'], args['cities'])
+        # make_full_catalog_search_requests(args['domains'], args['cities'])
+        # return {"status": "success"}, 200
+        thread = threading.Thread(target=self.long_running_task, kwargs={'post_data': args})
+        thread.start()
         return {"status": "success"}, 200
 
 
