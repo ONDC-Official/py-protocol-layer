@@ -1456,7 +1456,7 @@ class Cancellation(BaseModel):
 
 
 class Category(BaseModel):
-    id: str = Field(None, description='Unique id of the category')
+    id: str
     parent_category_id: Optional[IdModel] = None
     descriptor: Optional[Descriptor] = None
     time: Optional[Time] = None
