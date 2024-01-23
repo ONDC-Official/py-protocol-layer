@@ -92,6 +92,8 @@ class Location(BaseModel):
     provider: str
     provider_descriptor: dict
     gps: list
+    type: Optional[str]
+    polygons: Optional[dict]
     address: Optional[dict]
     circle: Optional[dict]
     time: Optional[dict]
