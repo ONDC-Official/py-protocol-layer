@@ -1,7 +1,7 @@
 import math
 
 
-def create_simple_circle_polygon(latitude, longitude, radius_in_km, num_points=10):
+def create_simple_circle_polygon(latitude, longitude, radius_in_km, num_points=24):
     polygon = []
     radius_in_meters = radius_in_km*1000
 

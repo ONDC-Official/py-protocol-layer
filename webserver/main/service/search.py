@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from json import JSONDecodeError
 from typing import List, Tuple
 import re
 
@@ -334,24 +335,28 @@ def update_item_customisation_group_ids_with_children(existing_ids, items, all_i
 def update_location_with_serviceability(location, serviceabilities):
     if len(serviceabilities) > 0:
         serviceability = serviceabilities[0]
-        if serviceability["unit"] == "polygon":
-            val = json.loads(serviceability["val"])
-            coordinates = val["features"][0]["geometry"]["coordinates"]
-        elif serviceability["unit"] == "geojson":
-            val = json.loads(serviceability["val"])
-            multi_coordinates = val["features"][0]["geometry"]["coordinates"]
-            coordinates = [x for xs in multi_coordinates for x in xs]
-        elif serviceability["unit"] == "coordinates":
-            val = json.loads(serviceability["val"])
-            coordinates = [[[v['lat'], v['lng']] for v in val]]
-        elif serviceability["unit"] == "km":
-            coordinates = [create_simple_circle_polygon(location.gps[0], location.gps[1], float(serviceability["val"]))]
+        try:
+            if serviceability["unit"] == "polygon":
+                val = json.loads(serviceability["val"])
+                coordinates = val["features"][0]["geometry"]["coordinates"]
+            elif serviceability["unit"] == "geojson":
+                val = json.loads(serviceability["val"])
+                multi_coordinates = val["features"][0]["geometry"]["coordinates"]
+                coordinates = [x for xs in multi_coordinates for x in xs]
+            elif serviceability["unit"] == "coordinates":
+                val = json.loads(serviceability["val"])
+                coordinates = [[[v['lat'], v['lng']] for v in val]]
+            elif serviceability["unit"] == "km":
+                coordinates = [create_simple_circle_polygon(location.gps[0], location.gps[1], float(serviceability["val"]))]
 
-        location.__setattr__("type", "polygon")
-        location.__setattr__("polygons", {
-            "type": "Polygon",
-            "coordinates": coordinates
-        })
+            location.__setattr__("type", "polygon")
+            location.__setattr__("polygons", {
+                "type": "Polygon",
+                "coordinates": coordinates
+            })
+        except JSONDecodeError:
+            raise Exception("Serviceability JSON string parsing error")
+
     return location
 
 
@@ -906,7 +911,6 @@ def get_locations(**kwargs):
     mongo_collection = get_mongo_collection("location")
     lat = kwargs.pop("latitude", None)
     long = kwargs.pop("longitude", None)
-    radius = kwargs.pop("radius", 10)
     query_object = {k: v for k, v in kwargs.items() if v is not None}
     if lat and long:
         query_object.update(
@@ -920,6 +924,8 @@ def get_locations(**kwargs):
             }
         )
     providers = mongo.collection_find_all(mongo_collection, query_object, geo_spatial=True)
+    for p in providers["data"]:
+        p.pop("polygons")
     return providers
 
 
