@@ -1,8 +1,9 @@
 import math
 
 
-def create_simple_circle_polygon(latitude, longitude, radius_in_meters, num_points=10):
+def create_simple_circle_polygon(latitude, longitude, radius_in_km, num_points=10):
     polygon = []
+    radius_in_meters = radius_in_km*1000
 
     for i in range(num_points):
         angle = 2 * math.pi * i / num_points
@@ -16,4 +17,5 @@ def create_simple_circle_polygon(latitude, longitude, radius_in_meters, num_poin
         # Add point to the polygon
         polygon.append([longitude + dx_deg, latitude + dy_deg])
 
+    polygon.append(polygon[0])
     return polygon
