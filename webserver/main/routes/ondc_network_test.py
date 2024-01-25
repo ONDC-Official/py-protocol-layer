@@ -4,6 +4,7 @@ from flask_restx import Namespace, Resource
 from main import constant
 from main.repository.ack_response import get_ack_response
 from main.service.search import add_search_catalogues_for_test
+from main.utils.decorators import MeasureTime
 from main.utils.validation import validate_payload_schema_based_on_version
 
 ondc_network_test_namespace = Namespace('ondc_network', description='ONDC Network Namespace')
@@ -12,6 +13,7 @@ ondc_network_test_namespace = Namespace('ondc_network', description='ONDC Networ
 @ondc_network_test_namespace.route("/v1/on_search")
 class GatewayOnSearch(Resource):
 
+    @MeasureTime
     def post(self):
         request_payload = request.get_json()
         # validate schema based on context version
