@@ -336,6 +336,9 @@ def update_location_with_serviceability(location, serviceabilities):
     if len(serviceabilities) > 0:
         serviceability = serviceabilities[0]
         try:
+            location_type = "pan" if serviceability["type"] in ["11", "12"] else "polygon"
+            location.__setattr__("type", location_type)
+
             if serviceability["unit"] == "polygon":
                 val = json.loads(serviceability["val"])
                 coordinates = val["features"][0]["geometry"]["coordinates"]
@@ -348,8 +351,9 @@ def update_location_with_serviceability(location, serviceabilities):
                 coordinates = [[[v['lat'], v['lng']] for v in val]]
             elif serviceability["unit"] == "km":
                 coordinates = [create_simple_circle_polygon(location.gps[0], location.gps[1], float(serviceability["val"]))]
+            else:
+                return location
 
-            location.__setattr__("type", "polygon")
             location.__setattr__("polygons", {
                 "type": "Polygon",
                 "coordinates": coordinates
@@ -391,7 +395,6 @@ def add_product_with_attributes(items, db_insert=True):
                     serviceabilities[location_local_id] = [serviceability]
                 # else:
                 #     serviceabilities[location_local_id].append(serviceability)
-
 
         attr_codes = []
         for t in tags:
