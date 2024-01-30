@@ -1,4 +1,4 @@
-version: '2'
+version: '3.8'
 
 services:
 
@@ -9,11 +9,11 @@ services:
     container_name: bap-protocol-webserver
     depends_on:
       - rabbitmq
-      - mongo
+      - mongo1
     environment:
       ENV: prod
       RABBITMQ_HOST: ${RABBITMQ_HOST}
-      MONGO_DATABASE_HOST: ${MONGO_DATABASE_HOST}
+      MONGO_DATABASE_URL: ${MONGO_DATABASE_URL}
       BAP_URL: ${BAP_URL}
       CLIENT_WEBHOOK_ENDPOINT: ${CLIENT_WEBHOOK_ENDPOINT}
       BAP_PRIVATE_KEY: ${BAP_PRIVATE_KEY}
@@ -22,12 +22,11 @@ services:
       BAP_ID: ${BAP_ID}
       VERIFICATION_ENABLE: ${VERIFICATION_ENABLE}
       FLASK_SERVER: "True"
-      QUEUE_ENABLE: "True"
+      QUEUE_ENABLE: "False"
     expose:
       - 5555
     ports:
       - 5555:5555
-
 
   consumer:
     build:
@@ -36,16 +35,16 @@ services:
     container_name: bap-protocol-consumer
     depends_on:
       - rabbitmq
-      - mongo
+      - mongo1
     environment:
       ENV: prod
+      MONGO_DATABASE_URL: ${MONGO_DATABASE_URL}
       RABBITMQ_HOST: ${RABBITMQ_HOST}
       BAP_PRIVATE_KEY: ${BAP_PRIVATE_KEY}
       BAP_UNIQUE_KEY_ID: ${BAP_UNIQUE_KEY_ID}
       BAP_PUBLIC_KEY: ${BAP_PUBLIC_KEY}
       BAP_ID: ${BAP_ID}
       FLASK_SERVER: "False"
-
 
   rabbitmq:
     image: rabbitmq:3.10-management
@@ -58,11 +57,24 @@ services:
       - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
 
-
-  mongo:
-    image: mongo
-    restart: always
-    ports:
-      - 27017:27017
+  mongo1:
+    image: mongo:4.2
+    container_name: mongo1
+    command: [ "--replSet", "my-replica-set", "--bind_ip_all", "--port", "30001" ]
     volumes:
-      - "./data:/data/db"
+      - ./data/mongo-1:/data/db
+    ports:
+      - 30001:30001
+    healthcheck:
+      test: test $$(echo "rs.initiate({_id:'my-replica-set',members:[{_id:0,host:\"mongo1:30001\"},{_id:1,host:\"mongo2:30002\"}).ok || rs.status().ok" | mongo --port 30001 --quiet) -eq 1
+      interval: 10s
+      start_period: 30s
+
+  mongo2:
+    image: mongo:4.2
+    container_name: mongo2
+    command: [ "--replSet", "my-replica-set", "--bind_ip_all", "--port", "30002" ]
+    volumes:
+      - ./data/mongo-2:/data/db
+    ports:
+      - 30002:30002

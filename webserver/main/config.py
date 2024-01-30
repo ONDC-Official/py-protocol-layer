@@ -44,6 +44,8 @@ class Config:
     API_TOKEN = os.getenv("API_TOKEN", "testing_random_123")
     MAX_CONSUME_MESSAGE_TIME = int(os.getenv("MAX_CONSUME_MESSAGE_TIME", "30"))
     CONSUMER_MAX_WORKERS = int(os.getenv("CONSUMER_MAX_WORKERS", "100"))
+    MONGO_DATABASE_URL = os.getenv("MONGO_DATABASE_URL", "mongodb://localhost:27017")
+    # MONGO_DATABASE_URL = "mongodb://mongo1:30001,mongo2:30002/?replicaSet=my-replica-set&readPreference=secondary"
 
 
 class DevelopmentConfig(Config):
