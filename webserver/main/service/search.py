@@ -463,7 +463,7 @@ def add_product_with_attributes(items, db_insert=True):
                                    "time": i['location_details'].get('time'),
                                    "timestamp": i["context"]["timestamp"],
                                    })
-            location = update_location_with_serviceability(location, serviceabilities[i['location_details']['local_id']])
+            location = update_location_with_serviceability(location, serviceabilities.get(i['location_details']['local_id'], []))
             locations.append(location)
 
         products.append(p)
