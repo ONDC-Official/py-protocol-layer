@@ -476,6 +476,7 @@ def add_product_with_attributes(items, db_insert=True):
         final_customisation_groups = list({group.id: group for group in final_customisation_groups}.values())
 
     providers = list({group.id: group for group in providers}.values())
+    locations = list({l.id: l for l in locations}.values())
     if db_insert:
         upsert_product_attributes(final_attrs)
         upsert_product_attribute_values(final_attr_values)
@@ -606,9 +607,11 @@ def upsert_providers_incremental_flow(products: List[dict]):
 def upsert_locations(locations: List[Location]):
     collection = get_mongo_collection('location')
     for p in locations:
+        print("p: ", p)
         filter_criteria = {"id": p.id}
         p_dict = p.dict()
         p_dict["created_at"] = datetime.utcnow()
+        print(f"location id: {p.id}")
         mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
