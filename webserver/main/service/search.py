@@ -477,6 +477,7 @@ def add_product_with_attributes(items, db_insert=True):
 
     providers = list({group.id: group for group in providers}.values())
     locations = list({l.id: l for l in locations}.values())
+    final_custom_menus = list({l.id: l for l in final_custom_menus}.values())
     if db_insert:
         upsert_product_attributes(final_attrs)
         upsert_product_attribute_values(final_attr_values)
