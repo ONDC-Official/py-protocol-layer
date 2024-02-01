@@ -608,11 +608,9 @@ def upsert_providers_incremental_flow(products: List[dict]):
 def upsert_locations(locations: List[Location]):
     collection = get_mongo_collection('location')
     for p in locations:
-        print("p: ", p)
         filter_criteria = {"id": p.id}
         p_dict = p.dict()
         p_dict["created_at"] = datetime.utcnow()
-        print(f"location id: {p.id}")
         mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
