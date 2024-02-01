@@ -15,7 +15,7 @@ def create_simple_circle_polygon(latitude, longitude, radius_in_km, num_points=2
         dy_deg = dy / 110540
 
         # Add point to the polygon
-        polygon.append([longitude + dx_deg, latitude + dy_deg])
+        polygon.append([latitude + dx_deg, longitude + dy_deg])
 
     polygon.append(polygon[0])
     return polygon
