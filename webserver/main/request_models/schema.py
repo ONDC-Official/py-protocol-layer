@@ -1586,7 +1586,7 @@ class OnSearchProvider(BaseModel):
         None, description='Time after which catalog has to be refreshed'
     )
     rateable: Optional[Rateable] = None
-    tags: List[Tag] = []
+    tags: List[Tag]
 
 
 class Rating(BaseModel):

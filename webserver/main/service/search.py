@@ -249,7 +249,7 @@ def transform_item_into_product_variant_group(org_id, local_id, variants, item):
 
 
 def transform_item_into_custom_menu(org_id, local_id, custom_menu, item):
-    return CustomMenu(**{"local_id": local_id, "parent_category_id": custom_menu["parent_category_id"],
+    return CustomMenu(**{"local_id": local_id, "parent_category_id": custom_menu.get("parent_category_id"),
                          "descriptor": custom_menu["descriptor"], "tags": custom_menu["tags"],
                          "id": f"{org_id}_{local_id}", "category": item["item_details"]["category_id"],
                          "domain": item["context"]["domain"], "provider": org_id,
