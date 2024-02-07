@@ -49,12 +49,28 @@ def create_all_indexes():
 
 
 def create_ttl_index(collection_name, ttl_in_seconds=None):
-    # check if index already exists
-    if "created_at_ttl" in get_mongo_collection(collection_name).index_information():
-        return
+    collection = mongo_db[collection_name]
+    index_name = "created_at_ttl"
+    # Set default TTL if not provided
     ttl_in_seconds = ttl_in_seconds if ttl_in_seconds else get_config_by_name('TTL_IN_SECONDS')
-    get_mongo_collection(collection_name).create_index("created_at", name="created_at_ttl",
-                                                       expireAfterSeconds=ttl_in_seconds)
+    
+    # Get the current index information
+    indexes = collection.index_information()
+    
+    # Check if the index exists and if the 'expireAfterSeconds' value matches
+    if index_name in indexes:
+        current_ttl = indexes[index_name].get('expireAfterSeconds')
+        if current_ttl != ttl_in_seconds:
+            # Drop the existing index if the TTL value is different
+            log(f"Dropping index {index_name} from collection {collection_name} due to TTL mismatch.")
+            collection.drop_index(index_name)
+            # Create the index with the new TTL value
+            log(f"Creating index {index_name} on collection {collection_name} with TTL of {ttl_in_seconds} seconds.")
+            collection.create_index([("created_at", ASCENDING)], name=index_name, expireAfterSeconds=ttl_in_seconds)
+    else:
+        # Create the index if it does not exist
+        log(f"Creating index {index_name} on collection {collection_name} with TTL of {ttl_in_seconds} seconds.")
+        collection.create_index([("created_at", ASCENDING)], name=index_name, expireAfterSeconds=ttl_in_seconds)
 
 
 def get_mongo_collection(collection_name):
