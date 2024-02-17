@@ -7,7 +7,7 @@ from pydantic import BaseModel, validator, ValidationError
 
 from main.request_models.schema import Context, Catalog, Error, Order, Descriptor, Issue, Provider, Location, \
     Item, AddOn, Offer, Quotation, Billing, Fulfillment, Payment, Rating, Tracking, RatingAck, Domain, CodeModel, Code, \
-    Action
+    Action, IncrCatalog
 
 
 class Status(Enum):
@@ -81,6 +81,10 @@ class OnCallContext(BaseModel):
 
 class OnSearchMessage(BaseModel):
     catalog: Optional[Catalog]
+
+
+class IncrOnSearchMessage(BaseModel):
+    catalog: Optional[IncrCatalog]
 
 
 class OnSelectOrder(BaseModel):
@@ -216,9 +220,21 @@ class IssueStatusRequest(BaseModel):
     error: Optional[Error]
 
 
-class OnSearchRequest(BaseModel):
+class FullOnSearchRequest(BaseModel):
     context: OnCallContext
     message: OnSearchMessage
+    error: Optional[Error]
+
+    @validator("message")
+    def validate_catalog(cls, v, values):
+        if v.catalog is None:
+            raise ValidationError("Catalog is missing!")
+        return v
+
+
+class IncrOnSearchRequest(BaseModel):
+    context: OnCallContext
+    message: IncrOnSearchMessage
     error: Optional[Error]
 
     @validator("message")
@@ -307,7 +323,8 @@ request_type_to_class_mapping = {
     "support": SupportRequest,
     "issue": IssueRequest,
     "issue_status": IssueStatusRequest,
-    "on_search": OnSearchRequest,
+    "full_on_search": FullOnSearchRequest,
+    "incr_on_search": IncrOnSearchRequest,
     "on_select": OnSelectRequest,
     "on_init": OnInitRequest,
     "on_confirm": OnConfirmRequest,

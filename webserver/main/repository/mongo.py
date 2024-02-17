@@ -103,8 +103,8 @@ def collection_find_one(mongo_collection, query_object, keep_created_at=False):
         catalog = mongo_collection.find_one(query_object)
     if catalog:
         catalog.pop('_id')
-    if not keep_created_at:
-        catalog.pop('created_at', None)
+        if not keep_created_at:
+            catalog.pop('created_at', None)
     return catalog
 
 

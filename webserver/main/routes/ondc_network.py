@@ -29,7 +29,12 @@ class GatewayOnSearch(Resource):
     def post(self):
         request_payload = request.get_json()
         # validate schema based on context version
-        resp = validate_payload_schema_based_on_version(request_payload, 'on_search')
+        request_type = request.headers.get("X-ONDC-Search-Response", "full")
+        if request_type == SearchType.FULL.value:
+            resp = validate_payload_schema_based_on_version(request_payload, 'full_on_search')
+        else:
+            resp = validate_payload_schema_based_on_version(request_payload, 'incr_on_search')
+
         context = request_payload[constant.CONTEXT]
         request_type = request.headers.get("X-ONDC-Search-Response", "full")
         if request_type == SearchType.FULL.value and \
