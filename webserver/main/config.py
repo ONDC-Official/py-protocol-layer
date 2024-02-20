@@ -26,7 +26,7 @@ class Config:
     JWT_QUERY_STRING_NAME = "token"
     # Set the secret key to sign the JWTs with
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-    DOMAIN = "nic2004:52110"
+    DOMAIN = os.getenv("DOMAIN", "ONDC:RET10")
     CITY_CODE = "std:080"
     COUNTRY_CODE = "IND"
     BAP_TTL = "20"
