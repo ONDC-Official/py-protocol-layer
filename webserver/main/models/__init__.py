@@ -1,5 +1,5 @@
 import json
-from pymongo import MongoClient, GEOSPHERE, TEXT
+from pymongo import MongoClient, GEOSPHERE, TEXT, ASCENDING
 
 from main.config import get_config_by_name
 from main.logger.custom_logging import log
