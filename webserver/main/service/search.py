@@ -365,7 +365,7 @@ def update_location_with_serviceability(location, serviceabilities):
 
 
 def add_product_with_attributes(items, db_insert=True):
-    products, final_attrs, final_attr_values = [], [], []
+    products, final_attrs, final_attr_values, provider_categories = [], [], [], {}
     providers, locations, final_variant_groups, final_custom_menus, final_customisation_groups = [], [], [], [], []
     serviceabilities = dict()
     item_cg_ids = []
@@ -395,6 +395,14 @@ def add_product_with_attributes(items, db_insert=True):
                     serviceabilities[location_local_id] = [serviceability]
                 # else:
                 #     serviceabilities[location_local_id].append(serviceability)
+
+        # add categories in provider
+        category = item_details["category_id"]
+        provider_id = provider_details["id"]
+        if provider_id in provider_categories:
+            provider_categories[provider_id].add(category)
+        else:
+            provider_categories[provider_id] = {category}
 
         attr_codes = []
         for t in tags:
@@ -478,6 +486,9 @@ def add_product_with_attributes(items, db_insert=True):
     providers = list({group.id: group for group in providers}.values())
     locations = list({l.id: l for l in locations}.values())
     final_custom_menus = list({l.id: l for l in final_custom_menus}.values())
+
+    for p in providers:
+        p.categories = list(provider_categories[p.id])
     if db_insert:
         upsert_product_attributes(final_attrs)
         upsert_product_attribute_values(final_attr_values)
@@ -592,6 +603,8 @@ def upsert_providers(products: List[Provider]):
     collection = get_mongo_collection('provider')
     for p in products:
         filter_criteria = {"id": p.id}
+        old_p = mongo.collection_find_one(collection, filter_criteria) or {}
+        p.categories = list(set(p.categories + old_p.get("categories", [])))
         p_dict = p.dict()
         p_dict["created_at"] = datetime.utcnow()
         mongo.collection_upsert_one(collection, filter_criteria, p_dict)

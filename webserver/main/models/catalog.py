@@ -82,6 +82,7 @@ class Provider(BaseModel):
     ttl: Optional[str]
     tags: Optional[List[dict]]
     time: Optional[dict]
+    categories: Optional[list]
     timestamp: str
 
 

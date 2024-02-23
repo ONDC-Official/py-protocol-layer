@@ -38,7 +38,8 @@ class GatewayOnSearch(Resource):
         context = request_payload[constant.CONTEXT]
         request_type = request.headers.get("X-ONDC-Search-Response", "full")
         if request_type == SearchType.FULL.value and \
-                not check_if_search_request_present_and_valid(context["domain"], context["transaction_id"]):
+                not check_if_search_request_present_and_valid(context["domain"], context["transaction_id"])\
+                and not get_config_by_name("IS_TEST"):
             return get_ack_response(context=context, ack=False,
                                     error={"type": BaseError.POLICY_ERROR.value, "code": "20000",
                                            "message": "No search request was made with given domain and transaction_id "
