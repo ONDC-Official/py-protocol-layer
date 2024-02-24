@@ -489,6 +489,8 @@ def add_product_with_attributes(items, db_insert=True):
 
     for p in providers:
         p.categories = list(provider_categories[p.id])
+    for lo in locations:
+        lo.categories = list(provider_categories.get(lo.provider, []))
     if db_insert:
         upsert_product_attributes(final_attrs)
         upsert_product_attribute_values(final_attr_values)
@@ -622,6 +624,8 @@ def upsert_locations(locations: List[Location]):
     collection = get_mongo_collection('location')
     for p in locations:
         filter_criteria = {"id": p.id}
+        old_p = mongo.collection_find_one(collection, filter_criteria) or {}
+        p.categories = list(set(p.categories + old_p.get("categories", [])))
         p_dict = p.dict()
         p_dict["created_at"] = datetime.utcnow()
         mongo.collection_upsert_one(collection, filter_criteria, p_dict)

@@ -132,7 +132,7 @@ def get_email_config_value_for_name(config_name):
 
 
 if __name__ == '__main__':
-    os.environ["ENV"] = "light"
+    os.environ["ENV"] = "dev"
     print(get_config_by_name("DOMAIN"))
 
     os.environ["ENV"] = "prod"

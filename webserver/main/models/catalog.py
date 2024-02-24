@@ -98,4 +98,5 @@ class Location(BaseModel):
     address: Optional[dict]
     circle: Optional[dict]
     time: Optional[dict]
+    categories: Optional[list]
     timestamp: str
