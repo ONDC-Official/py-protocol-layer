@@ -10,7 +10,7 @@ from funcy import project
 from main.logger.custom_logging import log
 from main.models import get_mongo_collection
 from main.models.catalog import Product, ProductAttribute, ProductAttributeValue, VariantGroup, CustomMenu, \
-    CustomisationGroup, Provider, Location
+    CustomisationGroup, Provider, Location, LocationOffer
 from main.models.error import DatabaseError, RegistryLookupError, BaseError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
@@ -67,6 +67,14 @@ def enrich_location_details_into_items(locations, item):
         location = {}
     item[constant.LOCATION_DETAILS] = location
     return item
+
+
+def get_location_details_from_location_objects(location_objects, location_id):
+    try:
+        location = next(i for i in location_objects if i.id == location_id)
+    except:
+        location = None
+    return location
 
 
 def enrich_category_details_into_items(categories, item):
@@ -184,6 +192,7 @@ def enrich_is_first_flag_for_items(items):
 
 def flatten_catalog_into_item_entries(catalog, context):
     item_entries = []
+    provider_entries = []
     bpp_id = context.get(constant.BPP_ID)
     if bpp_id:
         bpp_descriptor = catalog.get(constant.BPP_DESCRIPTOR, {})
@@ -212,10 +221,14 @@ def flatten_catalog_into_item_entries(catalog, context):
             [enrich_item_type(i) for i in provider_items]
             provider_items = enrich_is_first_flag_for_items(provider_items)
             item_entries.extend(provider_items)
+            new_p = {"offers": p["offers"]}
+            enrich_provider_details_into_items(p, new_p)
+            enrich_context_bpp_id_and_descriptor_into_items(context, bpp_id, bpp_descriptor, new_p)
+            provider_entries.append(new_p)
 
     [enrich_created_at_timestamp_in_item(i) for i in item_entries]
     [enrich_unique_id_in_item(i) for i in item_entries]
-    return item_entries
+    return item_entries, provider_entries
 
 
 def transform_item_into_product_attributes(item, attributes, variant_group_id):
@@ -364,9 +377,10 @@ def update_location_with_serviceability(location, serviceabilities):
     return location
 
 
-def add_product_with_attributes(items, db_insert=True):
+def add_product_with_attributes(items, providers_with_offers, db_insert=True):
     products, final_attrs, final_attr_values, provider_categories = [], [], [], {}
     providers, locations, final_variant_groups, final_custom_menus, final_customisation_groups = [], [], [], [], []
+    location_offers = []
     serviceabilities = dict()
     item_cg_ids = []
     for i in items:
@@ -483,6 +497,27 @@ def add_product_with_attributes(items, db_insert=True):
         final_customisation_groups.extend(customisation_groups)
         final_customisation_groups = list({group.id: group for group in final_customisation_groups}.values())
 
+    for pr in providers_with_offers:
+        for o in pr["offers"]:
+            for lo in o["location_ids"]:
+                location_unique_id = f'{pr["provider_details"]["id"]}_{lo}'
+                location_found = get_location_details_from_location_objects(locations, location_unique_id)
+                location_polygons = location_found.polygons if location_found else None
+                location_offers.append(LocationOffer(**{
+                    "id": f'{location_unique_id}_{o["id"]}',
+                    "local_id": o['id'],
+                    "domain": pr["context"]["domain"],
+                    "provider": pr['provider_details']['id'],
+                    "provider_descriptor": pr['provider_details']['descriptor'],
+                    "descriptor": o["descriptor"],
+                    "location": location_unique_id,
+                    "item_ids": [f'{pr["provider_details"]["id"]}_{x}' for x in o["item_ids"]],
+                    "time": o["time"],
+                    "tags": o["tags"],
+                    "polygons": location_polygons,
+                    "timestamp": pr["context"]["timestamp"]
+                    }))
+
     providers = list({group.id: group for group in providers}.values())
     locations = list({l.id: l for l in locations}.values())
     final_custom_menus = list({l.id: l for l in final_custom_menus}.values())
@@ -500,6 +535,7 @@ def add_product_with_attributes(items, db_insert=True):
         upsert_products(products)
         upsert_providers(providers)
         upsert_locations(locations)
+        upsert_location_offers(location_offers)
     return items
 
 
@@ -639,6 +675,15 @@ def upsert_locations_incremental_flow(locations: List[dict]):
         mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
 
+def upsert_location_offers(location_offers: List[LocationOffer]):
+    collection = get_mongo_collection('location_offer')
+    for p in location_offers:
+        filter_criteria = {"id": p.id}
+        p_dict = p.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+
+
 @check_for_exception
 def add_search_catalogues(bpp_response):
     log(f"Adding search catalogs with message-id: {bpp_response['context']['message_id']} for {bpp_response['context']['bpp_id']}")
@@ -647,14 +692,14 @@ def add_search_catalogues(bpp_response):
         return get_ack_response(context=context, ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
 
     catalog = bpp_response[constant.MESSAGE][constant.CATALOG]
-    items = flatten_catalog_into_item_entries(catalog, context)
+    items, providers = flatten_catalog_into_item_entries(catalog, context)
 
     if len(items) == 0:
         return get_ack_response(context=context, ack=True)
     search_collection = get_mongo_collection('on_search_items')
     is_successful = True
 
-    items = add_product_with_attributes(items)
+    items = add_product_with_attributes(items, providers)
     for i in items:
         # Upsert a single document
         i["timestamp"] = i["context"]["timestamp"]
@@ -676,12 +721,12 @@ def add_search_catalogues_for_test(bpp_response):
     if constant.MESSAGE not in bpp_response:
         return get_ack_response(context=context, ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
     catalog = bpp_response[constant.MESSAGE][constant.CATALOG]
-    items = flatten_catalog_into_item_entries(catalog, context)
+    items, providers = flatten_catalog_into_item_entries(catalog, context)
 
     if len(items) == 0:
         return get_ack_response(context=context, ack=True)
 
-    add_product_with_attributes(items, db_insert=False)
+    add_product_with_attributes(items, providers, db_insert=False)
     return get_ack_response(context=context, ack=True)
 
 
@@ -931,6 +976,28 @@ def get_providers(**kwargs):
 
 def get_locations(**kwargs):
     mongo_collection = get_mongo_collection("location")
+    lat = kwargs.pop("latitude", None)
+    long = kwargs.pop("longitude", None)
+    query_object = {k: v for k, v in kwargs.items() if v is not None}
+    if lat and long:
+        query_object.update(
+            {"$or": [
+                {"polygons":
+                     {"$geoIntersects":
+                          {"$geometry": {"type": "Point", "coordinates": [lat, long]}}
+                      }
+                 },
+                {"type": "pan"}]
+            }
+        )
+    providers = mongo.collection_find_all(mongo_collection, query_object, geo_spatial=True)
+    for p in providers["data"]:
+        p.pop("polygons")
+    return providers
+
+
+def get_location_offers(**kwargs):
+    mongo_collection = get_mongo_collection("location_offer")
     lat = kwargs.pop("latitude", None)
     long = kwargs.pop("longitude", None)
     query_object = {k: v for k, v in kwargs.items() if v is not None}

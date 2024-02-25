@@ -100,3 +100,18 @@ class Location(BaseModel):
     time: Optional[dict]
     categories: Optional[list]
     timestamp: str
+
+
+class LocationOffer(BaseModel):
+    id: str
+    local_id: str
+    domain: str
+    provider: str
+    provider_descriptor: dict
+    descriptor: dict
+    location: str
+    item_ids: List[str]
+    time: Optional[dict]
+    tags: Optional[list]
+    polygons: Optional[dict]
+    timestamp: str

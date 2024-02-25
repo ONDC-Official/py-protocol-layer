@@ -41,10 +41,9 @@ def create_all_indexes():
     [create_ttl_index(c, ttl_in_seconds=24*60*60) for c in ["on_search_dump", "request_dump", "on_search_items",
                                                             "provider", "custom_menu", "location", "product",
                                                             "product_attribute", "product_attribute_value",
-                                                            "variant_group", "customisation_group"
+                                                            "variant_group", "customisation_group", "location_offer"
                                                             ]]
     get_mongo_collection("on_search_items").create_index([('id', TEXT)], name='id_index')
-    get_mongo_collection("location").create_index([("gps", GEOSPHERE)])
 
 
 def create_ttl_index(collection_name, ttl_in_seconds=None):
