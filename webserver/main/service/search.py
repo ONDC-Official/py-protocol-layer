@@ -221,7 +221,7 @@ def flatten_catalog_into_item_entries(catalog, context):
             [enrich_item_type(i) for i in provider_items]
             provider_items = enrich_is_first_flag_for_items(provider_items)
             item_entries.extend(provider_items)
-            new_p = {"offers": p["offers"]}
+            new_p = {"offers": p.get("offers", [])}
             enrich_provider_details_into_items(p, new_p)
             enrich_context_bpp_id_and_descriptor_into_items(context, bpp_id, bpp_descriptor, new_p)
             provider_entries.append(new_p)
@@ -502,7 +502,6 @@ def add_product_with_attributes(items, providers_with_offers, db_insert=True):
             for lo in o["location_ids"]:
                 location_unique_id = f'{pr["provider_details"]["id"]}_{lo}'
                 location_found = get_location_details_from_location_objects(locations, location_unique_id)
-                location_polygons = location_found.polygons if location_found else None
                 location_offers.append(LocationOffer(**{
                     "id": f'{location_unique_id}_{o["id"]}',
                     "local_id": o['id'],
@@ -514,7 +513,8 @@ def add_product_with_attributes(items, providers_with_offers, db_insert=True):
                     "item_ids": [f'{pr["provider_details"]["id"]}_{x}' for x in o["item_ids"]],
                     "time": o["time"],
                     "tags": o["tags"],
-                    "polygons": location_polygons,
+                    "type": location_found.type,
+                    "polygons": location_found.polygons,
                     "timestamp": pr["context"]["timestamp"]
                     }))
 

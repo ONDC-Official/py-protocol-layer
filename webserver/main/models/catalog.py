@@ -113,5 +113,6 @@ class LocationOffer(BaseModel):
     item_ids: List[str]
     time: Optional[dict]
     tags: Optional[list]
+    type: Optional[str]
     polygons: Optional[dict]
     timestamp: str
