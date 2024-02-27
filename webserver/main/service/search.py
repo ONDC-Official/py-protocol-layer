@@ -513,8 +513,8 @@ def add_product_with_attributes(items, providers_with_offers, db_insert=True):
                     "item_ids": [f'{pr["provider_details"]["id"]}_{x}' for x in o["item_ids"]],
                     "time": o["time"],
                     "tags": o["tags"],
-                    "type": location_found.type,
-                    "polygons": location_found.polygons,
+                    "type": location_found.type if location_found else "pan",
+                    "polygons": location_found.polygons if location_found else None,
                     "timestamp": pr["context"]["timestamp"]
                     }))
 
