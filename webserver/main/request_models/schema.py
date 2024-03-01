@@ -1581,7 +1581,7 @@ class OnSearchProvider(BaseModel):
     payments: Optional[List[Payment]] = None
     locations: Optional[List[Location2]] = None
     offers: Optional[List[Offer]] = None
-    items: Optional[List[OnSearchItem]] = Field(None, description='Item List', max_items=500, min_items=1)
+    items: Optional[List[OnSearchItem]] = Field(None, description='Item List', max_items=1000, min_items=1)
     exp: Optional[datetime] = Field(
         None, description='Time after which catalog has to be refreshed'
     )
@@ -1600,7 +1600,7 @@ class IncrOnSearchProvider(BaseModel):
     payments: Optional[List[Payment]] = None
     locations: Optional[List[Location2]] = None
     offers: Optional[List[Offer]] = None
-    items: Optional[List[OnSearchItem]] = Field(None, description='Item List', max_items=500, min_items=1)
+    items: Optional[List[OnSearchItem]] = Field(None, description='Item List', max_items=1000, min_items=1)
     exp: Optional[datetime] = Field(
         None, description='Time after which catalog has to be refreshed'
     )
