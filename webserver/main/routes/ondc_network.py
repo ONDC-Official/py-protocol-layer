@@ -11,7 +11,8 @@ from main.models.catalog import SearchType
 from main.models.error import BaseError
 from main.repository.ack_response import get_ack_response
 from main.service import send_message_to_queue_for_given_request
-from main.service.common import add_bpp_response, dump_request_payload, update_dumped_request_with_response
+from main.service.common import add_bpp_response, dump_request_payload, update_dumped_request_with_response, \
+    validate_fulfillment_ids_for_on_init
 from main.service.search import add_search_catalogues, dump_on_search_payload, add_incremental_search_catalogues, \
     check_if_search_request_present_and_valid
 from main.service.utils import validate_auth_header
@@ -89,6 +90,7 @@ class AddInitResponse(Resource):
         request_payload = request.get_json()
         log(f"Got the on_init request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_init')
+        resp = validate_fulfillment_ids_for_on_init(request_payload) if resp is None else resp
         if resp is None:
             entry_object_id = dump_request_payload("on_init", request_payload)
             resp = add_bpp_response(request_payload, request_type="on_init")

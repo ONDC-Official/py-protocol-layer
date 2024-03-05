@@ -750,28 +750,21 @@ def add_incremental_search_catalogues_for_items_update(bpp_response):
     if constant.MESSAGE not in bpp_response:
         return get_ack_response(context=context, ack=False, error=RegistryLookupError.REGISTRY_ERROR.value)
     catalog = bpp_response[constant.MESSAGE][constant.CATALOG]
-    items = flatten_catalog_into_item_entries(catalog, context)
+    items, _ = flatten_catalog_into_item_entries(catalog, context)
 
     if len(items) == 0:
         return get_ack_response(context=context, ack=True)
     search_collection = get_mongo_collection('on_search_items')
-    is_successful = True
 
     items = add_product_with_attributes_incremental_flow(items)
     for i in items:
-        if check_if_entity_present_for_given_id("on_search_items", i["id"]):
-            new_i = project(i, ["id", "item_details", "attributes", "is_first", "type", "customisation_group_id",
-                                "customisation_nested_group_id"])
-            # Upsert a single document
-            filter_criteria = {"id": i["id"]}
-            new_i["created_at"] = datetime.utcnow()
-            new_i["timestamp"] = i["context"]["timestamp"]
-            is_successful = is_successful and mongo.collection_upsert_one(search_collection, filter_criteria, new_i)
-        else:
-            return get_ack_response(context=context, ack=False, error={
-                "code": "UNKNOWN",
-                "message": "Item-id not available from full catalog!",
-            }), 400
+        new_i = project(i, ["id", "item_details", "attributes", "is_first", "type", "customisation_group_id",
+                            "customisation_nested_group_id"])
+        # Upsert a single document
+        filter_criteria = {"id": i["id"]}
+        new_i["created_at"] = datetime.utcnow()
+        new_i["timestamp"] = i["context"]["timestamp"]
+        mongo.collection_upsert_one(search_collection, filter_criteria, new_i)
 
     return get_ack_response(context=context, ack=True)
 

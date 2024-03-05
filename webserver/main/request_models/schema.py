@@ -480,6 +480,7 @@ class Price(BaseModel):
 class BreakupItem(BaseModel):
     title: Optional[str] = None
     price: Optional[Price] = None
+    count: Optional[int] = None
 
 
 class Quotation(BaseModel):
@@ -513,7 +514,7 @@ class Range(BaseModel):
 
 class Scalar(BaseModel):
     type: Optional[Type4] = None
-    value: Union[str, float]
+    value: str
     estimated_value: Optional[float] = None
     computed_value: Optional[float] = None
     range: Optional[Range] = None
@@ -843,7 +844,7 @@ class Id(BaseModel):
 
 
 class IdModel(BaseModel):
-    __root__: Union[str, int] = Field(..., description='Unique id of the category')
+    __root__: str = Field(..., description='Unique id of the category')
 
 
 class Code(BaseModel):
@@ -877,7 +878,7 @@ class IdModel2(BaseModel):
 
 
 class IdModel3(BaseModel):
-    __root__: Union[str, int] = Field(
+    __root__: str = Field(
         ...,
         description='This is the most unique identifier of a service item. An example of an Item ID could be the SKU of a product.',
     )
@@ -886,6 +887,10 @@ class IdModel3(BaseModel):
 class Selected(BaseModel):
     count: Union[str, conint(ge=0)]
     measure: Optional[Scalar] = None
+
+
+class OrderItemQuantity(BaseModel):
+    count: int
 
 
 class IdModel4(BaseModel):
@@ -903,7 +908,7 @@ class Value(BaseModel):
 
 
 class IdModel5(BaseModel):
-    __root__: Union[str, int] = Field(..., description='Id of the provider')
+    __root__: str = Field(..., description='Id of the provider')
 
 
 class ValueModel(BaseModel):
@@ -983,7 +988,7 @@ class Context(BaseModel):
     key: Optional[str] = Field(
         None, description='The encryption public key of the sender'
     )
-    ttl: Optional[Union[str, int]] = Field(
+    ttl: Optional[str] = Field(
         None,
         description="Timestamp for which this message holds valid in ISO8601 durations format<br> Outer limit for ttl for search, select, init, confirm, status, track, cancel, update, rating, support is 'PT30S' which is 30 seconds<br> Different buyer apps can change this to meet their UX requirements, but it shouldn't exceed this outer limit",
     )
@@ -1056,7 +1061,7 @@ class ItemQuantity(BaseModel):
     selected: Optional[Selected] = None
 
 class Item(BaseModel):
-    id: Union[str, int] = Field(
+    id: str = Field(
         ...,
         description='This is the most unique identifier of a service item. An example of an Item ID could be the SKU of a product.',
     )
@@ -1150,12 +1155,12 @@ class Location1(BaseModel):
 
 class Provider1(BaseModel):
     id: Optional[IdModel5] = None
-    locations: Optional[List[Location1]] = Field(None)
+    locations: Optional[List[Location1]] = Field(None, description='Location List', min_items=1)
 
 
 class Item1(BaseModel):
     id: IdModel3
-    quantity: Optional[Selected] = None
+    quantity: Optional[OrderItemQuantity] = None
 
 
 class AddOn1(BaseModel):
@@ -1525,7 +1530,7 @@ class Operator(Person):
 
 
 class Order(BaseModel):
-    id: Optional[Union[float, str]] = Field(
+    id: Optional[str] = Field(
         None,
         description='Hash of order object without id<br> Will be created by buyer app in confirm API',
     )
@@ -1552,7 +1557,7 @@ class Order(BaseModel):
 
 
 class Provider(BaseModel):
-    id: Union[str, int] = Field(..., description='Id of the provider')
+    id: str = Field(..., description='Id of the provider')
     descriptor: Optional[Descriptor] = None
     category_id: Optional[str] = Field(None, description='Category Id of the provider')
     rating: Optional[ValueModel] = None
@@ -1560,7 +1565,7 @@ class Provider(BaseModel):
     categories: Optional[List[Category]] = None
     fulfillments: Optional[List[Fulfillment]] = None
     payments: Optional[List[Payment]] = None
-    locations: Optional[List[Location2]] = None
+    locations: Optional[List[Location2]] = Field(None, description='Location List', min_items=1)
     offers: Optional[List[Offer]] = None
     items: Optional[List[Item2]] = None
     exp: Optional[datetime] = Field(
@@ -1571,7 +1576,7 @@ class Provider(BaseModel):
 
 
 class OnSearchProvider(BaseModel):
-    id: Union[str, int] = Field(..., description='Id of the provider')
+    id: str = Field(..., description='Id of the provider')
     descriptor: Optional[Descriptor] = None
     category_id: Optional[str] = Field(None, description='Category Id of the provider')
     rating: Optional[ValueModel] = None
@@ -1579,7 +1584,7 @@ class OnSearchProvider(BaseModel):
     categories: Optional[List[Category]] = None
     fulfillments: Optional[List[Fulfillment]] = None
     payments: Optional[List[Payment]] = None
-    locations: Optional[List[Location2]] = None
+    locations: Optional[List[Location2]] = Field(None, description='Location List', min_items=1)
     offers: Optional[List[Offer]] = None
     items: Optional[List[OnSearchItem]] = Field(None, description='Item List', max_items=500, min_items=1)
     exp: Optional[datetime] = Field(
@@ -1590,7 +1595,7 @@ class OnSearchProvider(BaseModel):
 
 
 class IncrOnSearchProvider(BaseModel):
-    id: Union[str, int] = Field(..., description='Id of the provider')
+    id: str = Field(..., description='Id of the provider')
     descriptor: Optional[Descriptor] = None
     category_id: Optional[str] = Field(None, description='Category Id of the provider')
     rating: Optional[ValueModel] = None
@@ -1598,7 +1603,7 @@ class IncrOnSearchProvider(BaseModel):
     categories: Optional[List[Category]] = None
     fulfillments: Optional[List[Fulfillment]] = None
     payments: Optional[List[Payment]] = None
-    locations: Optional[List[Location2]] = None
+    locations: Optional[List[Location2]] = Field(None, description='Location List', min_items=1)
     offers: Optional[List[Offer]] = None
     items: Optional[List[OnSearchItem]] = Field(None, description='Item List', max_items=1000, min_items=1)
     exp: Optional[datetime] = Field(
