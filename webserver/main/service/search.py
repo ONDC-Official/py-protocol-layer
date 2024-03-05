@@ -1067,3 +1067,11 @@ def get_last_search_dump_timestamp(transaction_id):
     query_object = {"action": "search", "request.context.transaction_id": transaction_id}
     catalog = mongo.collection_find_one_with_sort(search_collection, query_object, "created_at")
     return catalog['created_at'] if catalog else None
+
+
+def get_last_request_dump(request_type, transaction_id):
+    search_collection = get_mongo_collection('request_dump')
+    query_object = {"action": request_type, "request.context.transaction_id": transaction_id}
+    catalog = mongo.collection_find_one_with_sort(search_collection, query_object, "created_at")
+    catalog.pop("created_at")
+    return catalog

@@ -5,7 +5,7 @@ from main import constant
 from main.service.common import get_bpp_response_for_message_id
 from main.service.search import get_item_catalogues, get_item_details, get_item_attributes, get_item_attribute_values, \
     get_custom_menus, get_providers, get_locations, get_custom_menu_details, get_provider_details, get_location_details, \
-    get_location_offers
+    get_location_offers, get_last_request_dump
 
 response_namespace = Namespace('response', description='Response Namespace')
 
@@ -225,3 +225,17 @@ class GetLocation(Resource):
     def get(self):
         args = self.create_parser_with_args()
         return get_location_details(args['id'])
+
+
+@response_namespace.route("/request-dump")
+class GetLastRequestDump(Resource):
+
+    def create_parser_with_args(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("type", required=True)
+        parser.add_argument("transaction_id", required=True)
+        return parser.parse_args()
+
+    def get(self):
+        args = self.create_parser_with_args()
+        return get_last_request_dump(args['type'], args['transaction_id'])
