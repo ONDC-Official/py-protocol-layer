@@ -17,7 +17,7 @@ class GatewayOnSearch(Resource):
     def post(self):
         request_payload = request.get_json()
         # validate schema based on context version
-        resp = validate_payload_schema_based_on_version(request_payload, 'on_search')
+        resp = validate_payload_schema_based_on_version(request_payload, 'full_on_search')
         if resp is None:
             return add_search_catalogues_for_test(request_payload)
         return resp
