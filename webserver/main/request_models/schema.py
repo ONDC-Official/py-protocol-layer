@@ -130,8 +130,6 @@ class Domain(Enum):
     ONDC_RET19 = 'ONDC:RET19'
     ONDC_RET20 = 'ONDC:RET20'
     ONDC_AGR10 = 'ONDC:AGR10'
-    ONDC_MOB = 'ONDC:MOB'
-    ONDC_LOG = 'ONDC:LOG'
 
 
 class Duration(BaseModel):
@@ -1011,6 +1009,10 @@ class Descriptor2(Descriptor):
     images: List[Image]
 
 
+class ItemDescriptor(Descriptor):
+    name: str
+
+
 class Dimensions(BaseModel):
     length: Optional[Scalar] = None
     breadth: Optional[Scalar] = None
@@ -1266,6 +1268,7 @@ class Item2(Item):
 
 class OnSearchItem(Item):
     quantity: ItemQuantity
+    descriptor: ItemDescriptor
     tags: List[Tag]
 
 
