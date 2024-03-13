@@ -1267,6 +1267,7 @@ class Item2(Item):
 
 
 class OnSearchItem(Item):
+    location_id: IdModel4
     quantity: ItemQuantity
     descriptor: ItemDescriptor
     tags: List[Tag]
