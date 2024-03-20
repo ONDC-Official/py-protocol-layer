@@ -82,6 +82,7 @@ class Provider(BaseModel):
     ttl: Optional[str]
     tags: Optional[List[dict]]
     time: Optional[dict]
+    categories: Optional[list]
     timestamp: str
 
 
@@ -92,7 +93,26 @@ class Location(BaseModel):
     provider: str
     provider_descriptor: dict
     gps: list
+    type: Optional[str]
+    polygons: Optional[dict]
     address: Optional[dict]
     circle: Optional[dict]
     time: Optional[dict]
+    categories: Optional[list]
+    timestamp: str
+
+
+class LocationOffer(BaseModel):
+    id: str
+    local_id: str
+    domain: str
+    provider: str
+    provider_descriptor: dict
+    descriptor: dict
+    location: str
+    item_ids: List[str]
+    time: Optional[dict]
+    tags: Optional[list]
+    type: Optional[str]
+    polygons: Optional[dict]
     timestamp: str
