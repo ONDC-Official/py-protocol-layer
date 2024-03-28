@@ -106,7 +106,7 @@ class OnInitOrder(BaseModel):
     items: Optional[List[Item]]
     add_ons: Optional[List[AddOn]]
     offers: Optional[List[Offer]]
-    quote: Optional[Quotation]
+    quote: Quotation
     billing: Optional[Billing]
     fulfillment: Optional[Fulfillment]
     payment: Optional[Payment]
