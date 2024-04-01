@@ -29,6 +29,19 @@ def check_if_entity_present_for_given_id(collection_name, entity_id):
     return collection_find_one(collection, filter_criteria) is not None
 
 
+def get_on_search_item_for_given_id(item_id):
+    collection = get_mongo_collection("on_search")
+    filter_criteria = {"id": item_id}
+    return collection_find_one(collection, filter_criteria)
+
+
+def get_on_search_item_for_given_details(provider_id, location_local_id, item_type):
+    collection = get_mongo_collection("on_search_items")
+    filter_criteria = {"provider_details.id": provider_id, "location_details.id": f"{provider_id}_{location_local_id}",
+                       "type": item_type}
+    return collection_find_one(collection, filter_criteria)
+
+
 def check_if_search_request_present_and_valid(domain, transaction_id):
     collection = get_mongo_collection("request_dump")
     filter_criteria = {"action": "search", "request.context.domain": domain, "request.context.transaction_id": transaction_id}
@@ -744,6 +757,13 @@ def add_incremental_search_catalogues(bpp_response):
         return add_incremental_search_catalogues_for_provider_update(bpp_response)
 
 
+def get_similar_existing_item(item_id, provider_id, location_id, item_type):
+    item = get_on_search_item_for_given_id(item_id)
+    if not item:
+        item = get_on_search_item_for_given_details(provider_id, location_id, item_type)
+    return item
+
+
 def add_incremental_search_catalogues_for_items_update(bpp_response):
     context = bpp_response[constant.CONTEXT]
     log(f"Adding incremental search catalog (item) update for {context['bpp_id']}")
@@ -758,8 +778,12 @@ def add_incremental_search_catalogues_for_items_update(bpp_response):
 
     items = add_product_with_attributes_incremental_flow(items)
     for i in items:
-        new_i = project(i, ["id", "item_details", "attributes", "is_first", "type", "customisation_group_id",
-                            "customisation_nested_group_id"])
+        similar_existing_item = get_similar_existing_item(i["id"], i['provider_details']['id'],
+                                                          i['item_details']['location_id'], i['type'])
+        new_i = similar_existing_item.copy()
+        new_i.update(project(i, ["id", "item_details", "attributes", "is_first", "type",
+                                 "customisation_group_id", "customisation_nested_group_id", "context"]))
+
         # Upsert a single document
         filter_criteria = {"id": i["id"]}
         new_i["created_at"] = datetime.utcnow()
@@ -919,7 +943,7 @@ def get_item_details(item_id):
     customisation_group_collection = get_mongo_collection("customisation_group")
     on_search_item = mongo.collection_find_one(search_collection, {"id": item_id})
     product_details = mongo.collection_find_one(product_collection, {"id": item_id})
-    variant_group_id = product_details["variant_group"]
+    variant_group_id = product_details.get("variant_group")
     if variant_group_id:
         variant_group = mongo.collection_find_one(variant_group_collection, {"id": variant_group_id})
         variant_attrs = variant_group["attribute_codes"]
@@ -929,12 +953,12 @@ def get_item_details(item_id):
         on_search_item["variant_attr_values"] = variant_value_list
 
     # Customisation Group and Items
-    customisation_group_ids = product_details["customisation_groups"]
+    customisation_group_ids = product_details.get("customisation_groups", [])
     customisation_groups = mongo.collection_find_all(customisation_group_collection,
                                                      {"id": {'$in': customisation_group_ids}})["data"]
     customisation_items = mongo.collection_find_all(search_collection,
                                                     {"context.bpp_id": on_search_item["context"]["bpp_id"],
-                                                     "provider_details.id": on_search_item["provider_details"]["id"],
+                                                     # "provider_details.id": on_search_item["provider_details"]["id"],
                                                      "type": "customization",
                                                      "customisation_group_id": {'$in': customisation_group_ids}},
                                                     limit=None)["data"]
