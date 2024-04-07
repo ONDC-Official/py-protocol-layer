@@ -553,12 +553,12 @@ class Tags(BaseModel):
 
 
 class TagChild(BaseModel):
-    code: str
-    value: str
+    code: StrictStr
+    value: StrictStr
 
 
 class Tag(BaseModel):
-    code: str
+    code: StrictStr
     list: List[TagChild]
 
 
