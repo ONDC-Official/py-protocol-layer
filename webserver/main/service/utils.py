@@ -5,6 +5,7 @@ import random
 import string
 import uuid
 from datetime import datetime
+from dateutil import parser
 
 from flask import request
 from flask_restx import abort
@@ -77,3 +78,15 @@ def validate_auth_header(func):
     wrapper.__doc__ = func.__doc__
     wrapper.__name__ = func.__name__
     return wrapper
+
+def calculate_duration_ms(iso8601dur: str):
+    match = re.match(r'^PT(\d{0,2})([H|S])$', iso8601dur)
+    if match:
+    # multiply the value by 3600000 if H else 1000 
+        return int(match.group(1)) * ((60 * 60 * 1000) if match.group(2) == 'H' else 1000)
+    else:
+        raise Exception('Duration Error: either empty or not correct format')
+
+def is_on_issue_deadine(duration: float, start_datetime_str: str):
+    time_elapsed = datetime.now().timestamp() * 1000 - parser.isoparse(start_datetime_str).timestamp() * 1000
+    return duration - time_elapsed < 0
