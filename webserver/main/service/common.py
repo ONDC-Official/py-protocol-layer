@@ -12,7 +12,8 @@ from main import constant
 from main.utils.cryptic_utils import create_authorisation_header
 from main.utils.lookup_utils import fetch_subscriber_url_from_lookup
 from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_or_bpp
-from service.utils import calculate_duration_ms, is_on_issue_deadine
+from main.service.utils import calculate_duration_ms, is_on_issue_deadine
+
 
 def add_bpp_response(bpp_response, request_type):
     log(f"Received {request_type} call of {bpp_response['context']['message_id']} "
