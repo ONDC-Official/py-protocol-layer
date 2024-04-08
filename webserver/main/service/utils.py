@@ -1,6 +1,6 @@
 import hashlib
 import json
-import os
+import re
 import random
 import string
 import uuid
@@ -16,6 +16,7 @@ from main.logger.custom_logging import log
 from main.repository.ack_response import get_ack_response
 from main.utils.cryptic_utils import verify_authorisation_header
 from main.utils.lookup_utils import get_bpp_public_key_from_header
+
 
 URL_SPLITTER = "?"
 
