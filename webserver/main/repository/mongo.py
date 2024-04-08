@@ -56,7 +56,7 @@ def collection_find_all(mongo_collection, query_object, sort_field=None, sort_or
         log(f"Getting entries from collection {mongo_collection.name}")
         if mongo_collection.name == "on_search_items":
             catalogue_objects = mongo_collection.find(query_object, {"categories": 0, "providers": 0, "locations": 0,
-                                                                     "fulfillments": 0, "context": 0})
+                                                                     "fulfillments": 0})
         else:
             catalogue_objects = mongo_collection.find(query_object)
         if sort_field:
@@ -103,8 +103,8 @@ def collection_find_one(mongo_collection, query_object, keep_created_at=False):
         catalog = mongo_collection.find_one(query_object)
     if catalog:
         catalog.pop('_id')
-    if not keep_created_at:
-        catalog.pop('created_at', None)
+        if not keep_created_at:
+            catalog.pop('created_at', None)
     return catalog
 
 

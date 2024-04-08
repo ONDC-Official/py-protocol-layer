@@ -1,4 +1,5 @@
 import json
+import time
 
 from bson.objectid import ObjectId
 from pika.exceptions import AMQPConnectionError
@@ -16,6 +17,7 @@ from main.utils.rabbitmq_utils import create_channel, declare_queue, consume_mes
 
 def consume_fn(message_string):
     try:
+        time.sleep(3)
         payload = json.loads(message_string)
         log(f"Got the payload {payload}!")
 
@@ -38,6 +40,8 @@ def consume_fn(message_string):
                 update_on_search_dump_status(doc_id, "IN-PROGRESS")
                 add_incremental_search_catalogues(on_search_payload)
                 update_on_search_dump_status(doc_id, "FINISHED")
+        else:
+            log_error(f"On search payload was not found for {doc_id}!")
     except Exception as e:
         log_error(f"Something went wrong with consume function - {e}!")
 

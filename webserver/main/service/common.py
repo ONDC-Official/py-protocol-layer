@@ -5,7 +5,7 @@ import os
 
 from main.logger.custom_logging import log
 from main.models import get_mongo_collection
-from main.models.error import DatabaseError, RegistryLookupError, IGMError
+from main.models.error import DatabaseError, RegistryLookupError, BaseError, IGMError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main import constant
@@ -47,6 +47,23 @@ def add_bpp_response(bpp_response, request_type):
 def get_query_object(**kwargs):
     query_object = {"context.message_id": kwargs['message_id']}
     return query_object
+
+
+def validate_fulfillment_ids_for_on_init(payload):
+    order = payload["message"]["order"]
+    item_fulfillment_ids = set([i["fulfillment_id"] for i in order.get("items", [])])
+    fulfillment_ids = set([i["id"] for i in order.get("fulfillments", [])])
+    quote_breakup_ids = set()
+    for i in order.get("quote", {}).get("breakup", []):
+        if i["@ondc/org/title_type"] == "delivery":
+            quote_breakup_ids.add(i["@ondc/org/item_id"])
+
+    if item_fulfillment_ids == fulfillment_ids == quote_breakup_ids:
+        return None
+    else:
+        return get_ack_response(context=payload["context"], ack=False,
+                                error={"type": BaseError.JSON_SCHEMA_ERROR.value, "code": "20000",
+                                       "message": "Fulfillment ids are not getting correctly mapped!"}), 400
 
 
 def get_bpp_response_for_message_id(**kwargs):
