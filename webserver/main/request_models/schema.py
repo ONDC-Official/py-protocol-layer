@@ -113,8 +113,8 @@ class DecimalValue(BaseModel):
 
     @validator("__root__")
     def check_decimal_points(cls, value):
-        decimal_str = str(value).split(".")[1]
-        if len(decimal_str) > 2:
+        splits = str(value).split(".")
+        if len(splits) > 1 and len(splits[1]) > 2:
             raise ValueError("Decimal value should have up to two decimal points")
         return value
 
