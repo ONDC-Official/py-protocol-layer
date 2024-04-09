@@ -3,7 +3,7 @@ from main.models.error import BaseError
 from main.repository.ack_response import get_ack_response
 
 
-def validate_business_rules_for_on_confirm(payload):
+def validate_business_rules_for_on_update(payload):
     error = validate_sum_of_quote_breakup(payload)
     if error:
         return get_ack_response(context=payload["context"], ack=False,

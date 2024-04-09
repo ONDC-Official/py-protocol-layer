@@ -564,6 +564,16 @@ class TagChild(BaseModel):
     code: StrictStr
     value: StrictStr
 
+    @validator("value")
+    def check_color_format(cls, value, values):
+        if values.get("code") == "colour" and not value.startswith("#"):
+            raise ValueError("Colour value should start with '#'")
+        if values.get("code") == "colour" and len(value) != 7:
+            raise ValueError("Colour value should contain exactly six alphanumeric characters after '#'")
+        if values.get("code") == "colour" and not value[1:].isalnum():
+            raise ValueError("Colour value should contain only alphanumeric characters after '#'")
+        return value
+
 
 class Tag(BaseModel):
     code: StrictStr
@@ -945,6 +955,12 @@ class SelectedReason(BaseModel):
 class Circle(BaseModel):
     gps: Gps
     radius: Scalar
+
+    @validator("radius")
+    def check_radius_format(cls, radius: Scalar):
+        if radius.unit == "km" and float(radius.value) > 50:
+            raise ValueError("Radius cannot be more than 50 km!")
+        return radius
 
 
 class Contact(BaseModel):
