@@ -770,7 +770,7 @@ def add_incremental_search_catalogues_for_items_update(bpp_response):
         similar_existing_item = get_similar_existing_item(i["id"], i['provider_details']['id'],
                                                           i['item_details']['location_id'], i['type'])
         new_i = similar_existing_item.copy()
-        new_i.update(project(i, ["id", "item_details", "attributes", "is_first", "type",
+        new_i.update(project(i, ["id", "local_id", "item_details", "attributes", "is_first", "type",
                                  "customisation_group_id", "customisation_nested_group_id", "context"]))
 
         # Upsert a single document
