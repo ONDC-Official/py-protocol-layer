@@ -13,6 +13,8 @@ from flask_restx import abort
 from main import constant
 from main.config import get_config_by_name
 from main.logger.custom_logging import log
+from main.models import get_mongo_collection
+from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main.utils.cryptic_utils import verify_authorisation_header
 from main.utils.lookup_utils import get_bpp_public_key_from_header
@@ -59,6 +61,13 @@ def handle_stop_iteration(func):
     return exception_handler
 
 
+def dump_auth_failure_request(auth_header, payload_str, context):
+    collection = get_mongo_collection('auth_failure_request_dump')
+    return mongo.collection_insert_one(collection, {"context": context,
+                                                    "payload_str": payload_str,
+                                                    "auth_header": auth_header})
+
+
 def validate_auth_header(func):
     def wrapper(*args, **kwargs):
         if get_config_by_name("VERIFICATION_ENABLE"):
@@ -69,6 +78,7 @@ def validate_auth_header(func):
                                                                                                      domain)):
                 return func(*args, **kwargs)
             context = json.loads(request.data)[constant.CONTEXT]
+            dump_auth_failure_request(auth_header, request.data.decode("utf-8"), context)
             return get_ack_response(context=context, ack=False, error={
                 "code": "10001",
                 "message": "Invalid Signature"
