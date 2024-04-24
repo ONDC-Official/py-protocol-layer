@@ -116,3 +116,9 @@ class LocationOffer(BaseModel):
     type: Optional[str]
     polygons: Optional[dict]
     timestamp: str
+
+
+class SubCategory(BaseModel):
+    id: str
+    domain: str
+    name: str

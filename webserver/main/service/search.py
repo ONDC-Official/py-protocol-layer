@@ -10,7 +10,7 @@ from funcy import project
 from main.logger.custom_logging import log
 from main.models import get_mongo_collection
 from main.models.catalog import Product, ProductAttribute, ProductAttributeValue, VariantGroup, CustomMenu, \
-    CustomisationGroup, Provider, Location, LocationOffer
+    CustomisationGroup, Provider, Location, LocationOffer, SubCategory
 from main.models.error import DatabaseError, RegistryLookupError, BaseError
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
@@ -383,11 +383,15 @@ def add_product_with_attributes(items, providers_with_offers, db_insert=True):
     products, final_attrs, final_attr_values, provider_categories = [], [], [], {}
     providers, locations, final_variant_groups, final_custom_menus, final_customisation_groups = [], [], [], [], []
     location_offers = []
+    sub_categories = set()
     serviceabilities = dict()
     item_cg_ids = []
+    domain = items[0]["context"]["domain"]
+
     for i in items:
         attributes, variants, variant_group_local_id = [], [], None
         item_details = i["item_details"]
+        sub_categories.add(item_details["category_id"])
         tags = item_details["tags"]
         variant_groups, custom_menus, customisation_groups = transform_item_categories(i)
 
@@ -520,6 +524,10 @@ def add_product_with_attributes(items, providers_with_offers, db_insert=True):
                     "timestamp": pr["context"]["timestamp"]
                     }))
 
+    sub_category_objects = [SubCategory(**{"id": f"{domain}_{s}",
+                                           "domain": domain,
+                                           "name": s
+                                           }) for s in sub_categories]
     providers = list({group.id: group for group in providers}.values())
     locations = list({l.id: l for l in locations}.values())
     final_custom_menus = list({l.id: l for l in final_custom_menus}.values())
@@ -538,6 +546,7 @@ def add_product_with_attributes(items, providers_with_offers, db_insert=True):
         upsert_providers(providers)
         upsert_locations(locations)
         upsert_location_offers(location_offers)
+        upsert_sub_categories(sub_category_objects)
     return items
 
 
@@ -680,6 +689,15 @@ def upsert_locations_incremental_flow(locations: List[dict]):
 def upsert_location_offers(location_offers: List[LocationOffer]):
     collection = get_mongo_collection('location_offer')
     for p in location_offers:
+        filter_criteria = {"id": p.id}
+        p_dict = p.dict()
+        p_dict["created_at"] = datetime.utcnow()
+        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+
+
+def upsert_sub_categories(sub_categories: List[SubCategory]):
+    collection = get_mongo_collection('sub_category')
+    for p in sub_categories:
         filter_criteria = {"id": p.id}
         p_dict = p.dict()
         p_dict["created_at"] = datetime.utcnow()
@@ -850,6 +868,8 @@ def get_query_object(**kwargs):
         query_object.update({'item_details.descriptor.name': re.compile(kwargs["name"], re.IGNORECASE)})
     if kwargs['custom_menu']:
         query_object.update({'custom_menus': kwargs['custom_menu']})
+    if kwargs['sub_category']:
+        query_object.update({'item_details.category_id': kwargs['sub_category']})
     if kwargs['rating']:
         query_object.update({'item_details.rating.value': {'$gte': kwargs['rating']}})
     if kwargs['provider_ids']:
@@ -1091,3 +1111,27 @@ def get_last_request_dump(request_type, transaction_id):
         return catalog
     else:
         return {"error": "No request found for given type and transaction_id!"}, 400
+
+
+def get_categories():
+    return [
+        {"domain": "ONDC:RET10", "name": "Grocery"},
+        {"domain": "ONDC:RET11", "name": "F&B"},
+        {"domain": "ONDC:RET12", "name": "Fashion"},
+        {"domain": "ONDC:RET13", "name": "BPC"},
+        {"domain": "ONDC:RET14", "name": "Electronics"},
+        {"domain": "ONDC:RET15", "name": "Appliances"},
+        {"domain": "ONDC:RET16", "name": "Home & Kitchen"},
+        {"domain": "ONDC:RET17", "name": "RET17"},
+        {"domain": "ONDC:RET18", "name": "Health & Wellness"},
+        {"domain": "ONDC:RET19", "name": "Pharma"},
+        {"domain": "ONDC:RET20", "name": "RET20"},
+        {"domain": "ONDC:AGR10", "name": "Agriculture"}
+    ]
+
+
+def get_sub_categories(domain):
+    mongo_collection = get_mongo_collection("sub_category")
+    query_object = {"domain": domain}
+    sub_categories = mongo.collection_find_all(mongo_collection, query_object)
+    return sub_categories
