@@ -1609,7 +1609,7 @@ class Provider(BaseModel):
 class OnSearchProvider(BaseModel):
     id: StrictStr = Field(..., description='Id of the provider')
     descriptor: Optional[Descriptor] = None
-    category_id: Optional[str] = Field(None, description='Category Id of the provider')
+    category_id: str = Field(None, description='Category Id of the provider')
     rating: Optional[ValueModel] = None
     time: Optional[Time] = None
     categories: Optional[List[Category]] = None
