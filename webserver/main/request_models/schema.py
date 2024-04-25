@@ -1561,7 +1561,7 @@ class Operator(Person):
 
 
 class Order(BaseModel):
-    id: Optional[StrictStr] = Field(
+    id: StrictStr = Field(
         None,
         description='Hash of order object without id<br> Will be created by buyer app in confirm API',
     )
