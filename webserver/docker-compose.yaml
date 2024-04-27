@@ -23,6 +23,7 @@ services:
       VERIFICATION_ENABLE: ${VERIFICATION_ENABLE}
       FLASK_SERVER: "True"
       QUEUE_ENABLE: "False"
+      ELASTIC_SEARCH_QUEUE_ENABLE: "False"
     expose:
       - 5555
     ports:

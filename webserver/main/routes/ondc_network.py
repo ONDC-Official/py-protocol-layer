@@ -7,7 +7,7 @@ from main.config import get_config_by_name
 from main.logger.custom_logging import log
 from main.models.catalog import SearchType
 from main.repository.ack_response import get_ack_response
-from main.service import send_message_to_queue_for_given_request
+from main.service import send_message_to_queue_for_given_request, send_message_to_elastic_search_queue
 from main.service.common import add_bpp_response, dump_request_payload, update_dumped_request_with_response
 from main.service.search import add_search_catalogues, dump_on_search_payload, add_incremental_search_catalogues
 from main.service.utils import validate_auth_header
@@ -34,13 +34,14 @@ class GatewayOnSearch(Resource):
             resp = validate_business_rules(request_payload, 'incr_on_search') if resp is None else resp
 
         if resp is None:
-            if get_config_by_name('QUEUE_ENABLE'):
+            if get_config_by_name('QUEUE_ENABLE') or get_config_by_name('ELASTIC_SEARCH_QUEUE_ENABLE'):
                 doc_id = dump_on_search_payload(request_payload)
                 message = {
                     "doc_id": str(doc_id),
                     "request_type": request_type,
                 }
-                send_message_to_queue_for_given_request(message)
+                send_message_to_queue_for_given_request(message) if get_config_by_name('QUEUE_ENABLE') else None
+                send_message_to_elastic_search_queue(message) if get_config_by_name('ELASTIC_SEARCH_QUEUE_ENABLE') else None
                 return get_ack_response(request_payload[constant.CONTEXT], ack=True)
             else:
                 if request_type == SearchType.FULL.value:
