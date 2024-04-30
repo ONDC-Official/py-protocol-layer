@@ -65,7 +65,8 @@ def dump_auth_failure_request(auth_header, payload_str, context):
     collection = get_mongo_collection('auth_failure_request_dump')
     return mongo.collection_insert_one(collection, {"context": context,
                                                     "payload_str": payload_str,
-                                                    "auth_header": auth_header})
+                                                    "auth_header": auth_header,
+                                                    "created_at": datetime.utcnow()})
 
 
 def validate_auth_header(func):
