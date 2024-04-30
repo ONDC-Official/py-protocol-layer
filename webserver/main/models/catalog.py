@@ -122,3 +122,4 @@ class SubCategory(BaseModel):
     id: str
     domain: str
     name: str
+    timestamp: str

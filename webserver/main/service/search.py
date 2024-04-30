@@ -387,6 +387,7 @@ def add_product_with_attributes(items, providers_with_offers, db_insert=True):
     serviceabilities = dict()
     item_cg_ids = []
     domain = items[0]["context"]["domain"]
+    timestamp = items[0]["context"]["timestamp"]
 
     for i in items:
         attributes, variants, variant_group_local_id = [], [], None
@@ -526,7 +527,8 @@ def add_product_with_attributes(items, providers_with_offers, db_insert=True):
 
     sub_category_objects = [SubCategory(**{"id": f"{domain}_{s}",
                                            "domain": domain,
-                                           "name": s
+                                           "name": s,
+                                           "timestamp": timestamp
                                            }) for s in sub_categories]
     providers = list({group.id: group for group in providers}.values())
     locations = list({l.id: l for l in locations}.values())
