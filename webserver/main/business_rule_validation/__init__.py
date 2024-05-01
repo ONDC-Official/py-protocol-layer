@@ -1,3 +1,4 @@
+from main.business_rule_validation.on_confirm import validate_business_rules_for_on_confirm
 from main.business_rule_validation.on_search import validate_business_rules_for_full_on_search, \
     validate_business_rules_for_incr_on_search
 from main.business_rule_validation.on_select import validate_business_rules_for_on_select
@@ -14,6 +15,7 @@ request_type_to_fun_mapping = {
     "incr_on_search": validate_business_rules_for_incr_on_search,
     "on_select": validate_business_rules_for_on_select,
     "on_init": validate_business_rules_for_on_init,
+    "on_confirm": validate_business_rules_for_on_confirm,
 }
 
 
