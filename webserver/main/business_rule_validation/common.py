@@ -10,7 +10,7 @@ def validate_sum_of_quote_breakup(payload):
     for p in order_quote["breakup"]:
         breakup_price += float(p["price"]["value"])
 
-    if breakup_price == total_price:
+    if round(breakup_price, 2) == round(total_price, 2):
         return None
     else:
         return f"Total price and sum of breakup are mismatch! {total_price} != {breakup_price}"
