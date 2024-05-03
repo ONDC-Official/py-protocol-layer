@@ -1,3 +1,5 @@
+import json
+
 from main.logger.custom_logging import log_error
 from main.models import get_mongo_collection
 from main.repository import mongo
@@ -27,7 +29,7 @@ def validate_item_ids_in_list_and_breakup(payload):
         return f"Order items and breakup items are mismatched! {order_item_ids} != {breakup_item_ids}"
 
 
-def validate_request_and_callback_breakup_item_ids(callback_payload):
+def validate_request_and_callback_breakup_items(callback_payload):
     try:
         request_action = callback_payload["context"]["action"].split("on_")[1]
         query = {
@@ -41,10 +43,14 @@ def validate_request_and_callback_breakup_item_ids(callback_payload):
         log_error(e)
         return f"Couldn't find request for associate callback {callback_payload['context']['action']}!"
 
-    request_order_item_ids = [i["id"] for i in request_payload["message"]["order"]["items"]]
-    callback_order_item_ids = [i["id"] for i in callback_payload["message"]["order"]["items"]]
+    request_order_provider = request_payload["message"]["order"]["provider"].get("id")
+    callback_order_provider = callback_payload["message"]["order"]["provider"].get("id")
+    request_order_items = [(i["id"], i.get("parent_item_id")) for i in request_payload["message"]["order"]["items"]]
+    callback_order_items = [(i["id"], i.get("parent_item_id")) for i in callback_payload["message"]["order"]["items"]]
 
-    if set(request_order_item_ids) == set(callback_order_item_ids):
-        return None
+    if request_order_provider != callback_order_provider:
+        return f"Order provider is mismatched between request and callback: {request_order_provider} != {callback_order_provider}"
+    elif set(request_order_items) != set(callback_order_items):
+        return f"Order items (id, parent_item_id) are mismatched between request and callback: {request_order_items} != {callback_order_items}"
     else:
-        return f"Order items are mismatched between request and callback! {request_order_item_ids} != {callback_order_item_ids}"
+        return None
