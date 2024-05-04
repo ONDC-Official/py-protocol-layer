@@ -956,12 +956,6 @@ class Circle(BaseModel):
     gps: Gps
     radius: Scalar
 
-    @validator("radius")
-    def check_radius_format(cls, radius: Scalar):
-        if radius.unit == "km" and float(radius.value) > 50:
-            raise ValueError("Radius cannot be more than 50 km!")
-        return radius
-
 
 class Contact(BaseModel):
     phone: Optional[str] = None
