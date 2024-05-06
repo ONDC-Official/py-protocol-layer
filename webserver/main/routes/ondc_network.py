@@ -61,15 +61,13 @@ class AddSelectResponse(Resource):
         log(f"Got the on_select request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_select')
         resp = validate_business_rules(request_payload, 'on_select') if resp is None else resp
+        entry_object_id = dump_request_payload("on_select", request_payload)
+        print(entry_object_id)
         if resp is None:
-            entry_object_id = dump_request_payload("on_select", request_payload)
             resp = add_bpp_response(request_payload, request_type="on_select")
-            update_dumped_request_with_response(entry_object_id, resp)
-            log(f"Got the on_select response {resp}!")
-            return resp
-        else:
-            log(f"Got the on_select response {resp}!")
-            return resp
+        update_dumped_request_with_response(entry_object_id, resp)
+        log(f"Got the on_select response {resp}!")
+        return resp
 
 
 @ondc_network_namespace.route("/v1/on_init")
@@ -81,15 +79,12 @@ class AddInitResponse(Resource):
         log(f"Got the on_init request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_init')
         resp = validate_business_rules(request_payload, 'on_init') if resp is None else resp
+        entry_object_id = dump_request_payload("on_init", request_payload)
         if resp is None:
-            entry_object_id = dump_request_payload("on_init", request_payload)
             resp = add_bpp_response(request_payload, request_type="on_init")
-            update_dumped_request_with_response(entry_object_id, resp)
-            log(f"Got the on_init response {resp}!")
-            return resp
-        else:
-            log(f"Got the on_init response {resp}!")
-            return resp
+        update_dumped_request_with_response(entry_object_id, resp)
+        log(f"Got the on_init response {resp}!")
+        return resp
 
 
 @ondc_network_namespace.route("/v1/on_confirm")
@@ -100,15 +95,12 @@ class AddConfirmResponse(Resource):
         request_payload = request.get_json()
         log(f"Got the on_confirm request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_confirm')
+        entry_object_id = dump_request_payload("on_confirm", request_payload)
         if resp is None:
-            entry_object_id = dump_request_payload("on_confirm", request_payload)
             resp = add_bpp_response(request_payload, request_type="on_confirm")
-            update_dumped_request_with_response(entry_object_id, resp)
-            log(f"Got the on_confirm response {resp}!")
-            return resp
-        else:
-            log(f"Got the on_confirm response {resp}!")
-            return resp
+        update_dumped_request_with_response(entry_object_id, resp)
+        log(f"Got the on_confirm response {resp}!")
+        return resp
 
 
 @ondc_network_namespace.route("/v1/on_cancel")
@@ -119,15 +111,12 @@ class AddCancelResponse(Resource):
         request_payload = request.get_json()
         log(f"Got the on_cancel request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_cancel')
+        entry_object_id = dump_request_payload("on_cancel", request_payload)
         if resp is None:
-            entry_object_id = dump_request_payload("on_cancel", request_payload)
             resp = add_bpp_response(request_payload, request_type="on_cancel")
-            update_dumped_request_with_response(entry_object_id, resp)
-            log(f"Got the on_cancel response {resp}!")
-            return resp
-        else:
-            log(f"Got the on_cancel response {resp}!")
-            return resp
+        update_dumped_request_with_response(entry_object_id, resp)
+        log(f"Got the on_cancel response {resp}!")
+        return resp
 
 
 @ondc_network_namespace.route("/v1/cancellation_reasons")
@@ -157,15 +146,12 @@ class AddIssueResponse(Resource):
         request_payload = request.get_json()
         log(f"Got the on_issue request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_issue')
+        entry_object_id = dump_request_payload("on_issue", request_payload)
         if resp is None:
-            entry_object_id = dump_request_payload("on_issue", request_payload)
             resp = add_bpp_response(request_payload, request_type="on_issue")
-            update_dumped_request_with_response(entry_object_id, resp)
-            log(f"Got the on_issue response {resp}!")
-            return resp
-        else:
-            log(f"Got the on_issue response {resp}!")
-            return resp
+        update_dumped_request_with_response(entry_object_id, resp)
+        log(f"Got the on_issue response {resp}!")
+        return resp
 
 
 @ondc_network_namespace.route("/v1/on_issue_status")
@@ -176,15 +162,12 @@ class AddIssueStatusResponse(Resource):
         request_payload = request.get_json()
         log(f"Got the on_issue_status request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_issue_status')
+        entry_object_id = dump_request_payload("on_issue_status", request_payload)
         if resp is None:
-            entry_object_id = dump_request_payload("on_issue_status", request_payload)
             resp = add_bpp_response(request_payload, request_type="on_issue_status")
-            update_dumped_request_with_response(entry_object_id, resp)
-            log(f"Got the on_issue_status response {resp}!")
-            return resp
-        else:
-            log(f"Got the on_issue_status response {resp}!")
-            return resp
+        update_dumped_request_with_response(entry_object_id, resp)
+        log(f"Got the on_issue_status response {resp}!")
+        return resp
 
 
 @ondc_network_namespace.route("/v1/on_rating")
@@ -195,15 +178,12 @@ class AddRatingResponse(Resource):
         request_payload = request.get_json()
         log(f"Got the on_rating request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_rating')
+        entry_object_id = dump_request_payload("on_rating", request_payload)
         if resp is None:
-            entry_object_id = dump_request_payload("on_rating", request_payload)
             resp = add_bpp_response(request_payload, request_type="on_rating")
-            update_dumped_request_with_response(entry_object_id, resp)
-            log(f"Got the on_rating response {resp}!")
-            return resp
-        else:
-            log(f"Got the on_rating response {resp}!")
-            return resp
+        update_dumped_request_with_response(entry_object_id, resp)
+        log(f"Got the on_rating response {resp}!")
+        return resp
 
 
 @ondc_network_namespace.route("/v1/on_status")
@@ -214,15 +194,12 @@ class AddStatusResponse(Resource):
         request_payload = request.get_json()
         log(f"Got the on_status request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_status')
+        entry_object_id = dump_request_payload("on_status", request_payload)
         if resp is None:
-            entry_object_id = dump_request_payload("on_status", request_payload)
             resp = add_bpp_response(request_payload, request_type="on_status")
-            update_dumped_request_with_response(entry_object_id, resp)
-            log(f"Got the on_status response {resp}!")
-            return resp
-        else:
-            log(f"Got the on_status response {resp}!")
-            return resp
+        update_dumped_request_with_response(entry_object_id, resp)
+        log(f"Got the on_status response {resp}!")
+        return resp
 
 
 @ondc_network_namespace.route("/v1/on_support")
@@ -233,15 +210,12 @@ class AddSupportResponse(Resource):
         request_payload = request.get_json()
         log(f"Got the on_support request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_support')
+        entry_object_id = dump_request_payload("on_support", request_payload)
         if resp is None:
-            entry_object_id = dump_request_payload("on_support", request_payload)
             resp = add_bpp_response(request_payload, request_type="on_support")
-            update_dumped_request_with_response(entry_object_id, resp)
-            log(f"Got the on_support response {resp}!")
-            return resp
-        else:
-            log(f"Got the on_support response {resp}!")
-            return resp
+        update_dumped_request_with_response(entry_object_id, resp)
+        log(f"Got the on_support response {resp}!")
+        return resp
 
 
 @ondc_network_namespace.route("/v1/on_track")
@@ -252,15 +226,12 @@ class AddTrackResponse(Resource):
         request_payload = request.get_json()
         log(f"Got the on_track request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_track')
+        entry_object_id = dump_request_payload("on_track", request_payload)
         if resp is None:
-            entry_object_id = dump_request_payload("on_track", request_payload)
             resp = add_bpp_response(request_payload, request_type="on_track")
-            update_dumped_request_with_response(entry_object_id, resp)
-            log(f"Got the on_track response {resp}!")
-            return resp
-        else:
-            log(f"Got the on_track response {resp}!")
-            return resp
+        update_dumped_request_with_response(entry_object_id, resp)
+        log(f"Got the on_track response {resp}!")
+        return resp
 
 
 @ondc_network_namespace.route("/v1/on_update")
@@ -271,12 +242,9 @@ class AddUpdateResponse(Resource):
         request_payload = request.get_json()
         log(f"Got the on_update request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_update')
+        entry_object_id = dump_request_payload("on_update", request_payload)
         if resp is None:
-            entry_object_id = dump_request_payload("on_update", request_payload)
             resp = add_bpp_response(request_payload, request_type="on_update")
-            update_dumped_request_with_response(entry_object_id, resp)
-            log(f"Got the on_update response {resp}!")
-            return resp
-        else:
-            log(f"Got the on_update response {resp}!")
-            return resp
+        update_dumped_request_with_response(entry_object_id, resp)
+        log(f"Got the on_update response {resp}!")
+        return resp
