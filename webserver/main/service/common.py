@@ -83,4 +83,5 @@ def dump_request_payload(action, payload):
 def update_dumped_request_with_response(object_id, response):
     collection = get_mongo_collection('request_dump')
     filter_criteria = {"_id": object_id}
-    collection.update_one(filter_criteria, {'$set': {"response": response}})
+    collection.update_one(filter_criteria, {'$set': {"response": response,
+                                                     "updated_at": datetime.utcnow()}})
