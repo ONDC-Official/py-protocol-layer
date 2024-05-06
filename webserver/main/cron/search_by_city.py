@@ -36,7 +36,7 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
                      'std:0820', 'std:04112', 'std:02692', 'std:0135', 'std:01461', 'std:0832', 'std:06466', 'std:02752',
                      'std:0431', 'std:0424', 'std:04344', 'std:08676', 'std:0278', 'std:0542', 'std:0562', 'std:0671',
                      'std:05862', 'std:0288', 'std:02637', 'std:0141', 'std:01421', 'std:011', 'std:05271', 'std:05542',
-                     'std:05282', 'std:08288'] if cities is None else cities
+                     'std:05282', 'std:08288', 'std:06755'] if cities is None else cities
         message = {
             "intent": {
                 "fulfillment":
