@@ -62,7 +62,6 @@ class AddSelectResponse(Resource):
         resp = validate_payload_schema_based_on_version(request_payload, 'on_select')
         resp = validate_business_rules(request_payload, 'on_select') if resp is None else resp
         entry_object_id = dump_request_payload("on_select", request_payload)
-        print(entry_object_id)
         if resp is None:
             resp = add_bpp_response(request_payload, request_type="on_select")
         update_dumped_request_with_response(entry_object_id, resp)

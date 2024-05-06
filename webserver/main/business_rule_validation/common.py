@@ -1,4 +1,4 @@
-import json
+from retry import retry
 
 from main.logger.custom_logging import log_error
 from main.models import get_mongo_collection
@@ -29,16 +29,22 @@ def validate_item_ids_in_list_and_breakup(payload):
         return f"Order items and breakup items are mismatched! {order_item_ids} != {breakup_item_ids}"
 
 
+@retry(tries=3, delay=1)
+def get_request_payload(callback_payload):
+    request_action = callback_payload["context"]["action"].split("on_")[1]
+    query = {
+        "request.context.action": request_action,
+        "request.context.message_id": callback_payload["context"]["message_id"],
+        "response.message.ack.status": "ACK",
+    }
+    request_dump_collection = get_mongo_collection("request_dump")
+    request_payload = mongo.collection_find_one(request_dump_collection, query)["request"]
+    return request_payload
+
+
 def validate_request_and_callback_breakup_items(callback_payload):
     try:
-        request_action = callback_payload["context"]["action"].split("on_")[1]
-        query = {
-            "request.context.action": request_action,
-            "request.context.message_id": callback_payload["context"]["message_id"],
-            "response.message.ack.status": "ACK",
-        }
-        request_dump_collection = get_mongo_collection("request_dump")
-        request_payload = mongo.collection_find_one(request_dump_collection, query)["request"]
+        request_payload = get_request_payload(callback_payload)
     except Exception as e:
         log_error(e)
         return f"Couldn't find request for associate callback {callback_payload['context']['action']}!"
