@@ -1110,6 +1110,7 @@ def get_last_request_dump(request_type, transaction_id):
     catalog = mongo.collection_find_one_with_sort(search_collection, query_object, "created_at")
     if catalog:
         catalog.pop("created_at")
+        catalog.pop("updated_at")
         return catalog
     else:
         return {"error": "No request found for given type and transaction_id!"}, 400
