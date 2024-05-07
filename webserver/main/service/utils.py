@@ -61,12 +61,13 @@ def handle_stop_iteration(func):
     return exception_handler
 
 
-def dump_auth_failure_request(auth_header, payload_str, context):
+def dump_auth_failure_request(auth_header, payload_str, context, public_key):
     collection = get_mongo_collection('auth_failure_request_dump')
     return mongo.collection_insert_one(collection, {"context": context,
                                                     "payload_str": payload_str,
                                                     "auth_header": auth_header,
-                                                    "created_at": datetime.utcnow()})
+                                                    "created_at": datetime.utcnow(),
+                                                    "public_key": public_key})
 
 
 def validate_auth_header(func):
@@ -74,12 +75,12 @@ def validate_auth_header(func):
         if get_config_by_name("VERIFICATION_ENABLE"):
             auth_header = request.headers.get('Authorization')
             domain = request.get_json().get("context", {}).get("domain")
+            public_key = get_bpp_public_key_from_header(auth_header, domain)
             if auth_header and verify_authorisation_header(auth_header, request.data.decode("utf-8"),
-                                                           public_key=get_bpp_public_key_from_header(auth_header,
-                                                                                                     domain)):
+                                                           public_key=public_key):
                 return func(*args, **kwargs)
             context = json.loads(request.data)[constant.CONTEXT]
-            dump_auth_failure_request(auth_header, request.data.decode("utf-8"), context)
+            dump_auth_failure_request(auth_header, request.data.decode("utf-8"), context, public_key)
             return get_ack_response(context=context, ack=False, error={
                 "code": "10001",
                 "message": "Invalid Signature"

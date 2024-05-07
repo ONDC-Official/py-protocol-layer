@@ -29,7 +29,7 @@ def validate_item_ids_in_list_and_breakup(payload):
         return f"Order items and breakup items are mismatched! {order_item_ids} != {breakup_item_ids}"
 
 
-@retry(tries=3, delay=1)
+@retry(tries=1, delay=0.5)
 def get_request_payload(callback_payload):
     request_action = callback_payload["context"]["action"].split("on_")[1]
     query = {
