@@ -28,4 +28,4 @@ def validate_fulfillment_ids(payload):
     if item_fulfillment_ids == fulfillment_ids == quote_breakup_ids:
         return None
     else:
-        return "Fulfillment ids are not getting correctly mapped!"
+        return "Fulfillment ids present in items ,quote, fulfillment should be mapped correctly!"

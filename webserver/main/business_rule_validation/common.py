@@ -15,7 +15,7 @@ def validate_sum_of_quote_breakup(payload):
     if round(breakup_price, 2) == round(total_price, 2):
         return None
     else:
-        return f"Total price and sum of breakup are mismatch! {total_price} != {breakup_price}"
+        return f"qoute.price.value should be sum of breakup.price.value {total_price} != {breakup_price}"
 
 
 def validate_item_ids_in_list_and_breakup(payload):
@@ -26,7 +26,7 @@ def validate_item_ids_in_list_and_breakup(payload):
     if set(breakup_item_ids) == set(order_item_ids):
         return None
     else:
-        return f"Order items and breakup items are mismatched! {order_item_ids} != {breakup_item_ids}"
+        return f"Order items and breakup items should be same! {order_item_ids} != {breakup_item_ids}"
 
 
 @retry(tries=1, delay=0.5)
@@ -43,11 +43,13 @@ def get_request_payload(callback_payload):
 
 
 def validate_request_and_callback_breakup_items(callback_payload):
+    splits = callback_payload["context"]["action"].split("on_")
+    request_action = splits[1] if len(splits) > 1 else ""
     try:
         request_payload = get_request_payload(callback_payload)
     except Exception as e:
         log_error(e)
-        return f"Couldn't find request for associate callback {callback_payload['context']['action']}!"
+        return f"ACK for {request_action} should be received before {callback_payload['context']['action']}!"
 
     request_order_provider = request_payload["message"]["order"]["provider"].get("id")
     callback_order_provider = callback_payload["message"]["order"]["provider"].get("id")
@@ -55,8 +57,8 @@ def validate_request_and_callback_breakup_items(callback_payload):
     callback_order_items = [(i["id"], i.get("parent_item_id")) for i in callback_payload["message"]["order"]["items"]]
 
     if request_order_provider != callback_order_provider:
-        return f"Order provider is mismatched between request and callback: {request_order_provider} != {callback_order_provider}"
+        return f"Order provider should be same in request and callback: {request_order_provider} != {callback_order_provider}"
     elif set(request_order_items) != set(callback_order_items):
-        return f"Order items (id, parent_item_id) are mismatched between request and callback: {request_order_items} != {callback_order_items}"
+        return f"Order items (id, parent_item_id) should be same in request and callback: {request_order_items} != {callback_order_items}"
     else:
         return None
