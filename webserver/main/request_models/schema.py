@@ -499,13 +499,18 @@ class Rateable(BaseModel):
     __root__: bool = Field(..., description='If the entity can be rated or not')
 
 
-class RatingAck(BaseModel):
-    feedback_ack: Optional[bool] = Field(
-        None, description='If feedback has been recorded or not'
-    )
-    rating_ack: Optional[bool] = Field(
-        None, description='If rating has been recorded or not'
-    )
+class RatingFeedbackFormElement(BaseModel):
+    url: str
+    data: str
+    mime_type: str
+
+
+class RatingFeedbackForm(BaseModel):
+    form: RatingFeedbackFormElement
+
+
+class OnRatingMessage(BaseModel):
+    feedback_form: Optional[RatingFeedbackForm] = None
 
 
 class Type4(Enum):
@@ -1640,7 +1645,7 @@ class IncrOnSearchProvider(BaseModel):
 
 
 class Rating(BaseModel):
-    rating_category: Optional[str] = Field(
+    rating_category: Optional[StrictStr] = Field(
         None, description='Category of the object being rated'
     )
     id: Optional[StrictStr] = Field(None, description='Id of the object being rated')
@@ -1648,8 +1653,10 @@ class Rating(BaseModel):
         None,
         description='Rating value given to the object (1 - Poor; 2 - Needs improvement; 3 - Satisfactory; 4 - Good; 5 - Excellent)',
     )
-    feedback_form: Optional[FeedbackForm] = None
-    feedback_id: Optional[FeedbackId] = None
+
+
+class RatingMessage(BaseModel):
+    ratings: List[Rating]
 
 
 class ResolutionSupport(BaseModel):

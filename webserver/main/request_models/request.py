@@ -6,8 +6,8 @@ from uuid import UUID
 from pydantic import BaseModel, validator, ValidationError
 
 from main.request_models.schema import Context, Catalog, Error, Order, Descriptor, Issue, Provider, Location, \
-    Item, AddOn, Offer, Quotation, Billing, Fulfillment, Payment, Rating, Tracking, RatingAck, Domain, CodeModel, Code, \
-    Action, IncrCatalog
+    Item, AddOn, Offer, Quotation, Billing, Fulfillment, Payment, RatingMessage, Tracking, OnRatingMessage, Domain, \
+    CodeModel, Code, Action, IncrCatalog
 
 
 class Status(Enum):
@@ -198,7 +198,7 @@ class UpdateRequest(BaseModel):
 
 class RatingRequest(BaseModel):
     context: Context
-    message: Rating
+    message: RatingMessage
     error: Optional[Error]
 
 
@@ -288,7 +288,7 @@ class OnUpdateRequest(BaseModel):
 
 class OnRatingRequest(BaseModel):
     context: OnCallContext
-    message: RatingAck
+    message: OnRatingMessage
     error: Optional[Error]
 
 
