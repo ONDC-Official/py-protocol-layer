@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import datetime
 from json import JSONDecodeError
 from typing import List, Tuple
@@ -20,6 +21,7 @@ from main.utils.decorators import check_for_exception
 from main.utils.lookup_utils import fetch_subscriber_url_from_lookup
 from main.utils.cryptic_utils import create_authorisation_header
 from main.utils.math_utils import create_simple_circle_polygon
+from main.utils.parallel_processing_utils import io_bound_parallel_computation
 from main.utils.webhook_utils import post_on_bg_or_bpp, MeasureTime
 
 
@@ -590,64 +592,78 @@ def add_product_with_attributes_incremental_flow(items):
 
 def upsert_product_attributes(product_attributes: List[ProductAttribute]):
     collection = get_mongo_collection('product_attribute')
-    for p in product_attributes:
+    def upsert_single_product_attr(p):
         filter_criteria = {"provider": p.provider, "code": p.code}
         p_dict = p.dict()
         p_dict["created_at"] = datetime.utcnow()
         mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
+    io_bound_parallel_computation(upsert_single_product_attr, product_attributes)
+
 
 def upsert_product_attribute_values(product_attribute_values: List[ProductAttributeValue]):
     collection = get_mongo_collection('product_attribute_value')
-    for p in product_attribute_values:
+    def upsert_single_product_attr_value(p):
         filter_criteria = {"product": p.product, "attribute_code": p.attribute_code}
         p_dict = p.dict()
         p_dict["created_at"] = datetime.utcnow()
         mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
+    io_bound_parallel_computation(upsert_single_product_attr_value, product_attribute_values)
+
 
 def upsert_variant_groups(variant_groups: List[VariantGroup]):
     collection = get_mongo_collection('variant_group')
-    for v in variant_groups:
+    def upsert_single_variant_group(v):
         filter_criteria = {"id": v.id}
         p_dict = v.dict()
         p_dict["created_at"] = datetime.utcnow()
         mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+
+    io_bound_parallel_computation(upsert_single_variant_group, variant_groups)
 
 
 def upsert_custom_menus(custom_menus: List[CustomMenu]):
     collection = get_mongo_collection('custom_menu')
-    for v in custom_menus:
+    def upsert_single_custom_menu(v):
         filter_criteria = {"id": v.id}
         p_dict = v.dict()
         p_dict["created_at"] = datetime.utcnow()
         mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+
+    io_bound_parallel_computation(upsert_single_custom_menu, custom_menus)
 
 
 def upsert_customisation_groups(customisation_groups: List[CustomisationGroup]):
     collection = get_mongo_collection('customisation_group')
-    for v in customisation_groups:
+    def upsert_single_customisation_group(v):
         filter_criteria = {"id": v.id}
         p_dict = v.dict()
         p_dict["created_at"] = datetime.utcnow()
         mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
+    io_bound_parallel_computation(upsert_single_customisation_group, customisation_groups)
+
 
 def upsert_products(products: List[Product]):
     collection = get_mongo_collection('product')
-    for p in products:
+    def upsert_single_product(p):
         filter_criteria = {"id": p.id}
         p_dict = p.dict()
         p_dict["created_at"] = datetime.utcnow()
         mongo.collection_upsert_one(collection, filter_criteria, p_dict)
 
+    io_bound_parallel_computation(upsert_single_product, products)
+
 
 def upsert_products_incremental_flow(products: List[dict]):
     collection = get_mongo_collection('product')
-    for p_dict in products:
+    def upsert_single_product_incr(p_dict):
         filter_criteria = {"id": p_dict["id"]}
         p_dict["created_at"] = datetime.utcnow()
         mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+
+    io_bound_parallel_computation(upsert_single_product_incr, products)
 
 
 def upsert_providers(products: List[Provider]):
@@ -707,6 +723,7 @@ def upsert_sub_categories(sub_categories: List[SubCategory]):
 
 
 @check_for_exception
+@MeasureTime
 def add_search_catalogues(bpp_response):
     log(f"Adding search catalogs with message-id: {bpp_response['context']['message_id']} for {bpp_response['context']['bpp_id']}")
     context = bpp_response[constant.CONTEXT]
@@ -719,22 +736,19 @@ def add_search_catalogues(bpp_response):
     if len(items) == 0:
         return get_ack_response(context=context, ack=True)
     search_collection = get_mongo_collection('on_search_items')
-    is_successful = True
 
     items = add_product_with_attributes(items, providers)
-    for i in items:
+    def upsert_single_item(i):
         # Upsert a single document
         i["timestamp"] = i["context"]["timestamp"]
         i["created_at"] = datetime.utcnow()
         filter_criteria = {"id": i['id']}
-        is_successful = is_successful and mongo.collection_upsert_one(search_collection, filter_criteria, i)
+        mongo.collection_upsert_one(search_collection, filter_criteria, i)
 
-    if is_successful:
-        log(f"Search catalogs added successfully, message-id: {bpp_response['context']['message_id']} for {bpp_response['context']['bpp_id']}")
-        return get_ack_response(context=context, ack=True)
-    else:
-        log(f"Search catalogs failed while adding, message-id: {bpp_response['context']['message_id']} for {bpp_response['context']['bpp_id']}")
-        return get_ack_response(context=context, ack=False, error=DatabaseError.ON_WRITE_ERROR.value)
+    io_bound_parallel_computation(upsert_single_item, items)
+
+    log(f"Search catalogs added successfully, message-id: {bpp_response['context']['message_id']} for {bpp_response['context']['bpp_id']}")
+    return get_ack_response(context=context, ack=True)
 
 
 def add_search_catalogues_for_test(bpp_response):
@@ -1138,3 +1152,10 @@ def get_sub_categories(domain):
     query_object = {"domain": domain}
     sub_categories = mongo.collection_find_all(mongo_collection, query_object)
     return sub_categories
+
+
+if __name__ == '__main__':
+    os.environ["ENV"] = "dev"
+    with open("/Users/aditya/Projects/ondc-sdk/py-ondc-protocol/payload.json") as f:
+        json_payload = json.load(f)
+        add_search_catalogues(json_payload)
