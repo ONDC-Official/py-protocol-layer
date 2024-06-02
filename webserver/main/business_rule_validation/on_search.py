@@ -46,10 +46,10 @@ def validate_city_code_with_pin_code_in_locations(payload):
         locations = p["locations"]
         area_codes.extend([lo["address"]["area_code"] for lo in locations])
 
-    city_pin_codes = get_city_to_pin_codes_mapping().get(city_code, [])
+    city_pin_codes = get_city_to_pin_codes_mapping().get(city_code.split(":")[-1], [])
 
     are_pin_codes_for_given_city = all(element in city_pin_codes for element in area_codes)
     if not are_pin_codes_for_given_city:
-        return f"Provided pin-codes {area_codes} (in location.address) are not from city {city_code}"
+        return f"Provided pin-codes {area_codes} (in location.address) are not from city {city_code} i.e. {city_pin_codes}"
     else:
         return None
