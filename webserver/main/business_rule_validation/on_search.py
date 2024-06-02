@@ -39,6 +39,7 @@ def validate_search_request_validity(payload):
 
 
 def validate_city_code_with_pin_code_in_locations(payload):
+    sheet_link = "https://docs.google.com/spreadsheets/d/12A_B-nDtvxyFh_FWDfp85ss2qpb65kZ7"
     city_code = payload["context"]["city"]
     providers = payload["message"]["catalog"]["bpp/providers"]
     area_codes = []
@@ -50,6 +51,6 @@ def validate_city_code_with_pin_code_in_locations(payload):
 
     are_pin_codes_for_given_city = all(element in city_pin_codes for element in area_codes)
     if not are_pin_codes_for_given_city:
-        return f"Provided pin-codes {area_codes} (in location.address) are not from city {city_code} i.e. {city_pin_codes}"
+        return f"Provided pin-codes {area_codes} (in location.address) are not from city {city_code}, check {sheet_link}"
     else:
         return None
