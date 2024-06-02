@@ -1,5 +1,5 @@
 import json
-from pymongo import MongoClient, GEOSPHERE, TEXT
+from pymongo import MongoClient, TEXT
 
 from main.config import get_config_by_name
 from main.logger.custom_logging import log
@@ -38,12 +38,13 @@ def init_database():
 def create_all_indexes():
     [create_ttl_index(c) for c in ["on_select", "on_init", "on_confirm", "on_cancel", "on_status", "on_support",
                                    "on_track", "on_update", "on_rating"]]
-    [create_ttl_index(c, ttl_in_seconds=24*60*60) for c in ["on_search_dump", "request_dump", "on_search_items",
+    [create_ttl_index(c, ttl_in_seconds=24*60*60) for c in ["on_search_dump", "on_search_items",
                                                             "provider", "custom_menu", "location", "product",
                                                             "product_attribute", "product_attribute_value",
                                                             "variant_group", "customisation_group", "location_offer",
                                                             "auth_failure_request_dump", "sub_category"
                                                             ]]
+    create_ttl_index("request_dump", ttl_in_seconds=3*24*60*60)
     get_mongo_collection("on_search_items").create_index([('id', TEXT)], name='id_index')
 
 

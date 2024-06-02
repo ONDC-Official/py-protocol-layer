@@ -4,7 +4,7 @@ from multiprocessing import Pool as ProcessPool
 
 
 def io_bound_parallel_computation(function, iterator):
-    pool = ThreadPool(processes=100)
+    pool = ThreadPool(processes=5)
     results = pool.map(function, iterator)
     pool.close()
     pool.join()

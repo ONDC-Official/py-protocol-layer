@@ -63,7 +63,7 @@ def collection_find_all(mongo_collection, query_object, sort_field=None, sort_or
             secondary_sort_field, secondary_sort_order = ID, pymongo.ASCENDING
             catalogue_objects = catalogue_objects.sort([(sort_field, sort_order),
                                                         (secondary_sort_field, secondary_sort_order)])
-        if skip and limit:
+        if limit:
             catalogue_objects = catalogue_objects.skip(skip).limit(limit)
         else:
             limit = 1
