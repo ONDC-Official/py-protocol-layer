@@ -1032,7 +1032,7 @@ def get_locations(**kwargs):
                 {"type": "pan"}]
             }
         )
-    providers = mongo.collection_find_all(mongo_collection, query_object, geo_spatial=True)
+    providers = mongo.collection_find_all(mongo_collection, query_object, geo_spatial=True, limit=None)
     for p in providers["data"]:
         p.pop("polygons")
     return providers
