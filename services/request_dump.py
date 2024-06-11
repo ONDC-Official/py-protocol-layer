@@ -10,10 +10,19 @@ def dump_request_payload(action, payload):
                                                     "created_at": datetime.utcnow()})
 
 
-def update_dumped_request_with_response(object_id, response):
+def dump_request_payload_with_response(payload, headers, response, status_code):
+    collection = get_mongo_collection('request_dump')
+    return mongo.collection_insert_one(collection, {"action": payload["context"]["action"], "request": payload,
+                                                    "headers": headers,
+                                                    "response": response, "status_code": status_code,
+                                                    "created_at": datetime.utcnow()})
+
+
+def update_dumped_request_with_response(object_id, response, status_code):
     collection = get_mongo_collection('request_dump')
     filter_criteria = {"_id": object_id}
     collection.update_one(filter_criteria, {'$set': {"response": response,
+                                                     "status_code": status_code,
                                                      "updated_at": datetime.utcnow()}})
 
 

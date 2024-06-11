@@ -4,5 +4,6 @@ from services.request_forward import forward_request
 
 def request_dump_and_forward(payload, headers):
     entry_object_id = dump_request_payload(payload["context"]["action"], payload)
-    resp = forward_request(payload, headers)
-    update_dumped_request_with_response(entry_object_id, resp)
+    resp, status_code = forward_request(payload, headers)
+    update_dumped_request_with_response(entry_object_id, resp, status_code)
+    return resp, status_code

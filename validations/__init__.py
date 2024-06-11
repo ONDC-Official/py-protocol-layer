@@ -2,6 +2,7 @@ from functools import wraps
 
 from flask import request
 
+from services.request_dump import dump_request_payload_with_response
 from utils.ack_utils import get_ack_response
 from validations.business_rule_validations import validate_business_rules
 from validations.schema_validations import validate_schema, validate_request_type
@@ -13,10 +14,12 @@ def validate_payload(request_type):
         def wrapper(*args, **kwargs):
             resp = validate_ondc_request(request_type, request.get_json(), request.headers)
             if resp is not None:
-                return resp, 400
+                payload = request.get_json()
+                status_code = 400
+                dump_request_payload_with_response(payload, dict(request.headers), resp, status_code=status_code)
+                return resp, status_code
 
-            func(*args, **kwargs)
-            return get_ack_response(request.get_json()["context"], ack=True), 200
+            return func(*args, **kwargs)
 
         return wrapper
     return decorator

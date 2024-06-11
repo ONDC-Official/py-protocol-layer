@@ -14,4 +14,4 @@ class Search(Resource):
     @authenticate
     @validate_payload("search")
     def post(self):
-        request_dump_and_forward(request.get_json(), request.headers)
+        return request_dump_and_forward(request.get_json(), dict(request.headers))

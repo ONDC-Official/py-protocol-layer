@@ -54,10 +54,13 @@ class Config:
     CONSUMER_MAX_WORKERS = int(os.getenv("CONSUMER_MAX_WORKERS", "100"))
     MONGO_DATABASE_URL = os.getenv("MONGO_DATABASE_URL", "mongodb://localhost:27017")
     MONGO_DATABASE_NAME = os.getenv("MONGO_DATABASE_NAME", "sandbox_bap")
+    CLIENT_WEBHOOK_ENDPOINT = os.getenv("CLIENT_WEBHOOK_ENDPOINT", "client")
     # MONGO_DATABASE_URL = "mongodb://mongo1:27017,mongo2:27018/?replicaSet=my-replica-set&readPreference=secondary"
     IS_TEST = os.getenv("IS_TEST", "False") == "True"
     DOMAIN_LIST = [d.strip() for d in os.getenv("DOMAIN_LIST", all_domains_str).split(",")]
     CITY_LIST = [c.strip() for c in os.getenv("CITY_LIST", all_cities_str).split(",")]
+    RQ_REDIS_URL = f"redis://{os.getenv('REDIS_URL', 'localhost')}:{os.getenv('REDIS_PORT', 6379)}/1"
+    RQ_ASYNC = True
 
 
 class DevelopmentConfig(Config):

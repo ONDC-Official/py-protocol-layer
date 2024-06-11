@@ -14,4 +14,13 @@ class Search(Resource):
     @authenticate
     @validate_payload("on_search")
     def post(self):
-        request_dump_and_forward(request.get_json(), request.headers)
+        return request_dump_and_forward(request.get_json(), dict(request.headers))
+
+
+@callback_namespace.route("/v1/on_select")
+class Select(Resource):
+
+    @authenticate
+    @validate_payload("on_select")
+    def post(self):
+        return request_dump_and_forward(request.get_json(), dict(request.headers))

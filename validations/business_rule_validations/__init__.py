@@ -6,7 +6,7 @@ from validations.business_rule_validations.on_init import validate_business_rule
 
 
 def validate_business_rules(payload, request_type):
-    business_rule_fn = request_type_to_fun_mapping[request_type]
+    business_rule_fn = request_type_to_fun_mapping.get(request_type, print)
     return business_rule_fn(payload)
 
 

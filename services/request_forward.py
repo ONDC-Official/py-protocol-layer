@@ -2,17 +2,22 @@ from config import get_config_by_name
 from logger.custom_logging import log
 from services.rabbitmq_publisher import send_message_to_queue_for_given_request
 from services.request_dump import dump_on_search_payload
+from utils.ack_utils import get_ack_response
 from utils.cryptic_utils import create_authorisation_header
 from utils.lookup_utils import fetch_subscriber_url_from_lookup
 from utils.webhook_utils import post_on_bg_or_bpp, make_request_to_client
 
 
 def forward_request(payload, headers):
-    forwarding_rules[get_config_by_name("TYPE", "BAP")](payload, headers)
+    action = payload["context"]["action"]
+    return forwarding_rules[get_config_by_name("TYPE", "BAP")][action](payload, headers)
 
 
-def forward_request_to_client(payload, _):
-    make_request_to_client(payload["context"]["action"], payload["context"]["core_version"], payload)
+def forward_request_to_client_async(payload, _):
+    from async_jobs import forward_request_to_client
+    kwargs = {"payload": payload}
+    forward_request_to_client.queue(**kwargs, timeout=180, queue="client_forward", result_ttl=0)
+    return get_ack_response(payload["context"], ack=True), 200
 
 
 def gateway_search(search_request, headers={}):
@@ -67,31 +72,31 @@ forwarding_rules = {
         "issue_status": bpp_request,
 
         "on_search": publish_message_to_queue,
-        "on_select": forward_request_to_client,
-        "on_init": forward_request_to_client,
-        "on_confirm": forward_request_to_client,
-        "on_status": forward_request_to_client,
-        "on_track": forward_request_to_client,
-        "on_cancel": forward_request_to_client,
-        "on_update": forward_request_to_client,
-        "on_rating": forward_request_to_client,
-        "on_support": forward_request_to_client,
-        "on_issue": forward_request_to_client,
-        "on_issue_status": forward_request_to_client,
+        "on_select": forward_request_to_client_async,
+        "on_init": forward_request_to_client_async,
+        "on_confirm": forward_request_to_client_async,
+        "on_status": forward_request_to_client_async,
+        "on_track": forward_request_to_client_async,
+        "on_cancel": forward_request_to_client_async,
+        "on_update": forward_request_to_client_async,
+        "on_rating": forward_request_to_client_async,
+        "on_support": forward_request_to_client_async,
+        "on_issue": forward_request_to_client_async,
+        "on_issue_status": forward_request_to_client_async,
     },
     "BPP": {
-        "search": forward_request_to_client,
-        "select": forward_request_to_client,
-        "init": forward_request_to_client,
-        "confirm": forward_request_to_client,
-        "status": forward_request_to_client,
-        "track": forward_request_to_client,
-        "cancel": forward_request_to_client,
-        "update": forward_request_to_client,
-        "rating": forward_request_to_client,
-        "support": forward_request_to_client,
-        "issue": forward_request_to_client,
-        "issue_status": forward_request_to_client,
+        "search": forward_request_to_client_async,
+        "select": forward_request_to_client_async,
+        "init": forward_request_to_client_async,
+        "confirm": forward_request_to_client_async,
+        "status": forward_request_to_client_async,
+        "track": forward_request_to_client_async,
+        "cancel": forward_request_to_client_async,
+        "update": forward_request_to_client_async,
+        "rating": forward_request_to_client_async,
+        "support": forward_request_to_client_async,
+        "issue": forward_request_to_client_async,
+        "issue_status": forward_request_to_client_async,
 
         "on_search": bap_request,
         "on_select": bap_request,

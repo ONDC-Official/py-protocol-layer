@@ -54,6 +54,7 @@ def MeasureTime(f):
 def requests_post_with_retries(url, payload, headers=None):
     response = requests.post(url, json=payload, headers=headers)
     status_code = response.status_code
+
     if status_code != 200:
         raise requests.exceptions.HTTPError("Request Failed!")
     return status_code
@@ -91,7 +92,10 @@ def post_on_bg_or_bpp(url, payload, headers={}):
     raw_data = json.dumps(payload, separators=(',', ':'))
     response_text, status_code = requests_post(url, raw_data, headers=headers)
     log(f"Request Status: {status_code}, {response_text}")
-    return json.loads(response_text), status_code
+    if status_code != 500:
+        return json.loads(response_text), status_code
+    else:
+        return {"error": "Internal Server Error"}, status_code
 
 
 @cache_success(cache)

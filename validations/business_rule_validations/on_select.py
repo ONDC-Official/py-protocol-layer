@@ -6,7 +6,8 @@ from validations.business_rule_validations.common import validate_sum_of_quote_b
 
 def validate_business_rules_for_on_select(payload):
     fn_list = [validate_sum_of_quote_breakup, validate_item_ids_in_list_and_breakup,
-               validate_request_and_callback_breakup_items]
+               # validate_request_and_callback_breakup_items
+               ]
     for fn in fn_list:
         error = fn(payload)
         if error:
