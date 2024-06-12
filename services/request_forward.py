@@ -46,14 +46,11 @@ def bap_request(request_payload, _):
     return post_on_bg_or_bpp(bpp_url, payload=request_payload, headers=headers)
 
 
-def publish_message_to_queue(request_payload, headers={}):
-    request_type = headers.get("X-ONDC-Search-Response", "full")
-    doc_id = dump_on_search_payload(request_payload)
-    message = {
-        "doc_id": str(doc_id),
-        "request_type": request_type,
-    }
-    send_message_to_queue_for_given_request(message) if get_config_by_name('QUEUE_ENABLE') else None
+def publish_message_to_queue_async(request_payload, headers={}):
+    from async_jobs import publish_message_to_queue
+    kwargs = {"payload": request_payload, "headers": headers}
+    publish_message_to_queue.queue(**kwargs, timeout=180, queue="queue_forward", result_ttl=0)
+    return get_ack_response(request_payload["context"], ack=True), 200
 
 
 forwarding_rules = {
@@ -71,7 +68,7 @@ forwarding_rules = {
         "issue": bpp_request,
         "issue_status": bpp_request,
 
-        "on_search": publish_message_to_queue,
+        "on_search": publish_message_to_queue_async,
         "on_select": forward_request_to_client_async,
         "on_init": forward_request_to_client_async,
         "on_confirm": forward_request_to_client_async,
