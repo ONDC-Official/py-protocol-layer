@@ -10,7 +10,7 @@ from utils.webhook_utils import post_on_bg_or_bpp, make_request_to_client
 
 def forward_request(payload, headers):
     action = payload["context"]["action"]
-    return forwarding_rules[get_config_by_name("TYPE", "BAP")][action](payload, headers)
+    return forwarding_rules[get_config_by_name("TYPE", "RETAIL_BAP")][action](payload, headers)
 
 
 def forward_request_to_client_async(payload, _):
@@ -54,7 +54,7 @@ def publish_message_to_queue_async(request_payload, headers={}):
 
 
 forwarding_rules = {
-    "BAP": {
+    "RETAIL_BAP": {
         "search": gateway_search,
         "select": bpp_request,
         "init": bpp_request,
@@ -81,7 +81,61 @@ forwarding_rules = {
         "on_issue": forward_request_to_client_async,
         "on_issue_status": forward_request_to_client_async,
     },
-    "BPP": {
+    "RETAIL_BPP": {
+        "search": forward_request_to_client_async,
+        "select": forward_request_to_client_async,
+        "init": forward_request_to_client_async,
+        "confirm": forward_request_to_client_async,
+        "status": forward_request_to_client_async,
+        "track": forward_request_to_client_async,
+        "cancel": forward_request_to_client_async,
+        "update": forward_request_to_client_async,
+        "rating": forward_request_to_client_async,
+        "support": forward_request_to_client_async,
+        "issue": forward_request_to_client_async,
+        "issue_status": forward_request_to_client_async,
+
+        "on_search": bap_request,
+        "on_select": bap_request,
+        "on_init": bap_request,
+        "on_confirm": bap_request,
+        "on_status": bap_request,
+        "on_track": bap_request,
+        "on_cancel": bap_request,
+        "on_update": bap_request,
+        "on_rating": bap_request,
+        "on_support": bap_request,
+        "on_issue": bap_request,
+        "on_issue_status": bap_request,
+    },
+    "LOGISTICS_BAP": {
+        "search": gateway_search,
+        "select": bpp_request,
+        "init": bpp_request,
+        "confirm": bpp_request,
+        "status": bpp_request,
+        "track": bpp_request,
+        "cancel": bpp_request,
+        "update": bpp_request,
+        "rating": bpp_request,
+        "support": bpp_request,
+        "issue": bpp_request,
+        "issue_status": bpp_request,
+
+        "on_search": forward_request_to_client_async,
+        "on_select": forward_request_to_client_async,
+        "on_init": forward_request_to_client_async,
+        "on_confirm": forward_request_to_client_async,
+        "on_status": forward_request_to_client_async,
+        "on_track": forward_request_to_client_async,
+        "on_cancel": forward_request_to_client_async,
+        "on_update": forward_request_to_client_async,
+        "on_rating": forward_request_to_client_async,
+        "on_support": forward_request_to_client_async,
+        "on_issue": forward_request_to_client_async,
+        "on_issue_status": forward_request_to_client_async,
+    },
+    "LOGISTICS_BPP": {
         "search": forward_request_to_client_async,
         "select": forward_request_to_client_async,
         "init": forward_request_to_client_async,

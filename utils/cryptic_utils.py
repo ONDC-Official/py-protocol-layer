@@ -60,10 +60,10 @@ def create_authorisation_header(request_body, created=None, expires=None):
     expires = int((datetime.datetime.now() + datetime.timedelta(hours=1)).timestamp()) if expires is None else expires
     signing_key = create_signing_string(hash_message(json.dumps(request_body, separators=(',', ':'))),
                                         created=created, expires=expires)
-    signature = sign_response(signing_key, private_key=get_config_by_name("BAP_PRIVATE_KEY"))
+    signature = sign_response(signing_key, private_key=get_config_by_name("APP_PRIVATE_KEY"))
 
-    subscriber_id = get_config_by_name("BAP_ID")
-    unique_key_id = get_config_by_name("BAP_UNIQUE_KEY_ID")
+    subscriber_id = get_config_by_name("APP_ID")
+    unique_key_id = get_config_by_name("APP_UNIQUE_KEY_ID")
     header = f'Signature keyId="{subscriber_id}|{unique_key_id}|ed25519",algorithm="ed25519",created=' \
              f'"{created}",expires="{expires}",headers="(created) (expires) digest",signature="{signature}"'
     return header

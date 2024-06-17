@@ -14,7 +14,7 @@ def get_city_to_pin_codes_mapping():
 def create_city_to_pin_codes_mapping():
     global city_to_pin_codes
     dirname = os.path.dirname(__file__)
-    filename = os.path.join(dirname, '../../resources/city_to_pincode.csv')
+    filename = os.path.join(dirname, '../../../resources/city_to_pincode.csv')
     with open(filename, mode='r') as file:
         csv_file = csv.reader(file)
         for i, lines in enumerate(csv_file):

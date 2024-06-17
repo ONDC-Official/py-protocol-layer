@@ -1,7 +1,7 @@
 from models.error import BaseError
 from utils.ack_utils import get_ack_response
-from validations.business_rule_validations.common import validate_sum_of_quote_breakup, \
-    validate_item_ids_in_list_and_breakup, validate_request_and_callback_breakup_items
+from validations.business_rule_validations.retail.common import validate_sum_of_quote_breakup, \
+    validate_item_ids_in_list_and_breakup
 
 
 def validate_business_rules_for_on_select(payload):

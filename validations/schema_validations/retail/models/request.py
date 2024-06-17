@@ -5,7 +5,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, validator, ValidationError
 
-from validations.schema_validations.models.schema import Context, Catalog, Error, Order, Descriptor, Issue, Provider, \
+from validations.schema_validations.retail.models.schema import Context, Catalog, Error, Order, Descriptor, Issue, Provider, \
     Location, Item, AddOn, Offer, Quotation, Billing, Fulfillment, Payment, RatingMessage, Tracking, OnRatingMessage, \
     Domain, CodeModel, Code, Action, IncrCatalog
 

@@ -36,11 +36,12 @@ class Config:
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
     CITY_CODE = "std:080"
     COUNTRY_CODE = "IND"
-    BAP_TTL = "20"
-    BAP_PRIVATE_KEY = os.getenv("BAP_PRIVATE_KEY", "some-key")
-    BAP_PUBLIC_KEY = os.getenv("BAP_PUBLIC_KEY", "some-key")
-    BAP_ID = os.getenv("BAP_ID", "buyer-app.ondc.org")
-    BAP_UNIQUE_KEY_ID = os.getenv("BAP_UNIQUE_KEY_ID", "207")
+    APP_TTL = "20"
+    TYPE = os.getenv("TYPE", "RETAIL_BAP")
+    APP_PRIVATE_KEY = os.getenv("APP_PRIVATE_KEY", "some-key")
+    APP_PUBLIC_KEY = os.getenv("APP_PUBLIC_KEY", "some-key")
+    APP_ID = os.getenv("APP_ID", "buyer-app.ondc.org")
+    APP_UNIQUE_KEY_ID = os.getenv("APP_UNIQUE_KEY_ID", "207")
     REGISTRY_BASE_URL = os.getenv("REGISTRY_BASE_URL", "https://preprod.registry.ondc.org/ondc")
     TTL_IN_SECONDS = int(os.getenv("TTL_IN_SECONDS", "18000"))
     VERIFICATION_ENABLE = os.getenv("VERIFICATION_ENABLE", "True") == "True"

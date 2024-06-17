@@ -3,7 +3,7 @@ from datetime import datetime
 from config import get_config_by_name
 from models import get_mongo_collection
 from utils.mongo_utils import collection_find_one
-from validations.business_rule_validations.city_to_pin_code_mappings import get_city_to_pin_codes_mapping
+from validations.business_rule_validations.retail.city_to_pin_code_mappings import get_city_to_pin_codes_mapping
 
 from models.error import BaseError
 from utils.ack_utils import get_ack_response
