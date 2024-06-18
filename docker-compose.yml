@@ -1,0 +1,51 @@
+version: "2.4"
+
+services:
+
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: protocol-webserver
+    environment:
+      ENV: prod
+      TYPE: "RETAIL_BAP" # can be (RETAIL_BAP, RETAIL_BPP, LOGISTICS_BAP, LOGISTICS_BPP)
+      MONGO_DATABASE_URL: ${MONGO_DATABASE_URL}
+      CLIENT_WEBHOOK_ENDPOINT: ${CLIENT_WEBHOOK_ENDPOINT}
+      APP_URL: ${APP_URL}
+      APP_PRIVATE_KEY: ${APP_PRIVATE_KEY}
+      APP_UNIQUE_KEY_ID: ${APP_UNIQUE_KEY_ID}
+      APP_PUBLIC_KEY: ${APP_PUBLIC_KEY}
+      APP_ID: ${APP_ID}
+      VERIFICATION_ENABLE: ${VERIFICATION_ENABLE}
+    expose:
+      - 5555
+    ports:
+      - 5555:5555
+
+  worker:
+    build:
+      context: .
+      dockerfile: WorkerDockerfile
+    container_name: protocol-worker
+    depends_on:
+      - mongo
+    environment:
+      ENV: prod
+      MONGO_DATABASE_URL: ${MONGO_DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+
+  mongo:
+    image: mongo
+    restart: always
+    cpuset: "0"
+    ports:
+      - 27020:27017
+    volumes:
+      - "./mongo-data:/data/db"
+
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - 6379:6379
