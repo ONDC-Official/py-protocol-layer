@@ -27,6 +27,6 @@ def shutdown():
 
 
 if __name__ == '__main__':
-    worker = Worker([os.getenv("QUEUE_NAME", 'client_forward')], connection=redis_connection, default_result_ttl=10,
+    worker = Worker([os.getenv("QUEUE_NAME", 'request_forward')], connection=redis_connection, default_result_ttl=10,
                     default_worker_ttl=120)
     worker.work()

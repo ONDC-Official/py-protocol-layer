@@ -70,8 +70,7 @@ def make_request_to_client(route, schema_version, payload):
     version = "v1" if schema_version != "1.2.0" else "v2"
 
     if "issue" in route:
-        client_webhook_endpoint = client_webhook_endpoint.replace(
-            "clientApi", "issueApi")
+        client_webhook_endpoint = get_config_by_name('IGM_WEBHOOK_ENDPOINT')
     try:
         status_code = requests_post_with_retries(
             f"{client_webhook_endpoint}/{version}/{route}", payload=payload)

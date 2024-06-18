@@ -16,7 +16,7 @@ def forward_request(payload, headers):
 def forward_request_to_client_async(payload, _):
     from async_jobs import forward_request_to_client
     kwargs = {"payload": payload}
-    forward_request_to_client.queue(**kwargs, timeout=180, queue="client_forward", result_ttl=0)
+    forward_request_to_client.queue(**kwargs, timeout=180, queue="request_forward", result_ttl=0)
     return get_ack_response(payload["context"], ack=True), 200
 
 
