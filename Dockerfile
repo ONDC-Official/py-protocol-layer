@@ -4,5 +4,4 @@ RUN pip3 install -r /requirements.txt
 COPY . /app
 WORKDIR /app
 ENV PYTHONPATH=/app:/app/contrib/schema_validator
-RUN chmod a+x gunicorn_starter.sh
-ENTRYPOINT ["sh","./gunicorn_starter.sh"]
+CMD ["sh", "-c", "gunicorn manage:app --timeout 600 -w 2 --threads 1 --limit-request-line 0 -b 0.0.0.0:${PORT}"]

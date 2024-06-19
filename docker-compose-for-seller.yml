@@ -1,0 +1,66 @@
+version: "2.4"
+
+services:
+
+  retail-bpp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: retail-bpp
+    environment:
+      ENV: prod
+      TYPE: "RETAIL_BPP"
+      MONGO_DATABASE_URL: ${MONGO_DATABASE_URL}
+      REDIS_URL: cache
+      CLIENT_WEBHOOK_ENDPOINT: ${CLIENT_WEBHOOK_ENDPOINT}
+      APP_URL: ${APP_URL}
+      APP_PRIVATE_KEY: ${APP_PRIVATE_KEY}
+      APP_UNIQUE_KEY_ID: ${APP_UNIQUE_KEY_ID}
+      APP_PUBLIC_KEY: ${APP_PUBLIC_KEY}
+      APP_ID: ${APP_ID}
+      VERIFICATION_ENABLE: ${VERIFICATION_ENABLE}
+      PORT: 5555
+      RQ_ASYNC: "False"
+    expose:
+      - 5555
+    ports:
+      - 5555:5555
+
+  logistics-bap:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: logistics-bap
+    environment:
+      ENV: prod
+      TYPE: "LOGISTICS-BAP"
+      MONGO_DATABASE_URL: ${MONGO_DATABASE_URL}
+      REDIS_URL: cache
+      CLIENT_WEBHOOK_ENDPOINT: ${CLIENT_WEBHOOK_ENDPOINT}
+      APP_URL: ${APP_URL}
+      APP_PRIVATE_KEY: ${APP_PRIVATE_KEY}
+      APP_UNIQUE_KEY_ID: ${APP_UNIQUE_KEY_ID}
+      APP_PUBLIC_KEY: ${APP_PUBLIC_KEY}
+      APP_ID: ${APP_ID}
+      VERIFICATION_ENABLE: ${VERIFICATION_ENABLE}
+      PORT: 6666
+      RQ_ASYNC: "False"
+    expose:
+      - 6666
+    ports:
+      - 6666:6666
+
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - 6379:6379
+
+  mongo:
+    image: mongo
+    restart: always
+    cpuset: "0"
+    ports:
+      - 27020:27017
+    volumes:
+      - "./mongo-data:/data/db"
