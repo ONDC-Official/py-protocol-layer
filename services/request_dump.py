@@ -31,3 +31,10 @@ def dump_on_search_payload(payload):
     payload["created_at"] = datetime.utcnow()
     payload["status"] = "PENDING"
     return mongo.collection_insert_one(collection, payload)
+
+
+def get_request_payloads(action, message_id):
+    collection = get_mongo_collection('request_dump')
+    return mongo.collection_find_all(collection, {"action": action, "request.context.message_id": message_id},
+                                     limit=None)
+

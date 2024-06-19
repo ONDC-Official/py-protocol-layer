@@ -3,6 +3,7 @@ from flask_restx import Api as BaseAPI
 
 from routes.callback import callback_namespace
 from routes.request import request_namespace
+from routes.request_dump import request_dump_namespace
 
 
 class Api(BaseAPI):
@@ -28,7 +29,7 @@ api = Api(
 
 api.add_namespace(callback_namespace, path='/protocol')
 api.add_namespace(request_namespace, path='/protocol')
-# api.add_namespace(response_namespace, path='/protocol')
+api.add_namespace(request_dump_namespace, path='/protocol')
 # api.add_namespace(cron_namespace, path='/protocol')
 # api.add_namespace(ondc_network_test_namespace, path='/protocol/test')
 # api.add_namespace(logs_namespace, path='/protocol')
