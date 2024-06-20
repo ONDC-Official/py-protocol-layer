@@ -10,6 +10,7 @@ services:
     environment:
       ENV: prod
       TYPE: "RETAIL_BPP"
+      REGISTRY_BASE_URL: ${REGISTRY_BASE_URL}
       MONGO_DATABASE_URL: ${MONGO_DATABASE_URL}
       REDIS_URL: cache
       CLIENT_WEBHOOK_ENDPOINT: ${CLIENT_WEBHOOK_ENDPOINT}
@@ -33,8 +34,9 @@ services:
     container_name: logistics-bap
     environment:
       ENV: prod
-      TYPE: "LOGISTICS-BAP"
+      TYPE: "LOGISTICS_BAP"
       MONGO_DATABASE_URL: ${MONGO_DATABASE_URL}
+      REGISTRY_BASE_URL: ${REGISTRY_BASE_URL}
       REDIS_URL: cache
       CLIENT_WEBHOOK_ENDPOINT: ${CLIENT_WEBHOOK_ENDPOINT}
       APP_URL: ${APP_URL}

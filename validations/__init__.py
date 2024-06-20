@@ -2,8 +2,8 @@ from functools import wraps
 
 from flask import request
 
+from logger.custom_logging import log
 from services.request_dump import dump_request_payload_with_response
-from utils.ack_utils import get_ack_response
 from validations.business_rule_validations import validate_business_rules
 from validations.schema_validations import validate_schema, validate_request_type
 
@@ -26,6 +26,7 @@ def validate_payload(request_type):
 
 
 def validate_ondc_request(request_type, payload, headers):
+    log(f"Validating ondc request {request_type}")
     request_type_validation_resp = validate_request_type(payload, request_type)
     if request_type_validation_resp is None:
         request_type = payload["context"]["action"]

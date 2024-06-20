@@ -1,11 +1,9 @@
 from config import get_config_by_name
 from logger.custom_logging import log
-from services.rabbitmq_publisher import send_message_to_queue_for_given_request
-from services.request_dump import dump_on_search_payload
 from utils.ack_utils import get_ack_response
 from utils.cryptic_utils import create_authorisation_header
 from utils.lookup_utils import fetch_subscriber_url_from_lookup
-from utils.webhook_utils import post_on_bg_or_bpp, make_request_to_client
+from utils.webhook_utils import post_on_bg_or_bpp
 
 
 def forward_request(payload, headers):
@@ -26,7 +24,7 @@ def gateway_search(search_request, headers={}):
     search_url = f"{gateway_url}{request_type}" if gateway_url.endswith("/") else f"{gateway_url}/{request_type}"
     auth_header = create_authorisation_header(search_request)
     log(f"making request to bg with {search_request}")
-    headers.update({'Authorization': auth_header})
+    headers= {'Authorization': auth_header}
     return post_on_bg_or_bpp(search_url, payload=search_request, headers=headers)
 
 

@@ -52,6 +52,7 @@ def MeasureTime(f):
 
 @retry(tries=3, delay=1)
 def requests_post_with_retries(url, payload, headers=None):
+    log(f"Making POST call on {url}")
     response = requests.post(url, json=payload, headers=headers)
     status_code = response.status_code
 
@@ -65,15 +66,14 @@ def requests_post(url, raw_data, headers=None):
     return response.text, response.status_code
 
 
-def make_request_to_client(route, schema_version, payload):
+def make_request_to_client(route, payload):
+    log(f"Making request to client for route: {route}")
     client_webhook_endpoint = get_config_by_name('CLIENT_WEBHOOK_ENDPOINT')
-    version = "v1" if schema_version != "1.2.0" else "v2"
-
     if "issue" in route:
         client_webhook_endpoint = get_config_by_name('IGM_WEBHOOK_ENDPOINT')
     try:
         status_code = requests_post_with_retries(
-            f"{client_webhook_endpoint}/{version}/{route}", payload=payload)
+            f"{client_webhook_endpoint}/{route}", payload=payload)
     except requests.exceptions.HTTPError:
         status_code = 400
     except requests.exceptions.ConnectionError:
@@ -86,7 +86,7 @@ def make_request_to_client(route, schema_version, payload):
 
 @MeasureTime
 def post_on_bg_or_bpp(url, payload, headers={}):
-    log(f"Making POST call for {payload['context']['message_id']} on {url}")
+    log(f"Making POST call for {payload['context']['message_id']} on {url} with headers {headers}")
     headers.update({'Content-Type': 'application/json'})
     raw_data = json.dumps(payload, separators=(',', ':'))
     response_text, status_code = requests_post(url, raw_data, headers=headers)
