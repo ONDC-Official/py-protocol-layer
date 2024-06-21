@@ -593,10 +593,10 @@ def add_product_with_attributes_incremental_flow(items):
 def upsert_product_attributes(product_attributes: List[ProductAttribute]):
     collection = get_mongo_collection('product_attribute')
     def upsert_single_product_attr(p):
-        filter_criteria = {"provider": p.provider, "code": p.code}
         p_dict = p.dict()
+        p_dict["id"] = f"{p.provider}_{p.code}"
         p_dict["created_at"] = datetime.utcnow()
-        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+        mongo.collection_upsert_one_on_id(collection, p_dict)
 
     io_bound_parallel_computation(upsert_single_product_attr, product_attributes)
 
@@ -604,10 +604,10 @@ def upsert_product_attributes(product_attributes: List[ProductAttribute]):
 def upsert_product_attribute_values(product_attribute_values: List[ProductAttributeValue]):
     collection = get_mongo_collection('product_attribute_value')
     def upsert_single_product_attr_value(p):
-        filter_criteria = {"product": p.product, "attribute_code": p.attribute_code}
         p_dict = p.dict()
+        p_dict["id"] = f"{p.provider}_{p.attribute_code}_{p.value}"
         p_dict["created_at"] = datetime.utcnow()
-        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+        mongo.collection_upsert_one_on_id(collection, p_dict)
 
     io_bound_parallel_computation(upsert_single_product_attr_value, product_attribute_values)
 
@@ -615,10 +615,9 @@ def upsert_product_attribute_values(product_attribute_values: List[ProductAttrib
 def upsert_variant_groups(variant_groups: List[VariantGroup]):
     collection = get_mongo_collection('variant_group')
     def upsert_single_variant_group(v):
-        filter_criteria = {"id": v.id}
         p_dict = v.dict()
         p_dict["created_at"] = datetime.utcnow()
-        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+        mongo.collection_upsert_one_on_id(collection, p_dict)
 
     io_bound_parallel_computation(upsert_single_variant_group, variant_groups)
 
@@ -626,10 +625,9 @@ def upsert_variant_groups(variant_groups: List[VariantGroup]):
 def upsert_custom_menus(custom_menus: List[CustomMenu]):
     collection = get_mongo_collection('custom_menu')
     def upsert_single_custom_menu(v):
-        filter_criteria = {"id": v.id}
         p_dict = v.dict()
         p_dict["created_at"] = datetime.utcnow()
-        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+        mongo.collection_upsert_one_on_id(collection, p_dict)
 
     io_bound_parallel_computation(upsert_single_custom_menu, custom_menus)
 
@@ -637,10 +635,9 @@ def upsert_custom_menus(custom_menus: List[CustomMenu]):
 def upsert_customisation_groups(customisation_groups: List[CustomisationGroup]):
     collection = get_mongo_collection('customisation_group')
     def upsert_single_customisation_group(v):
-        filter_criteria = {"id": v.id}
         p_dict = v.dict()
         p_dict["created_at"] = datetime.utcnow()
-        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+        mongo.collection_upsert_one_on_id(collection, p_dict)
 
     io_bound_parallel_computation(upsert_single_customisation_group, customisation_groups)
 
@@ -648,10 +645,9 @@ def upsert_customisation_groups(customisation_groups: List[CustomisationGroup]):
 def upsert_products(products: List[Product]):
     collection = get_mongo_collection('product')
     def upsert_single_product(p):
-        filter_criteria = {"id": p.id}
         p_dict = p.dict()
         p_dict["created_at"] = datetime.utcnow()
-        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+        mongo.collection_upsert_one_on_id(collection, p_dict)
 
     io_bound_parallel_computation(upsert_single_product, products)
 
@@ -659,9 +655,8 @@ def upsert_products(products: List[Product]):
 def upsert_products_incremental_flow(products: List[dict]):
     collection = get_mongo_collection('product')
     def upsert_single_product_incr(p_dict):
-        filter_criteria = {"id": p_dict["id"]}
         p_dict["created_at"] = datetime.utcnow()
-        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+        mongo.collection_upsert_one_on_id(collection, p_dict)
 
     io_bound_parallel_computation(upsert_single_product_incr, products)
 
@@ -674,15 +669,14 @@ def upsert_providers(products: List[Provider]):
         p.categories = list(set(p.categories + old_p.get("categories", [])))
         p_dict = p.dict()
         p_dict["created_at"] = datetime.utcnow()
-        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+        mongo.collection_upsert_one_on_id(collection, p_dict)
 
 
 def upsert_providers_incremental_flow(products: List[dict]):
     collection = get_mongo_collection('provider')
     for p_dict in products:
-        filter_criteria = {"id": p_dict["id"]}
         p_dict["created_at"] = datetime.utcnow()
-        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+        mongo.collection_upsert_one_on_id(collection, p_dict)
 
 
 def upsert_locations(locations: List[Location]):
@@ -693,33 +687,30 @@ def upsert_locations(locations: List[Location]):
         p.categories = list(set(p.categories + old_p.get("categories", [])))
         p_dict = p.dict()
         p_dict["created_at"] = datetime.utcnow()
-        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+        mongo.collection_upsert_one_on_id(collection, p_dict)
 
 
 def upsert_locations_incremental_flow(locations: List[dict]):
     collection = get_mongo_collection('location')
     for p_dict in locations:
-        filter_criteria = {"id": p_dict["id"]}
         p_dict["created_at"] = datetime.utcnow()
-        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+        mongo.collection_upsert_one_on_id(collection, p_dict)
 
 
 def upsert_location_offers(location_offers: List[LocationOffer]):
     collection = get_mongo_collection('location_offer')
     for p in location_offers:
-        filter_criteria = {"id": p.id}
         p_dict = p.dict()
         p_dict["created_at"] = datetime.utcnow()
-        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+        mongo.collection_upsert_one_on_id(collection, p_dict)
 
 
 def upsert_sub_categories(sub_categories: List[SubCategory]):
     collection = get_mongo_collection('sub_category')
     for p in sub_categories:
-        filter_criteria = {"id": p.id}
         p_dict = p.dict()
         p_dict["created_at"] = datetime.utcnow()
-        mongo.collection_upsert_one(collection, filter_criteria, p_dict)
+        mongo.collection_upsert_one_on_id(collection, p_dict)
 
 
 @check_for_exception
@@ -742,8 +733,7 @@ def add_search_catalogues(bpp_response):
         # Upsert a single document
         i["timestamp"] = i["context"]["timestamp"]
         i["created_at"] = datetime.utcnow()
-        filter_criteria = {"id": i['id']}
-        mongo.collection_upsert_one(search_collection, filter_criteria, i)
+        mongo.collection_upsert_one_on_id(search_collection, i)
 
     io_bound_parallel_computation(upsert_single_item, items)
 
@@ -808,10 +798,9 @@ def add_incremental_search_catalogues_for_items_update(bpp_response):
                                  "customisation_group_id", "customisation_nested_group_id", "context"]))
 
         # Upsert a single document
-        filter_criteria = {"id": i["id"]}
         new_i["created_at"] = datetime.utcnow()
         new_i["timestamp"] = i["context"]["timestamp"]
-        mongo.collection_upsert_one(search_collection, filter_criteria, new_i)
+        mongo.collection_upsert_one_on_id(search_collection, new_i)
 
     return get_ack_response(context=context, ack=True)
 
@@ -828,8 +817,7 @@ def add_incremental_search_catalogues_for_locations_update(bpp_response):
             l["timestamp"] = context["timestamp"]
             l["created_at"] = datetime.utcnow()
             if check_if_entity_present_for_given_id("location", l["id"]):
-                filter_criteria = {"id": l['id']}
-                mongo.collection_upsert_one(mongo_collection, filter_criteria, l)
+                mongo.collection_upsert_one_on_id(mongo_collection, l)
             else:
                 return get_ack_response(context=context, ack=False, error={
                     "code": "UNKNOWN",
@@ -849,8 +837,7 @@ def add_incremental_search_catalogues_for_provider_update(bpp_response):
         p["timestamp"] = context["timestamp"]
         p["created_at"] = datetime.utcnow()
         if check_if_entity_present_for_given_id("provider", p["id"]):
-            filter_criteria = {"id": p['id']}
-            mongo.collection_upsert_one(mongo_collection, filter_criteria, p)
+            mongo.collection_upsert_one_on_id(mongo_collection, p)
         else:
             return get_ack_response(context=context, ack=False, error={
                 "code": "UNKNOWN",

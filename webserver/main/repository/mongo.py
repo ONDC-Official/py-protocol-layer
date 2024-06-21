@@ -3,6 +3,7 @@ import pymongo
 from main.constant import ID
 from main.logger.custom_logging import log, log_error
 from main.utils.decorators import MeasureTime
+from main.utils.hash_utils import get_md5_hash
 
 
 # @MeasureTime
@@ -21,6 +22,15 @@ def collection_upsert_one(mongo_collection, filter_criteria, data):
             mongo_collection.insert_one(data)
         # mongo_collection.update_one(filter_criteria, update_data, upsert=True)
         # log(f"Entry upserted to collection {mongo_collection.name} successfully!")
+        return True
+    except:
+        log_error(f"Entry upsertion to collection {mongo_collection.name} failed!")
+        return False
+
+
+def collection_upsert_one_on_id(mongo_collection, data):
+    try:
+        mongo_collection.replace_one({"_id": get_md5_hash(data["id"])}, data, upsert=True)
         return True
     except:
         log_error(f"Entry upsertion to collection {mongo_collection.name} failed!")
@@ -95,7 +105,6 @@ def collection_find_distinct(mongo_collection, query_object, distinct=None):
         return None
 
 
-@MeasureTime
 def collection_find_one(mongo_collection, query_object, keep_created_at=False):
     if mongo_collection.name == "on_search_items":
         catalog = mongo_collection.find_one(query_object, {})
