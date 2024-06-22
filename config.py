@@ -28,7 +28,7 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'my_precious_secret_key')
     DEBUG = False
     COOKIE_EXPIRY = 60000
-    PORT = 9900
+    PORT = os.getenv("PORT", "9900")
     JWT_TOKEN_LOCATION = ['headers']
     # below is valid for tokens coming in as part of query_params
     JWT_QUERY_STRING_NAME = "token"
