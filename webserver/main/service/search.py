@@ -817,7 +817,8 @@ def add_incremental_search_catalogues_for_locations_update(bpp_response):
             l["timestamp"] = context["timestamp"]
             l["created_at"] = datetime.utcnow()
             if check_if_entity_present_for_given_id("location", l["id"]):
-                mongo.collection_upsert_one_on_id(mongo_collection, l)
+                filter_criteria = {"id": l['id']}
+                mongo.collection_upsert_one(mongo_collection, filter_criteria, l)
             else:
                 return get_ack_response(context=context, ack=False, error={
                     "code": "UNKNOWN",
@@ -837,7 +838,8 @@ def add_incremental_search_catalogues_for_provider_update(bpp_response):
         p["timestamp"] = context["timestamp"]
         p["created_at"] = datetime.utcnow()
         if check_if_entity_present_for_given_id("provider", p["id"]):
-            mongo.collection_upsert_one_on_id(mongo_collection, p)
+            filter_criteria = {"id": p['id']}
+            mongo.collection_upsert_one(mongo_collection, filter_criteria, p)
         else:
             return get_ack_response(context=context, ack=False, error={
                 "code": "UNKNOWN",
