@@ -19,7 +19,7 @@ logistics_request_type_to_class_mapping = {
     "support": SupportRequest,
     "issue": IssueRequest,
     "issue_status": IssueStatusRequest,
-    "full_on_search": OnSearchRequest,
+    "full_on_search": FullOnSearchRequest,
     "on_select": OnSelectRequest,
     "on_init": OnInitRequest,
     "on_confirm": OnConfirmRequest,

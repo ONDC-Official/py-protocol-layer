@@ -192,6 +192,7 @@ class Type2(Enum):
     Delivery = 'Delivery'
     Delivery_and_Self_Pickup = 'Delivery and Self-Pickup'
     Reverse_QC = 'Reverse QC'
+    RTO = 'RTO'
 
 
 class Gps(BaseModel):
@@ -557,7 +558,7 @@ class Range1(BaseModel):
 
 class Time(BaseModel):
     label: Optional[str] = None
-    timestamp: Optional[datetime] = None
+    timestamp: Optional[str] = None
     duration: Optional[Duration] = None
     range: Optional[Range1] = None
     days: Optional[str] = Field(
@@ -948,12 +949,12 @@ class Context(BaseModel):
         ...,
         description='URI of the Buyer App for accepting callbacks. Must have the same domain name as the bap_id',
     )
-    bpp_id: Optional[str] = Field(
-        None,
+    bpp_id: str = Field(
+        ...,
         description='Unique id of the Seller App. By default it is the fully qualified domain name of the Seller App',
     )
-    bpp_uri: Optional[str] = Field(
-        None,
+    bpp_uri: str = Field(
+        ...,
         description='URI of the Seller App. Must have the same domain name as the bap_id',
     )
     transaction_id: str = Field(
@@ -973,6 +974,17 @@ class Context(BaseModel):
     ttl: Optional[Union[str, int]] = Field(
         None,
         description="Timestamp for which this message holds valid in ISO8601 durations format<br> Outer limit for ttl for search, select, init, confirm, status, track, cancel, update, rating, support is 'PT30S' which is 30 seconds<br> Different buyer apps can change this to meet their UX requirements, but it shouldn't exceed this outer limit",
+    )
+
+
+class SearchContext(Context):
+    bpp_id: Optional[str] = Field(
+        None,
+        description='Unique id of the Seller App. By default it is the fully qualified domain name of the Seller App',
+    )
+    bpp_uri: Optional[str] = Field(
+        None,
+        description='URI of the Seller App. Must have the same domain name as the bap_id',
     )
 
 

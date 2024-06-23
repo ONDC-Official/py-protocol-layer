@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 from typing import Optional, Union, List
 from uuid import UUID
@@ -5,7 +6,8 @@ from uuid import UUID
 from pydantic import BaseModel, validator, ValidationError
 
 from validations.schema_validations.logistics.models.schema import Catalog, Error, Order, Descriptor, Issue, Provider, \
-    Location, Item, AddOn, Offer, Quotation, Billing, Fulfillment, Payment, Tracking
+    Location, Item, AddOn, Offer, Quotation, Billing, Fulfillment, Payment, Tracking, SearchContext, Context, Rating, \
+    Domain, Code, CodeModel, Action
 
 
 class Status(Enum):
@@ -57,7 +59,24 @@ class IssueMessage(BaseModel):
 
 
 class IssueStatusMessage(BaseModel):
-    id: UUID
+    issue_id: UUID
+
+
+class OnCallContext(BaseModel):
+    domain: Domain
+    country: CodeModel
+    city: Code
+    action: Action
+    core_version: str
+    bap_id: str
+    bap_uri: str
+    bpp_id: str
+    bpp_uri: str
+    transaction_id: str
+    message_id: str
+    timestamp: datetime
+    key: Optional[str]
+    ttl: Optional[Union[str, int]]
 
 
 class OnSearchMessage(BaseModel):
@@ -83,7 +102,7 @@ class OnInitOrder(BaseModel):
     items: Optional[List[Item]]
     add_ons: Optional[List[AddOn]]
     offers: Optional[List[Offer]]
-    quote: Optional[Quotation]
+    quote: Quotation
     billing: Optional[Billing]
     fulfillment: Optional[Fulfillment]
     payment: Optional[Payment]
@@ -126,172 +145,150 @@ class OnIssueStatusMessage(BaseModel):
 
 
 class SearchRequest(BaseModel):
-    context: dict
-    message: dict
+    context: SearchContext
+    message: SearchMessage
     error: Optional[Error]
 
 
 class SelectRequest(BaseModel):
-    context: dict
-    message: dict
+    context: Context
+    message: OrderMessage
     error: Optional[Error]
 
 
 class InitRequest(BaseModel):
-    context: dict
-    message: dict
+    context: Context
+    message: OrderMessage
     error: Optional[Error]
 
 
 class ConfirmRequest(BaseModel):
-    context: dict
-    message: dict
+    context: Context
+    message: OrderMessage
     error: Optional[Error]
 
 
 class StatusRequest(BaseModel):
-    context: dict
-    message: dict
+    context: Context
+    message: StatusMessage
     error: Optional[Error]
 
 
 class TrackRequest(BaseModel):
-    context: dict
-    message: dict
+    context: Context
+    message: TrackMessage
     error: Optional[Error]
 
 
 class CancelRequest(BaseModel):
-    context: dict
-    message: dict
+    context: Context
+    message: CancelMessage
     error: Optional[Error]
 
 
 class UpdateRequest(BaseModel):
-    context: dict
-    message: dict
+    context: Context
+    message: UpdateMessage
     error: Optional[Error]
 
 
 class RatingRequest(BaseModel):
-    context: dict
-    message: dict
+    context: Context
+    message: Rating
     error: Optional[Error]
 
 
 class SupportRequest(BaseModel):
-    context: dict
-    message: dict
+    context: Context
+    message: SupportMessage
     error: Optional[Error]
 
 
 class IssueRequest(BaseModel):
-    context: dict
-    message: dict
+    context: Context
+    message: IssueMessage
     error: Optional[Error]
 
 
 class IssueStatusRequest(BaseModel):
-    context: dict
-    message: dict
+    context: Context
+    message: IssueStatusMessage
     error: Optional[Error]
 
 
-class OnSearchRequest(BaseModel):
-    context: dict
-    message: dict
+class FullOnSearchRequest(BaseModel):
+    context: OnCallContext
+    message: OnSearchMessage
     error: Optional[Error]
+
+    @validator("message")
+    def validate_catalog(cls, v, values):
+        if v.catalog is None:
+            raise ValidationError("Catalog is missing!")
+        return v
 
 
 class OnSelectRequest(BaseModel):
-    context: dict
-    message: dict
+    context: OnCallContext
+    message: OnSelectMessage
     error: Optional[Error]
 
 
 class OnInitRequest(BaseModel):
-    context: dict
-    message: dict
+    context: OnCallContext
+    message: OnInitMessage
     error: Optional[Error]
 
 
 class OnConfirmRequest(BaseModel):
-    context: dict
-    message: dict
+    context: OnCallContext
+    message: OrderMessage
     error: Optional[Error]
 
 
 class OnStatusRequest(BaseModel):
-    context: dict
-    message: dict
+    context: OnCallContext
+    message: OrderMessage
     error: Optional[Error]
 
 
 class OnTrackRequest(BaseModel):
-    context: dict
-    message: dict
+    context: OnCallContext
+    message: OnTrackMessage
     error: Optional[Error]
 
 
 class OnCancelRequest(BaseModel):
-    context: dict
-    message: dict
+    context: OnCallContext
+    message: OrderMessage
     error: Optional[Error]
 
 
 class OnUpdateRequest(BaseModel):
-    context: dict
-    message: dict
+    context: OnCallContext
+    message: OrderMessage
     error: Optional[Error]
 
 
 class OnRatingRequest(BaseModel):
-    context: dict
-    message: dict
+    context: OnCallContext
+    message: Rating
     error: Optional[Error]
 
 
 class OnSupportRequest(BaseModel):
-    context: dict
-    message: dict
+    context: OnCallContext
+    message: OnSupportMessage
     error: Optional[Error]
 
 
 class OnIssueRequest(BaseModel):
-    context: dict
-    message: dict
+    context: OnCallContext
+    message: OnIssueMessage
     error: Optional[Error]
 
 
 class OnIssueStatusRequest(BaseModel):
-    context: dict
+    context: OnCallContext
     message: dict
     error: Optional[Error]
-
-
-request_type_to_class_mapping = {
-    "search": SearchRequest,
-    "select": SelectRequest,
-    "init": InitRequest,
-    "confirm": ConfirmRequest,
-    "status": StatusRequest,
-    "track": TrackRequest,
-    "cancel": CancelRequest,
-    "update": UpdateRequest,
-    "rating": RatingRequest,
-    "support": SupportRequest,
-    "issue": IssueRequest,
-    "issue_status": IssueStatusRequest,
-    "on_search": OnSearchRequest,
-    "on_select": OnSelectRequest,
-    "on_init": OnInitRequest,
-    "on_confirm": OnConfirmRequest,
-    "on_status": OnStatusRequest,
-    "on_track": OnTrackRequest,
-    "on_cancel": OnCancelRequest,
-    "on_update": OnUpdateRequest,
-    "on_rating": OnRatingRequest,
-    "on_support": OnSupportRequest,
-    "on_issue": OnIssueRequest,
-    "on_issue_status": OnIssueStatusRequest,
-}
