@@ -59,13 +59,16 @@ def create_all_indexes():
 
 def create_indices_for_all_collections():
     index_dict = {
-        "on_search_items": ["id", "context.domain", "provider_details.id", "location_details.id", "item_details.descriptor.name"],
-        "product": ["id"],
+        "on_search_items": ["id", "context.domain", "provider_details.id", "location_details.id",
+                            "item_details.descriptor.name", "custom_menus", "customisation_group_id"],
+        "product": ["id", "variant_group"],
         "custom_menu": ["id", "domain"],
         "location": ["id", "domain"],
         "provider": ["id"],
         "product_attribute": ["provider"],
-        "product_attribute_value": ["provider"],
+        "product_attribute_value": ["provider", "variant_group_id", "attribute_code"],
+        "variant_group": ["id"],
+        "customisation_group": ["id"],
     }
     for name, indices in index_dict.items():
         get_mongo_collection(name).create_indexes([

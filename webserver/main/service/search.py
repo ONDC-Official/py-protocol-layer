@@ -969,13 +969,13 @@ def get_item_details(item_id):
     # Customisation Group and Items
     customisation_group_ids = product_details.get("customisation_groups", [])
     customisation_groups = mongo.collection_find_all(customisation_group_collection,
-                                                     {"id": {'$in': customisation_group_ids}})["data"]
+                                                     {"id": {'$in': customisation_group_ids}})["data"] \
+        if len(customisation_group_ids) > 0 else []
     customisation_items = mongo.collection_find_all(search_collection,
-                                                    {"context.bpp_id": on_search_item["context"]["bpp_id"],
-                                                     # "provider_details.id": on_search_item["provider_details"]["id"],
+                                                    {"provider_details.id": on_search_item["provider_details"]["id"],
                                                      "type": "customization",
                                                      "customisation_group_id": {'$in': customisation_group_ids}},
-                                                    limit=None)["data"]
+                                                    limit=None)["data"] if len(customisation_group_ids) > 0 else []
     on_search_item["customisation_groups"] = customisation_groups
     on_search_item["customisation_items"] = customisation_items
 
