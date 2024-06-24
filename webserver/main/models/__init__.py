@@ -1,5 +1,5 @@
 import json
-from pymongo import MongoClient, TEXT
+from pymongo import MongoClient, TEXT, IndexModel
 
 from main.config import get_config_by_name
 from main.logger.custom_logging import log
@@ -42,10 +42,34 @@ def create_all_indexes():
                                                             "provider", "custom_menu", "location", "product",
                                                             "product_attribute", "product_attribute_value",
                                                             "variant_group", "customisation_group", "location_offer",
-                                                            "auth_failure_request_dump", "sub_category"
+                                                            "auth_failure_request_dump", "sub_category",
+                                                            "validation_failure_request_dump"
                                                             ]]
     create_ttl_index("request_dump", ttl_in_seconds=3*24*60*60)
-    get_mongo_collection("on_search_items").create_index([('id', TEXT)], name='id_index')
+    indexes = [
+        IndexModel([("id", 1)]),
+        IndexModel([("context.domain", 1)]),
+        IndexModel([("provider_details.id", 1)]),
+        IndexModel([("location_details.id", 1)]),
+        IndexModel([("item_details.descriptor.name", 1)]),
+    ]
+    get_mongo_collection("on_search_items").create_indexes(indexes)
+    create_indices_for_all_collections()
+
+
+def create_indices_for_all_collections():
+    index_dict = {
+        "on_search_items": ["id", "context.domain", "provider_details.id", "location_details.id", "item_details.descriptor.name"],
+        "product": ["id"],
+        "custom_menu": ["id", "domain"],
+        "location": ["id", "domain"],
+        "provider": ["id"],
+        "product_attribute": ["provider"],
+        "product_attribute_value": ["provider"],
+    }
+    for name, indices in index_dict.items():
+        get_mongo_collection(name).create_indexes([
+            IndexModel([(i, 1)]) for i in indices])
 
 
 def create_ttl_index(collection_name, ttl_in_seconds=None):
