@@ -1617,7 +1617,7 @@ class OnSearchProvider(BaseModel):
     payments: Optional[List[Payment]] = None
     locations: Optional[List[Location2]] = Field(None, description='Location List', min_items=1)
     offers: Optional[List[Offer]] = None
-    items: Optional[List[OnSearchItem]] = Field(None, description='Item List', max_items=500, min_items=1)
+    items: Optional[List[OnSearchItem]] = Field(None, description='Item List', min_items=1)
     exp: Optional[datetime] = Field(
         None, description='Time after which catalog has to be refreshed'
     )
@@ -1636,7 +1636,7 @@ class IncrOnSearchProvider(BaseModel):
     payments: Optional[List[Payment]] = None
     locations: Optional[List[Location2]] = Field(None, description='Location List', min_items=1)
     offers: Optional[List[Offer]] = None
-    items: Optional[List[OnSearchItem]] = Field(None, description='Item List', max_items=500, min_items=1)
+    items: Optional[List[OnSearchItem]] = Field(None, description='Item List', min_items=1)
     exp: Optional[datetime] = Field(
         None, description='Time after which catalog has to be refreshed'
     )
@@ -1698,7 +1698,7 @@ class Catalog(BaseModel):
     )
     bpp_payments: Optional[List[Payment]] = Field(None, alias='bpp/payments')
     bpp_offers: Optional[List[Offer]] = Field(None, alias='bpp/offers')
-    bpp_providers: List[OnSearchProvider] = Field(..., alias='bpp/providers', max_items=5, min_items=1)
+    bpp_providers: List[OnSearchProvider] = Field(..., alias='bpp/providers', min_items=1)
     exp: Optional[datetime] = Field(
         None, description='Time after which catalog has to be refreshed'
     )
@@ -1712,7 +1712,7 @@ class IncrCatalog(BaseModel):
     )
     bpp_payments: Optional[List[Payment]] = Field(None, alias='bpp/payments')
     bpp_offers: Optional[List[Offer]] = Field(None, alias='bpp/offers')
-    bpp_providers: List[IncrOnSearchProvider] = Field(..., alias='bpp/providers', max_items=5, min_items=1)
+    bpp_providers: List[IncrOnSearchProvider] = Field(..., alias='bpp/providers', min_items=1)
     exp: Optional[datetime] = Field(
         None, description='Time after which catalog has to be refreshed'
     )
