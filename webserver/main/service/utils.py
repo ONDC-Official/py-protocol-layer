@@ -70,6 +70,12 @@ def dump_auth_failure_request(auth_header, payload_str, context, public_key):
                                                     "public_key": public_key})
 
 
+def dump_validation_failure_request(payload, error):
+    collection = get_mongo_collection('validation_failure_request_dump')
+    return mongo.collection_insert_one(collection, {"request": payload,
+                                                    "error": error})
+
+
 def validate_auth_header(func):
     def wrapper(*args, **kwargs):
         if get_config_by_name("VERIFICATION_ENABLE"):
