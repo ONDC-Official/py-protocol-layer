@@ -35,8 +35,11 @@ def consume_fn(message_string):
                 else:
                     log_error(f"No search request found for given {on_search_payload['context']}")
                     update_on_search_dump_status(doc_id, "IN-PROGRESS")
-                add_search_catalogues(on_search_payload)
-                update_on_search_dump_status(doc_id, "FINISHED")
+                resp = add_search_catalogues(on_search_payload)
+                if "error" in resp:
+                    update_on_search_dump_status(doc_id, "FAILED")
+                else:
+                    update_on_search_dump_status(doc_id, "FINISHED")
             elif payload["request_type"] == SearchType.INC.value:
                 update_on_search_dump_status(doc_id, "IN-PROGRESS")
                 add_incremental_search_catalogues(on_search_payload)

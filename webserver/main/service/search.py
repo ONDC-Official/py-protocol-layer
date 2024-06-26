@@ -437,7 +437,7 @@ def add_product_with_attributes(items, providers_with_offers, db_insert=True):
                 old_item_cg_ids.extend(update_item_customisation_group_ids_with_children(old_item_cg_ids, items, old_item_cg_ids))
                 item_cg_ids = [f"{i['provider_details']['id']}_{cg}" for cg in old_item_cg_ids]
 
-        custom_menu_configs = item_details.get("category_ids", [])
+        custom_menu_configs = item_details["category_ids"] if item_details.get("category_ids") else []
         custom_menu_new_list, variant_group_id = [], None
         for c in custom_menu_configs:
             [cm_id, item_rank] = c.split(":")
