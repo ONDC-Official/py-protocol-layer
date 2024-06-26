@@ -73,6 +73,7 @@ def dump_auth_failure_request(auth_header, payload_str, context, public_key):
 def dump_validation_failure_request(payload, error):
     collection = get_mongo_collection('validation_failure_request_dump')
     return mongo.collection_insert_one(collection, {"request": payload,
+                                                    "created_at": datetime.utcnow(),
                                                     "error": error})
 
 
