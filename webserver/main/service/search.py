@@ -314,9 +314,9 @@ def get_self_and_nested_customisation_group_id(item):
     tags = item["item_details"]["tags"]
     provider_id = item['provider_details']['id']
     for t in tags:
-        if t["code"] == "parent":
+        if t["code"] == "parent" and len(t.get("list", [])) > 0:
             customisation_group_id = f'{provider_id}_{t["list"][0]["value"]}'
-        if t["code"] == "child":
+        if t["code"] == "child" and len(t.get("list", [])) > 0:
             customisation_nested_group_id = f'{provider_id}_{t["list"][0]["value"]}'
 
     return customisation_group_id, customisation_nested_group_id
