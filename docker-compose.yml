@@ -7,8 +7,11 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: protocol-webserver
+    depends_on:
+      - mongo
+      - cache
     environment:
-      ENV: prod
+      ENV: ${PROTOCOL_ENV}
       TYPE: "RETAIL_BAP" # can be (RETAIL_BAP, RETAIL_BPP, LOGISTICS_BAP, LOGISTICS_BPP)
       MONGO_DATABASE_URL: ${MONGO_DATABASE_URL}
       MONGO_DATABASE_NAME: "retail_bap"
@@ -31,10 +34,13 @@ services:
     container_name: protocol-worker
     depends_on:
       - mongo
+      - cache
     environment:
-      ENV: prod
+      ENV: ${PROTOCOL_ENV}
       MONGO_DATABASE_URL: ${MONGO_DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
+      CLIENT_WEBHOOK_ENDPOINT: ${RETAIL_CLIENT_WEBHOOK_ENDPOINT}
+
 
   mongo:
     image: mongo
