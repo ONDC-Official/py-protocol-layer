@@ -12,6 +12,7 @@ from main.service.common import add_bpp_response, dump_request_payload, update_d
 from main.service.search import add_search_catalogues, dump_on_search_payload, add_incremental_search_catalogues
 from main.service.utils import validate_auth_header, dump_validation_failure_request
 from main.utils.decorators import MeasureTime
+from main.utils.json_utils import clean_nones
 from main.utils.validation import validate_payload_schema_based_on_version
 
 ondc_network_namespace = Namespace('ondc_network', description='ONDC Network Namespace')
@@ -24,6 +25,7 @@ class GatewayOnSearch(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
+        request_payload = clean_nones(request_payload)
         # validate schema based on context version
         request_type = request.headers.get("X-ONDC-Search-Response", "full")
         if request_type == SearchType.FULL.value:

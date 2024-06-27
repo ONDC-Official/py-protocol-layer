@@ -178,7 +178,7 @@ def enrich_is_first_flag_for_items(items):
     variant_groups = set()
     for i in items:
         variant_group_local_id, variants = None, []
-        categories = i["categories"]
+        categories = i.get("categories", [])
         for c in categories:
             if i["item_details"].get("parent_item_id") == c["id"]:
                 variant_group_local_id = c["id"]
