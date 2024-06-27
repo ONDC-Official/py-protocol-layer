@@ -6,7 +6,9 @@ from rq import Worker
 
 from main import create_app
 
-redis_connection = redis.Redis(host=os.getenv("REDIS_URL", 'localhost'), port=int(os.getenv("REDIS_PORT", 6379)), db=1,
+redis_connection = redis.Redis(host=os.getenv("REDIS_URL", 'localhost'),
+                               port=int(os.getenv("REDIS_PORT", 6379)),
+                               db=int(os.getenv('REDIS_DB', 1)),
                                password=os.getenv("REDIS_PASSWORD", None))
 app = create_app(os.getenv("ENV") or "dev")
 

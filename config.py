@@ -62,8 +62,8 @@ class Config:
     DOMAIN_LIST = [d.strip() for d in os.getenv("DOMAIN_LIST", all_domains_str).split(",")]
     CITY_LIST = [c.strip() for c in os.getenv("CITY_LIST", all_cities_str).split(",")]
     EXPECTED_RESPONSE_TIME = os.getenv("EXPECTED_RESPONSE_TIME", "PT1H")
-    RQ_REDIS_URL = f"redis://{os.getenv('REDIS_URL', 'localhost')}:{os.getenv('REDIS_PORT', 6379)}/1"
-    RQ_ASYNC = os.getenv("RQ_ASYNC", "False") == "True"
+    RQ_REDIS_URL = f"redis://{os.getenv('REDIS_URL', 'localhost')}:{os.getenv('REDIS_PORT', 6379)}/{os.getenv('REDIS_DB',1)}"
+    RQ_ASYNC = os.getenv("RQ_ASYNC", "True") == "True"
 
 
 class DevelopmentConfig(Config):
