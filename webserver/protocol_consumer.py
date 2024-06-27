@@ -12,6 +12,7 @@ from main.models.catalog import SearchType
 from main.repository import mongo
 from main.service.search import add_search_catalogues, add_incremental_search_catalogues, update_on_search_dump_status, \
     get_last_search_dump_timestamp
+from main.utils.json_utils import clean_nones
 from main.utils.rabbitmq_utils import create_channel, declare_queue, consume_message, open_connection
 
 
@@ -27,6 +28,7 @@ def consume_fn(message_string):
         on_search_payload = mongo.collection_find_one(collection, {"_id": doc_id}, keep_created_at=True)
         if on_search_payload:
             on_search_payload.pop("id", None)
+            on_search_payload = clean_nones(on_search_payload)
             if payload["request_type"] == SearchType.FULL.value:
                 search_timestamp = get_last_search_dump_timestamp(on_search_payload["context"]["transaction_id"])
                 if search_timestamp:

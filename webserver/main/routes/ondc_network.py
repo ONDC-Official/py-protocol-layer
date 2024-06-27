@@ -25,7 +25,6 @@ class GatewayOnSearch(Resource):
     @validate_auth_header
     def post(self):
         request_payload = request.get_json()
-        request_payload = clean_nones(request_payload)
         # validate schema based on context version
         request_type = request.headers.get("X-ONDC-Search-Response", "full")
         if request_type == SearchType.FULL.value:
@@ -46,6 +45,7 @@ class GatewayOnSearch(Resource):
                 send_message_to_elastic_search_queue(message) if get_config_by_name('ELASTIC_SEARCH_QUEUE_ENABLE') else None
                 return get_ack_response(request_payload[constant.CONTEXT], ack=True)
             else:
+                request_payload = clean_nones(request_payload)
                 if request_type == SearchType.FULL.value:
                     return add_search_catalogues(request_payload)
                 elif request_type == SearchType.INC.value:
