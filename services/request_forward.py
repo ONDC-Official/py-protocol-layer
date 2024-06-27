@@ -30,10 +30,11 @@ def gateway_search(search_request, headers={}):
 
 def bpp_request(request_payload, _):
     bpp_url = request_payload['context']['bpp_uri']
+    action = request_payload['context']['action']
     auth_header = create_authorisation_header(request_payload)
     log(f"making request to bpp with {request_payload}")
     headers = {'Authorization': auth_header}
-    return post_on_bg_or_bpp(bpp_url, payload=request_payload, headers=headers)
+    return post_on_bg_or_bpp(f"{bpp_url}/{action}", payload=request_payload, headers=headers)
 
 
 def bap_request(request_payload, _):
