@@ -33,8 +33,9 @@ def dump_on_search_payload(payload):
     return mongo.collection_insert_one(collection, payload)
 
 
-def get_request_payloads(action, message_id):
+def get_request_payloads(action, message_id, status_code=None):
     collection = get_mongo_collection('request_dump')
-    return mongo.collection_find_all(collection, {"action": action, "request.context.message_id": message_id},
-                                     limit=None)
+    filter_condn = {"action": action, "request.context.message_id": message_id}
+    filter_condn.update({"status_code": status_code}) if status_code else None
+    return mongo.collection_find_all(collection, filter_condn, limit=None)
 

@@ -12,6 +12,7 @@ class RequestDump(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument("action", dest='action', required=True)
         parser.add_argument("messageId", dest="message_id", required=True)
+        parser.add_argument("statusCode", dest="status_code", required=False, type=int)
         return parser.parse_args()
 
     def get(self):
