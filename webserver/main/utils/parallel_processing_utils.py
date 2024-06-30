@@ -2,9 +2,11 @@
 from multiprocessing.dummy import Pool as ThreadPool
 from multiprocessing import Pool as ProcessPool
 
+from main.config import get_config_by_name
+
 
 def io_bound_parallel_computation(function, iterator):
-    pool = ThreadPool(processes=5)
+    pool = ThreadPool(processes=get_config_by_name('PARALLEL_PROCESSES'))
     results = pool.map(function, iterator)
     pool.close()
     pool.join()
@@ -12,7 +14,7 @@ def io_bound_parallel_computation(function, iterator):
 
 
 def compute_bound_parallel_computation(function, iterator):
-    pool = ProcessPool(10)
+    pool = ProcessPool(get_config_by_name('PARALLEL_PROCESSES'))
     results = pool.map(function,iterator)
     pool.close()
     pool.join()
