@@ -46,6 +46,7 @@ def consume_fn(message_string):
                     else:
                         update_on_search_dump_status(doc_id, "FINISHED")
                 else:
+                    log_error(f"Got the error: {validation_resp[0]['error']['message']}")
                     update_on_search_dump_status(doc_id, "VALIDATION_FAILED")
             elif payload["request_type"] == SearchType.INC.value:
                 update_on_search_dump_status(doc_id, "IN-PROGRESS")
