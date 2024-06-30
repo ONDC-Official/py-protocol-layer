@@ -29,10 +29,10 @@ class GatewayOnSearch(Resource):
         request_type = request.headers.get("X-ONDC-Search-Response", "full")
         if request_type == SearchType.FULL.value:
             resp = validate_payload_schema_based_on_version(request_payload, 'full_on_search')
-            resp = validate_business_rules(request_payload, 'full_on_search') if resp is None else resp
+            # resp = validate_business_rules(request_payload, 'full_on_search') if resp is None else resp
         else:
             resp = validate_payload_schema_based_on_version(request_payload, 'incr_on_search')
-            resp = validate_business_rules(request_payload, 'incr_on_search') if resp is None else resp
+            # resp = validate_business_rules(request_payload, 'incr_on_search') if resp is None else resp
 
         if resp is None:
             if get_config_by_name('QUEUE_ENABLE') or get_config_by_name('ELASTIC_SEARCH_QUEUE_ENABLE'):

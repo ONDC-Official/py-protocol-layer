@@ -5,6 +5,7 @@ from bson.objectid import ObjectId
 from pika.exceptions import AMQPConnectionError
 from retry import retry
 
+from main.business_rule_validation import validate_business_rules
 from main.config import get_config_by_name
 from main.logger.custom_logging import log, log_error
 from main.models import init_database, get_mongo_collection
@@ -37,15 +38,26 @@ def consume_fn(message_string):
                 else:
                     log_error(f"No search request found for given {on_search_payload['context']}")
                     update_on_search_dump_status(doc_id, "IN-PROGRESS")
-                resp = add_search_catalogues(on_search_payload)
-                if "error" in resp:
-                    update_on_search_dump_status(doc_id, "FAILED")
+                validation_resp = validate_business_rules(on_search_payload, 'full_on_search')
+                if validation_resp is None:
+                    resp = add_search_catalogues(on_search_payload)
+                    if "error" in resp:
+                        update_on_search_dump_status(doc_id, "FAILED")
+                    else:
+                        update_on_search_dump_status(doc_id, "FINISHED")
                 else:
-                    update_on_search_dump_status(doc_id, "FINISHED")
+                    update_on_search_dump_status(doc_id, "VALIDATION_FAILED")
             elif payload["request_type"] == SearchType.INC.value:
                 update_on_search_dump_status(doc_id, "IN-PROGRESS")
-                add_incremental_search_catalogues(on_search_payload)
-                update_on_search_dump_status(doc_id, "FINISHED")
+                validation_resp = validate_business_rules(on_search_payload, 'incr_on_search')
+                if validation_resp is None:
+                    resp = add_incremental_search_catalogues(on_search_payload)
+                    if "error" in resp:
+                        update_on_search_dump_status(doc_id, "FAILED")
+                    else:
+                        update_on_search_dump_status(doc_id, "FINISHED")
+                else:
+                    update_on_search_dump_status(doc_id, "VALIDATION_FAILED")
         else:
             log_error(f"On search payload was not found for {doc_id}!")
     except Exception as e:
