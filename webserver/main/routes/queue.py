@@ -6,7 +6,7 @@ from flask_restx import Namespace, Resource, reqparse
 from main.config import get_config_by_name
 from main.cron.search_by_city import make_full_catalog_search_requests, make_incremental_catalog_search_requests, \
     make_search_operation_along_with_incremental
-from main.service import send_message_to_queue_for_given_request
+from main.service import send_message_to_queue_for_given_request, send_message_to_elastic_search_queue
 from main.utils.decorators import token_required
 
 authorizations = {
@@ -30,4 +30,5 @@ class FullCatalogSearch(Resource):
             "request_type": request_payload.get("type", "full"),
         }
         send_message_to_queue_for_given_request(message) if get_config_by_name('QUEUE_ENABLE') else None
+        send_message_to_elastic_search_queue(message) if get_config_by_name('ELASTIC_SEARCH_QUEUE_ENABLE') else None
         return {"status": "success"}, 200
