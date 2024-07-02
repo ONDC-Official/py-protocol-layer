@@ -1108,43 +1108,48 @@ class Item(BaseModel):
     related: Optional[bool] = None
     recommended: Optional[bool] = None
     field__ondc_returnable: Optional[bool] = Field(
-        None, alias='./ondc-returnable', description='whether the item is returnable'
+        None, alias='@ondc/org/returnable', description='whether the item is returnable'
     )
     field__ondc_seller_pickup_return: Optional[bool] = Field(
         None,
-        alias='./ondc-seller_pickup_return',
+        alias='@ondc/org/seller_pickup_return',
         description='in case of return, whether the item should be picked up by seller',
     )
     field__ondc_return_window: Optional[str] = Field(
         None,
-        alias='./ondc-return_window',
+        alias='@ondc/org/return_window',
         description="return window for the item in ISO8601 durations format e.g. 'PT24H' indicates 24 hour return window",
     )
     field__ondc_cancellable: Optional[bool] = Field(
-        None, alias='./ondc-cancellable', description='whether the item is cancellable'
+        None, alias='@ondc/org/cancellable', description='whether the item is cancellable'
     )
     field__ondc_time_to_ship: Optional[str] = Field(
         None,
-        alias='./ondc-time_to_ship',
+        alias='@ondc/org/time_to_ship',
         description="time from order confirmation by which item ready to ship in ISO8601 durations format e.g. 'PT2H' indicates item ready to ship in 2 hrs",
     )
     field__ondc_available_on_cod: Optional[bool] = Field(
         None,
-        alias='./ondc-available_on_cod',
+        alias='@ondc/org/available_on_cod',
         description='whether the catalog item is available on COD',
+    )
+    field__ondc_contact_details_consumer_care: Optional[str] = Field(
+        None,
+        alias='@ondc/org/contact_details_consumer_care',
+        description='consumer care contact details',
     )
     field__ondc_statutory_reqs_packaged_commodities: Optional[
         FieldOndcStatutoryReqsPackagedCommodities
     ] = Field(
         None,
-        alias='./ondc-statutory_reqs_packaged_commodities',
+        alias='@ondc/org/statutory_reqs_packaged_commodities',
         description='<br> mandatory attributes include the following<br> common_or_generic_name_of_commodity<br> net_quantity_or_measure_of_commodity_in_pkg<br> month_year_of_manufacture_packing_import<br> contact_details_consumer_care<br>',
     )
     field__ondc_statutory_reqs_prepackaged_food: Optional[
         FieldOndcStatutoryReqsPrepackagedFood
     ] = Field(
         None,
-        alias='./ondc-statutory_reqs_prepackaged_food',
+        alias='@ondc/org/statutory_reqs_prepackaged_food',
         description='<br> mandatory attributes include the following<br> ingredients_info<br> nutritional_info<br> additives_info<br> net_quantity<br> contact_details_consumer_care<br>',
     )
     tags: List[Tag] = []
