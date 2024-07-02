@@ -38,27 +38,18 @@ def consume_fn(message_string):
                 else:
                     log_error(f"No search request found for given {on_search_payload['context']}")
                     update_on_search_dump_status(doc_id, "IN-PROGRESS")
-                validation_resp = validate_business_rules(on_search_payload, 'full_on_search')
-                if validation_resp is None:
-                    resp = add_search_catalogues(on_search_payload)
-                    if "error" in resp:
-                        update_on_search_dump_status(doc_id, "FAILED")
-                    else:
-                        update_on_search_dump_status(doc_id, "FINISHED")
+                resp = add_search_catalogues(on_search_payload)
+                if "error" in resp:
+                    update_on_search_dump_status(doc_id, "FAILED")
                 else:
-                    log_error(f"Got the error: {validation_resp[0]['error']['message']}")
-                    update_on_search_dump_status(doc_id, "VALIDATION_FAILED")
+                    update_on_search_dump_status(doc_id, "FINISHED")
             elif payload["request_type"] == SearchType.INC.value:
                 update_on_search_dump_status(doc_id, "IN-PROGRESS")
-                validation_resp = validate_business_rules(on_search_payload, 'incr_on_search')
-                if validation_resp is None:
-                    resp = add_incremental_search_catalogues(on_search_payload)
-                    if "error" in resp:
-                        update_on_search_dump_status(doc_id, "FAILED")
-                    else:
-                        update_on_search_dump_status(doc_id, "FINISHED")
+                resp = add_incremental_search_catalogues(on_search_payload)
+                if "error" in resp:
+                    update_on_search_dump_status(doc_id, "FAILED")
                 else:
-                    update_on_search_dump_status(doc_id, "VALIDATION_FAILED")
+                    update_on_search_dump_status(doc_id, "FINISHED")
         else:
             log_error(f"On search payload was not found for {doc_id}!")
     except Exception as e:
