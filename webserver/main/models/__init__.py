@@ -43,7 +43,7 @@ def create_all_indexes():
                                                             "product_attribute", "product_attribute_value",
                                                             "variant_group", "customisation_group", "location_offer",
                                                             "auth_failure_request_dump", "sub_category",
-                                                            "validation_failure_request_dump"
+                                                            "validation_failure_request_dump", "all_request_dump"
                                                             ]]
     create_ttl_index("request_dump", ttl_in_seconds=3*24*60*60)
     indexes = [

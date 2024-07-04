@@ -851,6 +851,7 @@ def add_incremental_search_catalogues_for_provider_update(bpp_response):
 
 @MeasureTime
 def gateway_search(search_request, headers={}):
+    log("Starting gateway search")
     request_type = 'search'
     gateway_url = fetch_subscriber_url_from_lookup(request_type, domain=search_request['context']['domain'])
     search_url = f"{gateway_url}{request_type}" if gateway_url.endswith("/") else f"{gateway_url}/{request_type}"

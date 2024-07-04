@@ -77,8 +77,16 @@ def dump_validation_failure_request(payload, error):
                                                     "error": error})
 
 
+def dump_all_request(all_request):
+    collection = get_mongo_collection('all_request_dump')
+    all_request["created_at"] = datetime.utcnow()
+    all_request["action"] = all_request.get("context", {}).get("action")
+    return mongo.collection_insert_one(collection, all_request)
+
+
 def validate_auth_header(func):
     def wrapper(*args, **kwargs):
+        dump_all_request(request.get_json()) if get_config_by_name("DUMP_ALL_REQUESTS") else None
         if get_config_by_name("VERIFICATION_ENABLE"):
             auth_header = request.headers.get('Authorization')
             domain = request.get_json().get("context", {}).get("domain")
