@@ -52,9 +52,10 @@ def MeasureTime(f):
 
 @retry(tries=3, delay=1)
 def requests_post_with_retries(url, payload, headers=None):
-    response = requests.post(url, json=payload, headers=headers)
+    response = requests.post(url, json=payload, headers=headers, timeout=3)
     status_code = response.status_code
     if status_code != 200:
+        log(f"Failed with status code {status_code} for {url}")
         raise requests.exceptions.HTTPError("Request Failed!")
     return status_code
 
