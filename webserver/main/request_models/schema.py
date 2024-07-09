@@ -538,6 +538,10 @@ class Schedule(BaseModel):
     times: Optional[List[str]] = None
 
 
+class LocationSchedule(Schedule):
+    holidays: List[str]
+
+
 class Type5(Enum):
     bap = 'bap'
     bpp = 'bpp'
@@ -599,6 +603,13 @@ class Time(BaseModel):
         None, description='comma separated values representing days of the week'
     )
     schedule: Optional[Schedule] = None
+
+
+class LocationTime(Time):
+    label: str
+    timestamp: datetime
+    days: str
+    schedule: LocationSchedule
 
 
 class Status3(Enum):
@@ -1028,6 +1039,20 @@ class Descriptor(BaseModel):
     field_3d_render: Optional[AnyUrl] = Field(None, alias='3d_render')
 
 
+class BppDescriptor(BaseModel):
+    name: str
+    code: Optional[str] = None
+    symbol: str
+    short_desc: str
+    long_desc: str
+    additional_desc: Optional[DescriptorAdditionalDesc] = None
+    media: Optional[List[MediaFile]] = None
+    images: List[Image] = []
+    audio: Optional[AnyUrl] = None
+    field_3d_render: Optional[AnyUrl] = Field(None, alias='3d_render')
+    tags: List[Tag] = []
+
+
 class Descriptor2(Descriptor):
     images: List[Image]
 
@@ -1088,6 +1113,7 @@ class ItemQuantity(BaseModel):
     maximum: Optional[Maximum] = None
     minimum: Optional[Minimum] = None
     selected: Optional[Selected] = None
+
 
 class Item(BaseModel):
     id: StrictStr = Field(
@@ -1152,30 +1178,39 @@ class Item(BaseModel):
         alias='@ondc/org/statutory_reqs_prepackaged_food',
         description='<br> mandatory attributes include the following<br> ingredients_info<br> nutritional_info<br> additives_info<br> net_quantity<br> contact_details_consumer_care<br>',
     )
-    tags: List[Tag] = []
+    tags: Optional[List[Tag]] = []
 
 
 class Location(BaseModel):
-    id: Optional[StrictStr] = None
+    id: StrictStr
     descriptor: Optional[Descriptor] = None
-    gps: Optional[Gps] = None
-    address: Optional[Address] = None
+    gps: Gps
+    address: Address
     station_code: Optional[str] = None
     city: Optional[City] = None
     country: Optional[Country] = None
     circle: Optional[Circle] = None
     polygon: Optional[str] = None
     field_3dspace: Optional[str] = Field(None, alias='3dspace')
-    time: Optional[Time] = None
+    time: Time
 
 
 class Offer(BaseModel):
     id: Optional[StrictStr] = None
     descriptor: Optional[Descriptor] = None
-    location_ids: Optional[List[IdModel4]] = None
-    category_ids: Optional[List[IdModel]] = None
+    location_ids: Optional[List[IdModel]] = None
     item_ids: Optional[List[IdModel3]] = None
     time: Optional[Time] = None
+
+
+# TODO - Implement new offer object
+class Offer2(BaseModel):
+    id: StrictStr
+    descriptor: Descriptor
+    location_ids: List[IdModel]
+    item_ids: List[IdModel3]
+    time: Optional[Time] = None
+    tags: List[Tag]
 
 
 class Option(BaseModel):
@@ -1289,8 +1324,9 @@ class Policy(BaseModel):
     time: Optional[Time] = None
 
 
-class Location2(Location):
+class OnSearchLocation(Location):
     rateable: Optional[Rateable] = None
+    time: LocationTime
 
 
 class Item2(Item):
@@ -1302,7 +1338,8 @@ class OnSearchItem(Item):
     category_id: IdModel
     quantity: ItemQuantity
     descriptor: ItemDescriptor
-    tags: List[Tag]
+    price: Price
+    tags: Optional[List[Tag]] = []
 
 
 class State(BaseModel):
@@ -1561,6 +1598,15 @@ class Fulfillment(BaseModel):
     tags: List[Tag] = []
 
 
+class BppFulfillment(Fulfillment):
+    id: StrictStr
+    type: Type2
+
+
+class ProviderFulfillment(Fulfillment):
+    contact: Contact
+
+
 class Operator(Person):
     experience: Optional[Experience] = None
 
@@ -1601,7 +1647,7 @@ class Provider(BaseModel):
     categories: Optional[List[Category]] = None
     fulfillments: Optional[List[Fulfillment]] = None
     payments: Optional[List[Payment]] = None
-    locations: Optional[List[Location2]] = Field(None, description='Location List', min_items=1)
+    locations: Optional[List[OnSearchLocation]] = Field(None, description='Location List', min_items=1)
     offers: Optional[List[Offer]] = None
     items: Optional[List[Item2]] = None
     exp: Optional[datetime] = Field(
@@ -1613,16 +1659,14 @@ class Provider(BaseModel):
 
 class OnSearchProvider(BaseModel):
     id: StrictStr = Field(..., description='Id of the provider')
-    descriptor: Optional[Descriptor] = None
-    category_id: str = Field(None, description='Category Id of the provider')
+    descriptor: Descriptor
     rating: Optional[ValueModel] = None
-    time: Optional[Time] = None
+    time: Time
     categories: Optional[List[Category]] = None
-    fulfillments: Optional[List[Fulfillment]] = None
-    payments: Optional[List[Payment]] = None
-    locations: Optional[List[Location2]] = Field(None, description='Location List', min_items=1)
+    fulfillments: List[ProviderFulfillment] = []
+    locations: List[OnSearchLocation] = Field([], description='Location List', min_items=1)
     offers: Optional[List[Offer]] = None
-    items: Optional[List[OnSearchItem]] = Field(None, description='Item List', min_items=1)
+    items: List[OnSearchItem] = Field([], description='Item List', min_items=1)
     exp: Optional[datetime] = Field(
         None, description='Time after which catalog has to be refreshed'
     )
@@ -1639,7 +1683,7 @@ class IncrOnSearchProvider(BaseModel):
     categories: Optional[List[Category]] = None
     fulfillments: Optional[List[Fulfillment]] = None
     payments: Optional[List[Payment]] = None
-    locations: Optional[List[Location2]] = Field(None, description='Location List', min_items=1)
+    locations: Optional[List[OnSearchLocation]] = Field(None, description='Location List', min_items=1)
     offers: Optional[List[Offer]] = None
     items: Optional[List[OnSearchItem]] = Field(None, description='Item List', min_items=1)
     exp: Optional[datetime] = Field(
@@ -1696,17 +1740,11 @@ class ResolutionProviderRespondentInfo(BaseModel):
 
 
 class Catalog(BaseModel):
-    bpp_descriptor: Optional[Descriptor] = Field(None, alias='bpp/descriptor')
-    bpp_categories: Optional[List[Category]] = Field(None, alias='bpp/categories')
-    bpp_fulfillments: Optional[List[Fulfillment]] = Field(
+    bpp_descriptor: BppDescriptor = Field(None, alias='bpp/descriptor')
+    bpp_fulfillments: Optional[List[BppFulfillment]] = Field(
         None, alias='bpp/fulfillments'
     )
-    bpp_payments: Optional[List[Payment]] = Field(None, alias='bpp/payments')
-    bpp_offers: Optional[List[Offer]] = Field(None, alias='bpp/offers')
     bpp_providers: List[OnSearchProvider] = Field(..., alias='bpp/providers', min_items=1)
-    exp: Optional[datetime] = Field(
-        None, description='Time after which catalog has to be refreshed'
-    )
 
 
 class IncrCatalog(BaseModel):

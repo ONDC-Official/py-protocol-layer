@@ -75,16 +75,15 @@ class OnCallContext(BaseModel):
     transaction_id: str
     message_id: str
     timestamp: datetime
-    key: Optional[str]
     ttl: Optional[Union[str, int]]
 
 
 class OnSearchMessage(BaseModel):
-    catalog: Optional[Catalog]
+    catalog: Catalog
 
 
 class IncrOnSearchMessage(BaseModel):
-    catalog: Optional[IncrCatalog]
+    catalog: IncrCatalog
 
 
 class OnSelectOrder(BaseModel):
@@ -225,23 +224,11 @@ class FullOnSearchRequest(BaseModel):
     message: OnSearchMessage
     error: Optional[Error]
 
-    @validator("message")
-    def validate_catalog(cls, v, values):
-        if v.catalog is None:
-            raise ValidationError("Catalog is missing!")
-        return v
-
 
 class IncrOnSearchRequest(BaseModel):
     context: OnCallContext
     message: IncrOnSearchMessage
     error: Optional[Error]
-
-    @validator("message")
-    def validate_catalog(cls, v, values):
-        if v.catalog is None:
-            raise ValidationError("Catalog is missing!")
-        return v
 
 
 class OnSelectRequest(BaseModel):
