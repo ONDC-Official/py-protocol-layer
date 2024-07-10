@@ -1183,17 +1183,17 @@ class Item(BaseModel):
 
 
 class Location(BaseModel):
-    id: StrictStr
+    id: Optional[StrictStr] = None
     descriptor: Optional[Descriptor] = None
-    gps: Gps
-    address: Address
+    gps: Optional[Gps] = None
+    address: Optional[Address] = None
     station_code: Optional[str] = None
     city: Optional[City] = None
     country: Optional[Country] = None
     circle: Optional[Circle] = None
     polygon: Optional[str] = None
     field_3dspace: Optional[str] = Field(None, alias='3dspace')
-    time: Time
+    time: Optional[Time] = None
 
 
 class Offer(BaseModel):
@@ -1326,6 +1326,10 @@ class Policy(BaseModel):
 
 
 class OnSearchLocation(Location):
+    id: StrictStr
+    gps: Gps
+    address: Address
+    time: Time
     rateable: Optional[Rateable] = None
     time: LocationTime
 
@@ -1340,7 +1344,7 @@ class OnSearchItem(Item):
     quantity: ItemQuantity
     descriptor: ItemDescriptor
     price: Price
-    tags: Optional[List[Tag]] = []
+    tags: Optional[List[Tag]] = [] #TODO - Make tags mandatory except for Grocery(RET10)
 
 
 class State(BaseModel):
