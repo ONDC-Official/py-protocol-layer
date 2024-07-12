@@ -1688,7 +1688,7 @@ class IncrOnSearchProvider(BaseModel):
     categories: Optional[List[Category]] = None
     fulfillments: Optional[List[Fulfillment]] = None
     payments: Optional[List[Payment]] = None
-    locations: Optional[List[OnSearchLocation]] = Field(None, description='Location List', min_items=1)
+    locations: Optional[List[Location]] = Field(None, description='Location List', min_items=1)
     offers: Optional[List[Offer]] = None
     items: Optional[List[OnSearchItem]] = Field(None, description='Item List', min_items=1)
     exp: Optional[datetime] = Field(
