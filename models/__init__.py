@@ -28,7 +28,7 @@ def init_database():
 
 
 def create_all_indexes():
-    create_ttl_index("request_dump", ttl_in_seconds=3*24*60*60)
+    create_ttl_index("request_dump", ttl_in_seconds=get_config_by_name("REQUEST_DUMP_TTL_IN_DAYS")*24*60*60)
 
 
 def create_ttl_index(collection_name, ttl_in_seconds=None):

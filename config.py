@@ -44,6 +44,7 @@ class Config:
     APP_UNIQUE_KEY_ID = os.getenv("APP_UNIQUE_KEY_ID", "207")
     REGISTRY_BASE_URL = os.getenv("REGISTRY_BASE_URL", "https://preprod.registry.ondc.org/ondc")
     TTL_IN_SECONDS = int(os.getenv("TTL_IN_SECONDS", "18000"))
+    REQUEST_DUMP_TTL_IN_DAYS = int(os.getenv("REQUEST_DUMP_TTL_IN_DAYS", "30"))
     VERIFICATION_ENABLE = os.getenv("VERIFICATION_ENABLE", "True") == "True"
     RABBITMQ_QUEUE_NAME = os.getenv("RABBITMQ_QUEUE_NAME", "bpp_protocol")
     ELASTIC_SEARCH_QUEUE_NAME = os.getenv("ELASTIC_SEARCH_QUEUE_NAME", "catalog_indexing")
