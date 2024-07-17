@@ -1181,6 +1181,12 @@ class Item(BaseModel):
     )
     tags: Optional[List[Tag]] = []
 
+    @validator('field__ondc_statutory_reqs_prepackaged_food', pre=True, always=True)
+    def check_for_object(cls, value):
+        if type(value) == str:
+            raise ValueError('@ondc/org/statutory_reqs_prepackaged_food cannot be a string')
+        return value
+
 
 class Location(BaseModel):
     id: Optional[StrictStr] = None
