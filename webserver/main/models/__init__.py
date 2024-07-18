@@ -45,7 +45,7 @@ def create_all_indexes():
                                                             "auth_failure_request_dump", "sub_category",
                                                             "validation_failure_request_dump", "all_request_dump"
                                                             ]]
-    create_ttl_index("request_dump", ttl_in_seconds=3*24*60*60)
+    create_ttl_index("request_dump", ttl_in_seconds=7*24*60*60)
     indexes = [
         IndexModel([("id", 1)]),
         IndexModel([("context.domain", 1)]),

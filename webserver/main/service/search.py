@@ -861,7 +861,7 @@ def gateway_search(search_request, headers={}):
     return post_on_bg_or_bpp(search_url, payload=search_request, headers=headers)
 
 
-def get_query_object(**kwargs):
+def get_query_object_for_items(**kwargs):
     query_object = {"type": "item", "is_first": True}
     if kwargs['price_min'] and kwargs['price_max']:
         query_object.update({'item_details.price.value': {'$gte': kwargs['price_min'], '$lte': kwargs['price_max']}})
@@ -905,7 +905,7 @@ def get_sort_field_and_order(**kwargs):
 
 def get_item_catalogues(**kwargs):
     search_collection = get_mongo_collection('on_search_items')
-    query_object = get_query_object(**kwargs)
+    query_object = get_query_object_for_items(**kwargs)
     sort_field, sort_order = get_sort_field_and_order(**kwargs)
     page_number = kwargs['page_number'] - 1
     limit = kwargs['limit']
@@ -1118,6 +1118,34 @@ def get_last_request_dump(request_type, transaction_id):
         return catalog
     else:
         return {"error": "No request found for given type and transaction_id!"}, 400
+
+
+def get_query_object_for_request_dump(**kwargs):
+    query_object = {}
+    if kwargs['action']:
+        query_object.update({'action': kwargs['action']})
+    if kwargs['transaction_id']:
+        query_object.update({'request.context.transaction_id': kwargs['transaction_id']})
+    if kwargs['message_id']:
+        query_object.update({'request.context.message_id': kwargs['message_id']})
+    if kwargs['bpp_id']:
+        query_object.update({'request.context.bpp_id': kwargs['bpp_id']})
+    # if kwargs['provider_id']:
+    #     query_object.update({'request.message.bpp/providers.id': kwargs['provider_id']})
+
+    return query_object
+
+
+def get_request_logs(**kwargs):
+    request_dump_collection = get_mongo_collection('request_dump')
+    query_object = get_query_object_for_request_dump(**kwargs)
+    sort_order = pymongo.ASCENDING if kwargs.get('sort_order') == 'asc' else pymongo.DESCENDING
+    page_number = kwargs['page_number'] - 1
+    limit = kwargs['limit']
+    skip = page_number * limit
+    request_dumps = mongo.collection_find_all(request_dump_collection, query_object, "created_at", sort_order,
+                                              skip=skip, limit=limit)
+    return request_dumps
 
 
 def get_categories():
