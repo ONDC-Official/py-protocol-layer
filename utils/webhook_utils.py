@@ -19,7 +19,8 @@ cache = TTLCache(maxsize=100, ttl=86400)
 # Custom cache decorator that caches only successful responses (status code 200)
 def cache_success(ttl_cache):
     def decorator(func):
-        @cached(ttl_cache, key=lambda url, payload, headers=None: hashkey(url, json.dumps(payload), headers))
+        @cached(ttl_cache, key=lambda url, payload, headers=None: hashkey(url, json.dumps(payload, sort_keys=True),
+                                                                          headers))
         def wrapper(*args, **kwargs):
             response, status_code = func(*args, **kwargs)
             if status_code == 200:
