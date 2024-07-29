@@ -108,7 +108,7 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
                     "transaction_id": transaction_id,
                     "message_id": str(uuid.uuid4()),
                     "timestamp": end_time,
-                    "ttl": "PT30M"
+                    "ttl": "PT30S"
                 },
                 "message": message
             }
