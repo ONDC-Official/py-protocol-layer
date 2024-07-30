@@ -1,11 +1,11 @@
 import gc
+import hashlib
 import json
 import timeit
 from functools import wraps
 
 import requests
 from cachetools import cached, TTLCache
-from cachetools.keys import hashkey
 from retry import retry
 
 from config import get_config_by_name
@@ -17,21 +17,40 @@ cache = TTLCache(maxsize=100, ttl=86400)
 
 
 # Custom cache decorator that caches only successful responses (status code 200)
+def hash_key(*args):
+    """Generate a hash key based on arguments."""
+    hasher = hashlib.md5()
+    for arg in args:
+        if isinstance(arg, dict):
+            # Convert dict to sorted tuple of items to ensure hashable
+            arg = tuple(sorted(arg.items()))
+        elif isinstance(arg, list):
+            # Convert list to tuple to ensure hashable
+            arg = tuple(arg)
+        elif isinstance(arg, str):
+            arg = arg.encode('utf-8')
+        hasher.update(arg)
+    return hasher.hexdigest()
+
+
 def cache_success(ttl_cache):
     def decorator(func):
-        @cached(ttl_cache, key=lambda url, payload, headers=None: hashkey(url, json.dumps(payload, sort_keys=True),
-                                                                          headers))
+        @wraps(func)
         def wrapper(*args, **kwargs):
+            cache_key = hash_key(*args)
+            if cache_key in ttl_cache:
+                return ttl_cache[cache_key]
             response, status_code = func(*args, **kwargs)
             if status_code == 200:
-                return response, status_code
-            # Remove from cache if status_code is not 200
-            cache_key = hashkey(*args, **kwargs)
-            if cache_key in ttl_cache:
-                del ttl_cache[cache_key]
+                ttl_cache[cache_key] = (response, status_code)
+            else:
+                # Remove from cache if status_code is not 200
+                if cache_key in ttl_cache:
+                    del ttl_cache[cache_key]
             return response, status_code
         return wrapper
     return decorator
+
 
 
 def MeasureTime(f):
