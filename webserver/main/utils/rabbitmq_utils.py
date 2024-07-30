@@ -15,7 +15,9 @@ def open_connection_and_channel_if_not_already_open(old_connection, old_channel)
     else:
         log("Getting new connection and channel")
         rabbitmq_host = get_config_by_name('RABBITMQ_HOST')
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host=rabbitmq_host))
+        credentials = pika.PlainCredentials(get_config_by_name('RABBITMQ_USERNAME'),
+                                            get_config_by_name('RABBITMQ_PASSWORD'))
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host=rabbitmq_host, credentials=credentials))
         channel = connection.channel()
         return connection, channel
 
@@ -23,7 +25,9 @@ def open_connection_and_channel_if_not_already_open(old_connection, old_channel)
 def open_connection():
     rabbitmq_host = get_config_by_name('RABBITMQ_HOST')
     print(rabbitmq_host)
-    return pika.BlockingConnection(pika.ConnectionParameters(host=rabbitmq_host))
+    credentials = pika.PlainCredentials(get_config_by_name('RABBITMQ_USERNAME'),
+                                        get_config_by_name('RABBITMQ_PASSWORD'))
+    return pika.BlockingConnection(pika.ConnectionParameters(host=rabbitmq_host, credentials=credentials))
 
 
 def close_connection(connection):
