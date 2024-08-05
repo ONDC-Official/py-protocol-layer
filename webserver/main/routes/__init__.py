@@ -10,6 +10,7 @@ from main import constant
 from main.models.error import BaseError
 from main.repository.ack_response import get_ack_response
 from main.routes.cron import cron_namespace
+from main.routes.health import health_namespace
 from main.routes.logs import logs_namespace
 from main.routes.ondc_network import ondc_network_namespace
 from main.routes.client import client_namespace
@@ -61,6 +62,7 @@ def bad_request(error):
     return {'error': str(error), 'message': error.message}, 400
 
 
+api.add_namespace(health_namespace, path='/')
 api.add_namespace(ondc_network_namespace, path='/protocol')
 api.add_namespace(client_namespace, path='/protocol')
 api.add_namespace(response_namespace, path='/protocol')
