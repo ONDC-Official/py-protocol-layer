@@ -15,7 +15,7 @@ def validate_business_rules_for_full_on_search(payload):
         if error:
             return get_ack_response(context=payload["context"], ack=False,
                                     error={"type": BaseError.JSON_SCHEMA_ERROR.value, "code": "20000",
-                                           "message": error}), 400
+                                           "message": error}), 200
     return None
 
 
