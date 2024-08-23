@@ -57,6 +57,8 @@ class Config:
     RABBITMQ_QUEUE_NAME = os.getenv("RABBITMQ_QUEUE_NAME", "bpp_protocol")
     ELASTIC_SEARCH_QUEUE_NAME = os.getenv("ELASTIC_SEARCH_QUEUE_NAME", "catalog_indexing")
     RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
+    RABBITMQ_USERNAME = os.getenv("RABBITMQ_USERNAME", "username")
+    RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "password")
     QUEUE_ENABLE = os.getenv("QUEUE_ENABLE", "False") == "True"
     ELASTIC_SEARCH_QUEUE_ENABLE = os.getenv("ELASTIC_SEARCH_QUEUE_ENABLE", "False") == "True"
     DUMP_ALL_REQUESTS = os.getenv("DUMP_ALL_REQUESTS", "False") == "True"
