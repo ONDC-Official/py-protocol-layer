@@ -1,16 +1,15 @@
+import os
 import time
 import uuid
 from datetime import datetime, timedelta
 
 from main.config import get_config_by_name
-from main.logger.custom_logging import log_error
+from main.logger.custom_logging import log_error, log
 from main.models import get_mongo_collection
 from main.models.catalog import SearchType
 from main.repository import mongo
-from main.request_models.schema import Domain
 from main.service.common import dump_request_payload, update_dumped_request_with_response
 from main.service.search import gateway_search
-from main.utils.parallel_processing_utils import io_bound_parallel_computation
 
 
 def make_http_requests_for_search_by_city(search_type: SearchType, domains=None, cities=None, mode="start"):
@@ -147,5 +146,16 @@ def make_search_operation_along_with_incremental():
     make_incremental_catalog_search_requests(mode="start")
 
 
+def run_cron_for_search_catalog(full_or_inc):
+    log(f'Running cron for {full_or_inc} catalog')
+    if full_or_inc == "full":
+        make_full_catalog_search_requests()
+    elif full_or_inc == "inc":
+        make_search_operation_along_with_incremental()
+    else:
+        log_error("Full or incr flag is not set correctly!")
+
+
 if __name__ == '__main__':
-    make_search_operation_along_with_incremental()
+    full_or_inc_flag = os.getenv("FULL_OR_INC")
+    run_cron_for_search_catalog(full_or_inc_flag)

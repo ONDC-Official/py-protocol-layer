@@ -7,9 +7,6 @@ import uuid
 from datetime import datetime
 from dateutil import parser
 
-from flask import request
-from flask_restx import abort
-
 from main import constant
 from main.config import get_config_by_name
 from main.logger.custom_logging import log
@@ -51,6 +48,8 @@ def password_hash(incoming_password):
 
 
 def handle_stop_iteration(func):
+    from flask import abort
+
     def exception_handler(*args, **kwargs):
         try:
             return func(*args, **kwargs)
@@ -85,6 +84,8 @@ def dump_all_request(all_request):
 
 
 def validate_auth_header(func):
+    from flask import request
+
     def wrapper(*args, **kwargs):
         dump_all_request(request.get_json()) if get_config_by_name("DUMP_ALL_REQUESTS") else None
         if get_config_by_name("VERIFICATION_ENABLE"):
@@ -106,6 +107,7 @@ def validate_auth_header(func):
     wrapper.__doc__ = func.__doc__
     wrapper.__name__ = func.__name__
     return wrapper
+
 
 def calculate_duration_ms(iso8601dur: str):
     match = re.match(r'^PT(\d{0,2})([H|S])$', iso8601dur)
