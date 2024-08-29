@@ -13,15 +13,6 @@ class JsonObject:
         return json.dumps(self, default=lambda o: o.__dict__)
 
 
-def initialize_before_calls(app):
-    from flask import request, g
-
-    @app.before_request
-    def set_page(page=1):
-        page = int(request.args.get('page', 1))
-        g.page = page
-
-
 def init_database():
     global mongo_client, mongo_db
     if mongo_client is not None and mongo_db is not None:
