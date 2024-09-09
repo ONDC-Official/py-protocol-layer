@@ -104,6 +104,35 @@ def make_request_to_client(route, payload):
     return status_code
 
 
+def make_request_to_no_dashboard(payload, response=False):
+    log(f"Making request to NO Dashboard")
+    dashboard_webhook_endpoint = get_config_by_name('NO_DASHBOARD_ENDPOINT')
+    action = payload.get("context", {}).get("action")
+    if action is None:
+        log("No action found hence not making request to NO Dashboard!")
+        return
+
+    data_type = f"{action}_response" if response else action
+    updated_payload = {
+        "type": data_type,
+        "data": payload
+    }
+
+    try:
+        token = get_config_by_name("NO_DASHBOARD_BEARER_TOKEN")
+        status_code = requests.post(f"{dashboard_webhook_endpoint}/v1/api/push-txn-logs",
+                                    headers={"Authorization": f"Bearer {token}"},
+                                    json=updated_payload)
+    except requests.exceptions.HTTPError:
+        status_code = 400
+    except requests.exceptions.ConnectionError:
+        status_code = 500
+    except:
+        status_code = 500
+    log(f"Got {status_code} on the NO Dashboard request!")
+    return status_code
+
+
 @MeasureTime
 def post_on_bg_or_bpp(url, payload, headers={}):
     log(f"Making POST call for {payload['context']['message_id']} on {url} with headers {headers}")

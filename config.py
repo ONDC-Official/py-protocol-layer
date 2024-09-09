@@ -65,6 +65,8 @@ class Config:
     EXPECTED_RESPONSE_TIME = os.getenv("EXPECTED_RESPONSE_TIME", "PT1H")
     RQ_REDIS_URL = f"redis://{os.getenv('REDIS_URL', 'localhost')}:{os.getenv('REDIS_PORT', 6379)}/{os.getenv('REDIS_DB',1)}"
     RQ_ASYNC = os.getenv("RQ_ASYNC", "True") == "True"
+    NO_DASHBOARD_ENDPOINT = os.getenv("NO_DASHBOARD_ENDPOINT", "https://analytics-api-pre-prod.aws.ondc.org")
+    NO_DASHBOARD_BEARER_TOKEN = os.getenv("NO_DASHBOARD_BEARER_TOKEN", "token")
 
 
 class DevelopmentConfig(Config):
