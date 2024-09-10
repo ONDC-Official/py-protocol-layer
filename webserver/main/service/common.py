@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 
 import pymongo
@@ -53,15 +54,32 @@ def get_query_object(**kwargs):
 def get_bpp_response_for_message_id(**kwargs):
     search_collection = get_mongo_collection(kwargs['request_type'])
     query_object = get_query_object(**kwargs)
-    bpp_response = mongo.collection_find_all(search_collection, query_object, sort_field="created_at",
-                                             sort_order=pymongo.DESCENDING)
-    if bpp_response:
-        if bpp_response['count'] > 0:
+    MAX_RETRIES = 2
+    RETRY_DELAY = 1
+
+    retry_count = 0
+    while retry_count < MAX_RETRIES:
+        bpp_response = mongo.collection_find_all(
+            search_collection,
+            query_object,
+            sort_field="created_at",
+            sort_order=pymongo.DESCENDING
+        )
+
+        # Check if response is valid and has results
+        if bpp_response and bpp_response.get('count', 0) > 0:
             return bpp_response['data']
-        else:
-            return {"error": DatabaseError.NOT_FOUND_ERROR.value}
-    else:
+
+        # If response is None or count is 0, retry
+        retry_count += 1
+        if retry_count < MAX_RETRIES:
+            time.sleep(RETRY_DELAY)  # Delay before retrying
+
+    # If max retries exceeded, return appropriate error
+    if not bpp_response:
         return {"error": DatabaseError.ON_READ_ERROR.value}
+    else:
+        return {"error": DatabaseError.NOT_FOUND_ERROR.value}
 
 
 def bpp_post_call(request_type, request_payload):
