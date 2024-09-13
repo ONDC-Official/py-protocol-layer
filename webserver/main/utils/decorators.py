@@ -5,6 +5,7 @@ import traceback
 from functools import wraps
 
 from main.config import get_config_by_name
+from main.logger.custom_logging import log
 
 
 def expects_json_handling_validation(*args, **kwargs):
@@ -58,7 +59,7 @@ def MeasureTime(f):
             elapsed = timeit.default_timer() - start_time
             if gcold:
                 gc.enable()
-            print('[{}]Function "{}": {}s'.format(datetime.datetime.now(), f.__name__, elapsed))
+            log('[{}]Function "{}": {}s'.format(datetime.datetime.now(), f.__name__, elapsed))
         return result
 
     return _wrapper

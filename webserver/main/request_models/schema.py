@@ -113,8 +113,8 @@ class DecimalValue(BaseModel):
 
     @validator("__root__")
     def check_decimal_points(cls, value):
-        decimal_str = str(value).split(".")[1]
-        if len(decimal_str) > 2:
+        splits = str(value).split(".")
+        if len(splits) > 1 and len(splits[1]) > 2:
             raise ValueError("Decimal value should have up to two decimal points")
         return value
 
@@ -201,6 +201,7 @@ class Type2(Enum):
     Cancel = 'Cancel'
     Return = 'Return'
     RTO = 'RTO'
+    Buyer_Delivery = 'Buyer-Delivery'
 
 
 class Gps(BaseModel):
@@ -499,13 +500,18 @@ class Rateable(BaseModel):
     __root__: bool = Field(..., description='If the entity can be rated or not')
 
 
-class RatingAck(BaseModel):
-    feedback_ack: Optional[bool] = Field(
-        None, description='If feedback has been recorded or not'
-    )
-    rating_ack: Optional[bool] = Field(
-        None, description='If rating has been recorded or not'
-    )
+class RatingFeedbackFormElement(BaseModel):
+    url: str
+    data: str
+    mime_type: str
+
+
+class RatingFeedbackForm(BaseModel):
+    form: RatingFeedbackFormElement
+
+
+class OnRatingMessage(BaseModel):
+    feedback_form: Optional[RatingFeedbackForm] = None
 
 
 class Type4(Enum):
@@ -531,6 +537,10 @@ class Schedule(BaseModel):
     frequency: Optional[Duration] = None
     holidays: Optional[List[str]] = None
     times: Optional[List[str]] = None
+
+
+class LocationSchedule(Schedule):
+    holidays: List[str]
 
 
 class Type5(Enum):
@@ -564,6 +574,16 @@ class TagChild(BaseModel):
     code: StrictStr
     value: StrictStr
 
+    @validator("value")
+    def check_color_format(cls, value, values):
+        if values.get("code") == "colour" and not value.startswith("#"):
+            raise ValueError("Colour value should start with '#'")
+        if values.get("code") == "colour" and len(value) != 7:
+            raise ValueError("Colour value should contain exactly six alphanumeric characters after '#'")
+        if values.get("code") == "colour" and not value[1:].isalnum():
+            raise ValueError("Colour value should contain only alphanumeric characters after '#'")
+        return value
+
 
 class Tag(BaseModel):
     code: StrictStr
@@ -584,6 +604,13 @@ class Time(BaseModel):
         None, description='comma separated values representing days of the week'
     )
     schedule: Optional[Schedule] = None
+
+
+class LocationTime(Time):
+    label: str
+    timestamp: datetime
+    days: str
+    schedule: LocationSchedule
 
 
 class Status3(Enum):
@@ -1013,6 +1040,20 @@ class Descriptor(BaseModel):
     field_3d_render: Optional[AnyUrl] = Field(None, alias='3d_render')
 
 
+class BppDescriptor(BaseModel):
+    name: str
+    code: Optional[str] = None
+    symbol: str
+    short_desc: str
+    long_desc: str
+    additional_desc: Optional[DescriptorAdditionalDesc] = None
+    media: Optional[List[MediaFile]] = None
+    images: List[Image] = []
+    audio: Optional[AnyUrl] = None
+    field_3d_render: Optional[AnyUrl] = Field(None, alias='3d_render')
+    tags: List[Tag] = []
+
+
 class Descriptor2(Descriptor):
     images: List[Image]
 
@@ -1074,6 +1115,7 @@ class ItemQuantity(BaseModel):
     minimum: Optional[Minimum] = None
     selected: Optional[Selected] = None
 
+
 class Item(BaseModel):
     id: StrictStr = Field(
         ...,
@@ -1093,46 +1135,57 @@ class Item(BaseModel):
     related: Optional[bool] = None
     recommended: Optional[bool] = None
     field__ondc_returnable: Optional[bool] = Field(
-        None, alias='./ondc-returnable', description='whether the item is returnable'
+        None, alias='@ondc/org/returnable', description='whether the item is returnable'
     )
     field__ondc_seller_pickup_return: Optional[bool] = Field(
         None,
-        alias='./ondc-seller_pickup_return',
+        alias='@ondc/org/seller_pickup_return',
         description='in case of return, whether the item should be picked up by seller',
     )
     field__ondc_return_window: Optional[str] = Field(
         None,
-        alias='./ondc-return_window',
+        alias='@ondc/org/return_window',
         description="return window for the item in ISO8601 durations format e.g. 'PT24H' indicates 24 hour return window",
     )
     field__ondc_cancellable: Optional[bool] = Field(
-        None, alias='./ondc-cancellable', description='whether the item is cancellable'
+        None, alias='@ondc/org/cancellable', description='whether the item is cancellable'
     )
     field__ondc_time_to_ship: Optional[str] = Field(
         None,
-        alias='./ondc-time_to_ship',
+        alias='@ondc/org/time_to_ship',
         description="time from order confirmation by which item ready to ship in ISO8601 durations format e.g. 'PT2H' indicates item ready to ship in 2 hrs",
     )
     field__ondc_available_on_cod: Optional[bool] = Field(
         None,
-        alias='./ondc-available_on_cod',
+        alias='@ondc/org/available_on_cod',
         description='whether the catalog item is available on COD',
+    )
+    field__ondc_contact_details_consumer_care: Optional[str] = Field(
+        None,
+        alias='@ondc/org/contact_details_consumer_care',
+        description='consumer care contact details',
     )
     field__ondc_statutory_reqs_packaged_commodities: Optional[
         FieldOndcStatutoryReqsPackagedCommodities
     ] = Field(
         None,
-        alias='./ondc-statutory_reqs_packaged_commodities',
+        alias='@ondc/org/statutory_reqs_packaged_commodities',
         description='<br> mandatory attributes include the following<br> common_or_generic_name_of_commodity<br> net_quantity_or_measure_of_commodity_in_pkg<br> month_year_of_manufacture_packing_import<br> contact_details_consumer_care<br>',
     )
     field__ondc_statutory_reqs_prepackaged_food: Optional[
         FieldOndcStatutoryReqsPrepackagedFood
     ] = Field(
         None,
-        alias='./ondc-statutory_reqs_prepackaged_food',
+        alias='@ondc/org/statutory_reqs_prepackaged_food',
         description='<br> mandatory attributes include the following<br> ingredients_info<br> nutritional_info<br> additives_info<br> net_quantity<br> contact_details_consumer_care<br>',
     )
-    tags: List[Tag] = []
+    tags: Optional[List[Tag]] = []
+
+    @validator('field__ondc_statutory_reqs_prepackaged_food', pre=True, always=True)
+    def check_for_object(cls, value):
+        if type(value) == str:
+            raise ValueError('@ondc/org/statutory_reqs_prepackaged_food cannot be a string')
+        return value
 
 
 class Location(BaseModel):
@@ -1152,10 +1205,19 @@ class Location(BaseModel):
 class Offer(BaseModel):
     id: Optional[StrictStr] = None
     descriptor: Optional[Descriptor] = None
-    location_ids: Optional[List[IdModel4]] = None
-    category_ids: Optional[List[IdModel]] = None
+    location_ids: Optional[List[IdModel]] = None
     item_ids: Optional[List[IdModel3]] = None
     time: Optional[Time] = None
+
+
+# TODO - Implement new offer object
+class Offer2(BaseModel):
+    id: StrictStr
+    descriptor: Descriptor
+    location_ids: List[IdModel]
+    item_ids: List[IdModel3]
+    time: Optional[Time] = None
+    tags: List[Tag]
 
 
 class Option(BaseModel):
@@ -1269,8 +1331,13 @@ class Policy(BaseModel):
     time: Optional[Time] = None
 
 
-class Location2(Location):
+class OnSearchLocation(Location):
+    id: StrictStr
+    gps: Gps
+    address: Address
+    time: Time
     rateable: Optional[Rateable] = None
+    time: LocationTime
 
 
 class Item2(Item):
@@ -1279,9 +1346,11 @@ class Item2(Item):
 
 
 class OnSearchItem(Item):
+    category_id: IdModel
     quantity: ItemQuantity
     descriptor: ItemDescriptor
-    tags: List[Tag]
+    price: Price
+    tags: Optional[List[Tag]] = [] #TODO - Make tags mandatory except for Grocery(RET10)
 
 
 class State(BaseModel):
@@ -1540,12 +1609,21 @@ class Fulfillment(BaseModel):
     tags: List[Tag] = []
 
 
+class BppFulfillment(Fulfillment):
+    id: StrictStr
+    type: Type2
+
+
+class ProviderFulfillment(Fulfillment):
+    contact: Contact
+
+
 class Operator(Person):
     experience: Optional[Experience] = None
 
 
 class Order(BaseModel):
-    id: Optional[StrictStr] = Field(
+    id: StrictStr = Field(
         None,
         description='Hash of order object without id<br> Will be created by buyer app in confirm API',
     )
@@ -1580,7 +1658,7 @@ class Provider(BaseModel):
     categories: Optional[List[Category]] = None
     fulfillments: Optional[List[Fulfillment]] = None
     payments: Optional[List[Payment]] = None
-    locations: Optional[List[Location2]] = Field(None, description='Location List', min_items=1)
+    locations: Optional[List[Location]] = Field(None, description='Location List', min_items=1)
     offers: Optional[List[Offer]] = None
     items: Optional[List[Item2]] = None
     exp: Optional[datetime] = Field(
@@ -1592,16 +1670,14 @@ class Provider(BaseModel):
 
 class OnSearchProvider(BaseModel):
     id: StrictStr = Field(..., description='Id of the provider')
-    descriptor: Optional[Descriptor] = None
-    category_id: Optional[str] = Field(None, description='Category Id of the provider')
+    descriptor: Descriptor
     rating: Optional[ValueModel] = None
-    time: Optional[Time] = None
+    time: Time
     categories: Optional[List[Category]] = None
-    fulfillments: Optional[List[Fulfillment]] = None
-    payments: Optional[List[Payment]] = None
-    locations: Optional[List[Location2]] = Field(None, description='Location List', min_items=1)
+    fulfillments: List[ProviderFulfillment] = []
+    locations: List[OnSearchLocation] = Field([], description='Location List', min_items=1)
     offers: Optional[List[Offer]] = None
-    items: Optional[List[OnSearchItem]] = Field(None, description='Item List', max_items=1000, min_items=1)
+    items: List[OnSearchItem] = Field([], description='Item List', min_items=1)
     exp: Optional[datetime] = Field(
         None, description='Time after which catalog has to be refreshed'
     )
@@ -1618,9 +1694,9 @@ class IncrOnSearchProvider(BaseModel):
     categories: Optional[List[Category]] = None
     fulfillments: Optional[List[Fulfillment]] = None
     payments: Optional[List[Payment]] = None
-    locations: Optional[List[Location2]] = Field(None, description='Location List', min_items=1)
+    locations: Optional[List[Location]] = Field(None, description='Location List', min_items=1)
     offers: Optional[List[Offer]] = None
-    items: Optional[List[OnSearchItem]] = Field(None, description='Item List', max_items=1000, min_items=1)
+    items: Optional[List[OnSearchItem]] = Field(None, description='Item List', min_items=1)
     exp: Optional[datetime] = Field(
         None, description='Time after which catalog has to be refreshed'
     )
@@ -1629,7 +1705,7 @@ class IncrOnSearchProvider(BaseModel):
 
 
 class Rating(BaseModel):
-    rating_category: Optional[str] = Field(
+    rating_category: Optional[StrictStr] = Field(
         None, description='Category of the object being rated'
     )
     id: Optional[StrictStr] = Field(None, description='Id of the object being rated')
@@ -1637,8 +1713,10 @@ class Rating(BaseModel):
         None,
         description='Rating value given to the object (1 - Poor; 2 - Needs improvement; 3 - Satisfactory; 4 - Good; 5 - Excellent)',
     )
-    feedback_form: Optional[FeedbackForm] = None
-    feedback_id: Optional[FeedbackId] = None
+
+
+class RatingMessage(BaseModel):
+    ratings: List[Rating]
 
 
 class ResolutionSupport(BaseModel):
@@ -1673,17 +1751,11 @@ class ResolutionProviderRespondentInfo(BaseModel):
 
 
 class Catalog(BaseModel):
-    bpp_descriptor: Optional[Descriptor] = Field(None, alias='bpp/descriptor')
-    bpp_categories: Optional[List[Category]] = Field(None, alias='bpp/categories')
-    bpp_fulfillments: Optional[List[Fulfillment]] = Field(
+    bpp_descriptor: BppDescriptor = Field(None, alias='bpp/descriptor')
+    bpp_fulfillments: Optional[List[BppFulfillment]] = Field(
         None, alias='bpp/fulfillments'
     )
-    bpp_payments: Optional[List[Payment]] = Field(None, alias='bpp/payments')
-    bpp_offers: Optional[List[Offer]] = Field(None, alias='bpp/offers')
-    bpp_providers: List[OnSearchProvider] = Field(..., alias='bpp/providers', max_items=5, min_items=1)
-    exp: Optional[datetime] = Field(
-        None, description='Time after which catalog has to be refreshed'
-    )
+    bpp_providers: List[OnSearchProvider] = Field(..., alias='bpp/providers', min_items=1)
 
 
 class IncrCatalog(BaseModel):
@@ -1694,7 +1766,7 @@ class IncrCatalog(BaseModel):
     )
     bpp_payments: Optional[List[Payment]] = Field(None, alias='bpp/payments')
     bpp_offers: Optional[List[Offer]] = Field(None, alias='bpp/offers')
-    bpp_providers: List[IncrOnSearchProvider] = Field(..., alias='bpp/providers', max_items=5, min_items=1)
+    bpp_providers: List[IncrOnSearchProvider] = Field(..., alias='bpp/providers', min_items=1)
     exp: Optional[datetime] = Field(
         None, description='Time after which catalog has to be refreshed'
     )

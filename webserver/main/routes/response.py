@@ -5,7 +5,7 @@ from main import constant
 from main.service.common import get_bpp_response_for_message_id
 from main.service.search import get_item_catalogues, get_item_details, get_item_attributes, get_item_attribute_values, \
     get_custom_menus, get_providers, get_locations, get_custom_menu_details, get_provider_details, get_location_details, \
-    get_location_offers, get_last_request_dump
+    get_location_offers, get_last_request_dump, get_categories, get_sub_categories, get_request_logs
 
 response_namespace = Namespace('response', description='Response Namespace')
 
@@ -20,6 +20,7 @@ class GetCataloguesForMessageId(Resource):
         parser.add_argument("rating", dest="rating", type=float, required=False)
         parser.add_argument("name", dest="name", type=str, required=False)
         parser.add_argument("customMenu", dest="custom_menu", type=str, required=False)
+        parser.add_argument("subCategory", dest="sub_category", type=str, required=False)
         parser.add_argument("providerIds", dest="provider_ids", type=lambda x: x.split(","), required=False)
         parser.add_argument("locationIds", dest="location_ids", type=lambda x: x.split(","), required=False)
         parser.add_argument("categoryIds", dest="category_ids", type=lambda x: x.split(","), required=False)
@@ -239,3 +240,43 @@ class GetLastRequestDump(Resource):
     def get(self):
         args = self.create_parser_with_args()
         return get_last_request_dump(args['type'], args['transaction_id'])
+
+
+@response_namespace.route("/request-logs")
+class GetRequestLogs(Resource):
+
+    def create_parser_with_args(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("action", required=False)
+        parser.add_argument("transaction_id", required=False)
+        parser.add_argument("message_id", required=False)
+        parser.add_argument("bpp_id", required=False)
+        parser.add_argument("sort_order", required=False, choices=['asc', 'desc'])
+        parser.add_argument("page_number", type=int, default=1)
+        parser.add_argument("limit", dest="limit", required=False, type=int, default=10)
+        return parser.parse_args()
+
+    def get(self):
+        args = self.create_parser_with_args()
+        return get_request_logs(**args)
+
+
+@response_namespace.route("/categories")
+class GetCategories(Resource):
+
+    def get(self):
+        return get_categories()
+
+
+@response_namespace.route("/sub-categories")
+class GetCategories(Resource):
+
+    def create_parser_with_args(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("domain", required=True)
+        return parser.parse_args()
+
+
+    def get(self):
+        args = self.create_parser_with_args()
+        return get_sub_categories(args["domain"])

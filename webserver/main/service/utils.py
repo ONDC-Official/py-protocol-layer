@@ -1,21 +1,21 @@
 import hashlib
 import json
-import os
+import re
 import random
 import string
 import uuid
 from datetime import datetime
 from dateutil import parser
 
-from flask import request
-from flask_restx import abort
-
 from main import constant
 from main.config import get_config_by_name
 from main.logger.custom_logging import log
+from main.models import get_mongo_collection
+from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main.utils.cryptic_utils import verify_authorisation_header
 from main.utils.lookup_utils import get_bpp_public_key_from_header
+
 
 URL_SPLITTER = "?"
 
@@ -48,6 +48,8 @@ def password_hash(incoming_password):
 
 
 def handle_stop_iteration(func):
+    from flask import abort
+
     def exception_handler(*args, **kwargs):
         try:
             return func(*args, **kwargs)
@@ -58,16 +60,43 @@ def handle_stop_iteration(func):
     return exception_handler
 
 
+def dump_auth_failure_request(auth_header, payload_str, context, public_key):
+    collection = get_mongo_collection('auth_failure_request_dump')
+    return mongo.collection_insert_one(collection, {"context": context,
+                                                    "payload_str": payload_str,
+                                                    "auth_header": auth_header,
+                                                    "created_at": datetime.utcnow(),
+                                                    "public_key": public_key})
+
+
+def dump_validation_failure_request(payload, error):
+    collection = get_mongo_collection('validation_failure_request_dump')
+    return mongo.collection_insert_one(collection, {"request": payload,
+                                                    "created_at": datetime.utcnow(),
+                                                    "error": error})
+
+
+def dump_all_request(all_request):
+    collection = get_mongo_collection('all_request_dump')
+    all_request["created_at"] = datetime.utcnow()
+    all_request["action"] = all_request.get("context", {}).get("action")
+    return mongo.collection_insert_one(collection, all_request)
+
+
 def validate_auth_header(func):
+    from flask import request
+
     def wrapper(*args, **kwargs):
+        dump_all_request(request.get_json()) if get_config_by_name("DUMP_ALL_REQUESTS") else None
         if get_config_by_name("VERIFICATION_ENABLE"):
             auth_header = request.headers.get('Authorization')
             domain = request.get_json().get("context", {}).get("domain")
+            public_key = get_bpp_public_key_from_header(auth_header, domain)
             if auth_header and verify_authorisation_header(auth_header, request.data.decode("utf-8"),
-                                                           public_key=get_bpp_public_key_from_header(auth_header,
-                                                                                                     domain)):
+                                                           public_key=public_key):
                 return func(*args, **kwargs)
             context = json.loads(request.data)[constant.CONTEXT]
+            dump_auth_failure_request(auth_header, request.data.decode("utf-8"), context, public_key)
             return get_ack_response(context=context, ack=False, error={
                 "code": "10001",
                 "message": "Invalid Signature"
@@ -78,6 +107,7 @@ def validate_auth_header(func):
     wrapper.__doc__ = func.__doc__
     wrapper.__name__ = func.__name__
     return wrapper
+
 
 def calculate_duration_ms(iso8601dur: str):
     match = re.match(r'^PT(\d{0,2})([H|S])$', iso8601dur)

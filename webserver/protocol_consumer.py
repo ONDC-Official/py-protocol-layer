@@ -5,6 +5,7 @@ from bson.objectid import ObjectId
 from pika.exceptions import AMQPConnectionError
 from retry import retry
 
+from main.business_rule_validation import validate_business_rules
 from main.config import get_config_by_name
 from main.logger.custom_logging import log, log_error
 from main.models import init_database, get_mongo_collection
@@ -12,12 +13,14 @@ from main.models.catalog import SearchType
 from main.repository import mongo
 from main.service.search import add_search_catalogues, add_incremental_search_catalogues, update_on_search_dump_status, \
     get_last_search_dump_timestamp
+from main.utils.json_utils import clean_nones
 from main.utils.rabbitmq_utils import create_channel, declare_queue, consume_message, open_connection
 
 
 def consume_fn(message_string):
     try:
-        time.sleep(3)
+        time.sleep(2)
+
         payload = json.loads(message_string)
         log(f"Got the payload {payload}!")
 
@@ -26,6 +29,7 @@ def consume_fn(message_string):
         on_search_payload = mongo.collection_find_one(collection, {"_id": doc_id}, keep_created_at=True)
         if on_search_payload:
             on_search_payload.pop("id", None)
+            on_search_payload = clean_nones(on_search_payload)
             if payload["request_type"] == SearchType.FULL.value:
                 search_timestamp = get_last_search_dump_timestamp(on_search_payload["context"]["transaction_id"])
                 if search_timestamp:
@@ -34,12 +38,18 @@ def consume_fn(message_string):
                 else:
                     log_error(f"No search request found for given {on_search_payload['context']}")
                     update_on_search_dump_status(doc_id, "IN-PROGRESS")
-                add_search_catalogues(on_search_payload)
-                update_on_search_dump_status(doc_id, "FINISHED")
+                resp = add_search_catalogues(on_search_payload)
+                if "error" in resp:
+                    update_on_search_dump_status(doc_id, "FAILED")
+                else:
+                    update_on_search_dump_status(doc_id, "FINISHED")
             elif payload["request_type"] == SearchType.INC.value:
                 update_on_search_dump_status(doc_id, "IN-PROGRESS")
-                add_incremental_search_catalogues(on_search_payload)
-                update_on_search_dump_status(doc_id, "FINISHED")
+                resp = add_incremental_search_catalogues(on_search_payload)
+                if "error" in resp:
+                    update_on_search_dump_status(doc_id, "FAILED")
+                else:
+                    update_on_search_dump_status(doc_id, "FINISHED")
         else:
             log_error(f"On search payload was not found for {doc_id}!")
     except Exception as e:

@@ -6,8 +6,8 @@ from uuid import UUID
 from pydantic import BaseModel, validator, ValidationError
 
 from main.request_models.schema import Context, Catalog, Error, Order, Descriptor, Issue, Provider, Location, \
-    Item, AddOn, Offer, Quotation, Billing, Fulfillment, Payment, Rating, Tracking, RatingAck, Domain, CodeModel, Code, \
-    Action, IncrCatalog
+    Item, AddOn, Offer, Quotation, Billing, Fulfillment, Payment, RatingMessage, Tracking, OnRatingMessage, Domain, \
+    CodeModel, Code, Action, IncrCatalog
 
 
 class Status(Enum):
@@ -75,16 +75,15 @@ class OnCallContext(BaseModel):
     transaction_id: str
     message_id: str
     timestamp: datetime
-    key: Optional[str]
     ttl: Optional[Union[str, int]]
 
 
 class OnSearchMessage(BaseModel):
-    catalog: Optional[Catalog]
+    catalog: Catalog
 
 
 class IncrOnSearchMessage(BaseModel):
-    catalog: Optional[IncrCatalog]
+    catalog: IncrCatalog
 
 
 class OnSelectOrder(BaseModel):
@@ -198,7 +197,7 @@ class UpdateRequest(BaseModel):
 
 class RatingRequest(BaseModel):
     context: Context
-    message: Rating
+    message: RatingMessage
     error: Optional[Error]
 
 
@@ -225,23 +224,11 @@ class FullOnSearchRequest(BaseModel):
     message: OnSearchMessage
     error: Optional[Error]
 
-    @validator("message")
-    def validate_catalog(cls, v, values):
-        if v.catalog is None:
-            raise ValidationError("Catalog is missing!")
-        return v
-
 
 class IncrOnSearchRequest(BaseModel):
     context: OnCallContext
     message: IncrOnSearchMessage
     error: Optional[Error]
-
-    @validator("message")
-    def validate_catalog(cls, v, values):
-        if v.catalog is None:
-            raise ValidationError("Catalog is missing!")
-        return v
 
 
 class OnSelectRequest(BaseModel):
@@ -288,7 +275,7 @@ class OnUpdateRequest(BaseModel):
 
 class OnRatingRequest(BaseModel):
     context: OnCallContext
-    message: RatingAck
+    message: OnRatingMessage
     error: Optional[Error]
 
 

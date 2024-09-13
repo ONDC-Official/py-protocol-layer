@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 
 import pymongo
@@ -12,7 +13,8 @@ from main import constant
 from main.utils.cryptic_utils import create_authorisation_header
 from main.utils.lookup_utils import fetch_subscriber_url_from_lookup
 from main.utils.webhook_utils import post_count_response_to_client, post_on_bg_or_bpp
-from service.utils import calculate_duration_ms, is_on_issue_deadine
+from main.service.utils import calculate_duration_ms, is_on_issue_deadine
+
 
 def add_bpp_response(bpp_response, request_type):
     log(f"Received {request_type} call of {bpp_response['context']['message_id']} "
@@ -49,35 +51,35 @@ def get_query_object(**kwargs):
     return query_object
 
 
-def validate_fulfillment_ids_for_on_init(payload):
-    order = payload["message"]["order"]
-    item_fulfillment_ids = set([i["fulfillment_id"] for i in order.get("items", [])])
-    fulfillment_ids = set([i["id"] for i in order.get("fulfillments", [])])
-    quote_breakup_ids = set()
-    for i in order.get("quote", {}).get("breakup", []):
-        if i["@ondc/org/title_type"] == "delivery":
-            quote_breakup_ids.add(i["@ondc/org/item_id"])
-
-    if item_fulfillment_ids == fulfillment_ids == quote_breakup_ids:
-        return None
-    else:
-        return get_ack_response(context=payload["context"], ack=False,
-                                error={"type": BaseError.JSON_SCHEMA_ERROR.value, "code": "20000",
-                                       "message": "Fulfillment ids are not getting correctly mapped!"}), 400
-
-
 def get_bpp_response_for_message_id(**kwargs):
     search_collection = get_mongo_collection(kwargs['request_type'])
     query_object = get_query_object(**kwargs)
-    bpp_response = mongo.collection_find_all(search_collection, query_object, sort_field="created_at",
-                                             sort_order=pymongo.DESCENDING)
-    if bpp_response:
-        if bpp_response['count'] > 0:
+    MAX_RETRIES = 2
+    RETRY_DELAY = 1
+
+    retry_count = 0
+    while retry_count < MAX_RETRIES:
+        bpp_response = mongo.collection_find_all(
+            search_collection,
+            query_object,
+            sort_field="created_at",
+            sort_order=pymongo.DESCENDING
+        )
+
+        # Check if response is valid and has results
+        if bpp_response and bpp_response.get('count', 0) > 0:
             return bpp_response['data']
-        else:
-            return {"error": DatabaseError.NOT_FOUND_ERROR.value}
-    else:
+
+        # If response is None or count is 0, retry
+        retry_count += 1
+        if retry_count < MAX_RETRIES:
+            time.sleep(RETRY_DELAY)  # Delay before retrying
+
+    # If max retries exceeded, return appropriate error
+    if not bpp_response:
         return {"error": DatabaseError.ON_READ_ERROR.value}
+    else:
+        return {"error": DatabaseError.NOT_FOUND_ERROR.value}
 
 
 def bpp_post_call(request_type, request_payload):
@@ -99,4 +101,5 @@ def dump_request_payload(action, payload):
 def update_dumped_request_with_response(object_id, response):
     collection = get_mongo_collection('request_dump')
     filter_criteria = {"_id": object_id}
-    collection.update_one(filter_criteria, {'$set': {"response": response}})
+    collection.update_one(filter_criteria, {'$set': {"response": response,
+                                                     "updated_at": datetime.utcnow()}})
