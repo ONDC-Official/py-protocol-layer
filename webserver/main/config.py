@@ -57,6 +57,7 @@ class Config:
     RABBITMQ_QUEUE_NAME = os.getenv("RABBITMQ_QUEUE_NAME", "bpp_protocol")
     ELASTIC_SEARCH_QUEUE_NAME = os.getenv("ELASTIC_SEARCH_QUEUE_NAME", "catalog_indexing")
     RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
+    RABBITMQ_CREDS = os.getenv("RABBITMQ_CREDS", "False") == "True"
     RABBITMQ_USERNAME = os.getenv("RABBITMQ_USERNAME", "username")
     RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "password")
     QUEUE_ENABLE = os.getenv("QUEUE_ENABLE", "False") == "True"
@@ -64,7 +65,7 @@ class Config:
     DUMP_ALL_REQUESTS = os.getenv("DUMP_ALL_REQUESTS", "False") == "True"
     API_TOKEN = os.getenv("API_TOKEN", "testing_random_123")
     MAX_CONSUME_MESSAGE_TIME = int(os.getenv("MAX_CONSUME_MESSAGE_TIME", "30"))
-    CONSUMER_MAX_WORKERS = int(os.getenv("CONSUMER_MAX_WORKERS", "100"))
+    CONSUMER_MAX_WORKERS = int(os.getenv("CONSUMER_MAX_WORKERS", "10"))
     PARALLEL_PROCESSES = int(os.getenv("PARALLEL_PROCESSES", "10"))
     MONGO_DATABASE_URL = os.getenv("MONGO_DATABASE_URL", "mongodb://localhost:27017")
     # MONGO_DATABASE_URL = "mongodb://mongo1:27017,mongo2:27018/?replicaSet=my-replica-set&readPreference=secondary"
