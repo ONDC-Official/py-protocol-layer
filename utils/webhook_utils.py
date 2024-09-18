@@ -146,7 +146,7 @@ def post_on_bg_or_bpp(url, payload, headers={}):
         return {"error": "Internal Server Error"}, status_code
 
 
-@cache_success(cache)
+# @cache_success(cache)
 def lookup_call(url, payload, headers=None):
     try:
         response = requests.post(url, json=payload, headers=headers)
