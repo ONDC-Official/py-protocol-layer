@@ -1,5 +1,7 @@
 from datetime import datetime
 
+import pymongo
+
 from models import get_mongo_collection
 from utils import mongo_utils as mongo
 
@@ -38,4 +40,32 @@ def get_request_payloads(action, message_id, status_code=None):
     filter_condn = {"action": action, "request.context.message_id": message_id}
     filter_condn.update({"status_code": status_code}) if status_code else None
     return mongo.collection_find_all(collection, filter_condn, limit=None)
+
+
+def get_query_object_for_request_dump(**kwargs):
+    query_object = {}
+    if kwargs['action']:
+        query_object.update({'action': kwargs['action']})
+    if kwargs['transaction_id']:
+        query_object.update({'request.context.transaction_id': kwargs['transaction_id']})
+    if kwargs['message_id']:
+        query_object.update({'request.context.message_id': kwargs['message_id']})
+    if kwargs['bpp_id']:
+        query_object.update({'request.context.bpp_id': kwargs['bpp_id']})
+    # if kwargs['provider_id']:
+    #     query_object.update({'request.message.bpp/providers.id': kwargs['provider_id']})
+
+    return query_object
+
+
+def get_request_logs(**kwargs):
+    request_dump_collection = get_mongo_collection('request_dump')
+    query_object = get_query_object_for_request_dump(**kwargs)
+    sort_order = pymongo.ASCENDING if kwargs.get('sort_order') == 'asc' else pymongo.DESCENDING
+    page_number = kwargs['page_number'] - 1
+    limit = kwargs['limit']
+    skip = page_number * limit
+    request_dumps = mongo.collection_find_all(request_dump_collection, query_object, "created_at", sort_order,
+                                              skip=skip, limit=limit)
+    return request_dumps
 
