@@ -13,13 +13,11 @@ def validate_payload(request_type):
         @wraps(func)
         def wrapper(*args, **kwargs):
             resp = validate_ondc_request(request_type, request.get_json(), request.headers)
-            if resp is not None:
-                payload = request.get_json()
-                status_code = 400
-                dump_request_payload_with_response(payload, dict(request.headers), resp, status_code=status_code)
-                return resp, status_code
 
-            return func(*args, **kwargs)
+            if resp is not None:
+                return func(*args, nack_resp=resp, **kwargs)
+            else:
+                return func(*args, **kwargs)
 
         return wrapper
     return decorator

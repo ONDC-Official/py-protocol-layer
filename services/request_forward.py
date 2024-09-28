@@ -6,50 +6,54 @@ from utils.lookup_utils import fetch_subscriber_url_from_lookup
 from utils.webhook_utils import post_on_bg_or_bpp
 
 
-def forward_request(payload, headers):
+def forward_request(payload, headers, nack_resp=None):
     action = payload["context"]["action"]
-    return forwarding_rules[get_config_by_name("TYPE", "RETAIL_BAP")][action](payload, headers)
+    return forwarding_rules[get_config_by_name("TYPE", "RETAIL_BAP")][action](payload, headers, nack_resp)
 
 
-def forward_request_to_client_async(payload, _):
+def forward_request_to_client_async(payload, _, nack_resp=None):
     from async_jobs import forward_request_to_client
     kwargs = {"payload": payload}
     forward_request_to_client.queue(**kwargs, timeout=180, queue="request_forward", result_ttl=0)
     return get_ack_response(payload["context"], ack=True), 200
 
 
-def gateway_search(search_request, headers={}):
-    request_type = 'search'
-    gateway_url = fetch_subscriber_url_from_lookup(request_type, domain=search_request['context']['domain'])
-    search_url = f"{gateway_url}{request_type}" if gateway_url.endswith("/") else f"{gateway_url}/{request_type}"
-    auth_header = create_authorisation_header(search_request)
-    log(f"making request to bg with {search_request}")
-    headers= {'Authorization': auth_header}
-    return post_on_bg_or_bpp(search_url, payload=search_request, headers=headers)
+def gateway_search(search_request, headers={}, nack_resp=None):
+    if nack_resp is not None:
+        request_type = 'search'
+        gateway_url = fetch_subscriber_url_from_lookup(request_type, domain=search_request['context']['domain'])
+        search_url = f"{gateway_url}{request_type}" if gateway_url.endswith("/") else f"{gateway_url}/{request_type}"
+        auth_header = create_authorisation_header(search_request)
+        log(f"making request to bg with {search_request}")
+        headers = {'Authorization': auth_header}
+        return post_on_bg_or_bpp(search_url, payload=search_request, headers=headers)
 
 
-def bpp_request(request_payload, _):
-    bpp_url = request_payload['context']['bpp_uri']
-    action = request_payload['context']['action']
-    auth_header = create_authorisation_header(request_payload)
-    log(f"making request to bpp with {request_payload}")
-    headers = {'Authorization': auth_header}
-    return post_on_bg_or_bpp(f"{bpp_url}/{action}", payload=request_payload, headers=headers)
+def bpp_request(request_payload, _, nack_resp=None):
+    if nack_resp is not None:
+        bpp_url = request_payload['context']['bpp_uri']
+        action = request_payload['context']['action']
+        auth_header = create_authorisation_header(request_payload)
+        log(f"making request to bpp with {request_payload}")
+        headers = {'Authorization': auth_header}
+        return post_on_bg_or_bpp(f"{bpp_url}/{action}", payload=request_payload, headers=headers)
 
 
-def bap_request(request_payload, _):
-    bpp_url = request_payload['context']['bap_uri']
-    auth_header = create_authorisation_header(request_payload)
-    log(f"making request to bap with {request_payload}")
-    headers = {'Authorization': auth_header}
-    return post_on_bg_or_bpp(bpp_url, payload=request_payload, headers=headers)
+def bap_request(request_payload, _, nack_resp=None):
+    if nack_resp is not None:
+        bpp_url = request_payload['context']['bap_uri']
+        auth_header = create_authorisation_header(request_payload)
+        log(f"making request to bap with {request_payload}")
+        headers = {'Authorization': auth_header}
+        return post_on_bg_or_bpp(bpp_url, payload=request_payload, headers=headers)
 
 
-def publish_message_to_queue_async(request_payload, headers={}):
-    from async_jobs import publish_message_to_queue
-    kwargs = {"payload": request_payload, "headers": headers}
-    publish_message_to_queue.queue(**kwargs, timeout=180, queue="queue_forward", result_ttl=0)
-    return get_ack_response(request_payload["context"], ack=True), 200
+def publish_message_to_queue_async(request_payload, headers={}, nack_resp=None):
+    if nack_resp is not None:
+        from async_jobs import publish_message_to_queue
+        kwargs = {"payload": request_payload, "headers": headers}
+        publish_message_to_queue.queue(**kwargs, timeout=180, queue="queue_forward", result_ttl=0)
+        return get_ack_response(request_payload["context"], ack=True), 200
 
 
 forwarding_rules = {
