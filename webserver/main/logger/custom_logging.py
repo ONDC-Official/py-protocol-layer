@@ -12,6 +12,9 @@ formatter = logging.Formatter('%(process)d %(thread)d %(asctime)s [%(name)s][%(l
 handler.setFormatter(formatter)
 root.addHandler(handler)
 
+pika_logger = logging.getLogger('pika')
+pika_logger.setLevel(logging.WARNING)
+
 
 def log(*args,**kwargs):
     logging.info(*args)
