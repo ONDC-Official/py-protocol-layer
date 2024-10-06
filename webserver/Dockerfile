@@ -46,4 +46,4 @@ COPY . .
 # CMD ["supervisord", "-c", "/etc/supervisor.conf"]
 
 
-CMD exec /dataorc/app/restapi/bin/gunicorn -c /path/to/gunicorn.conf.py manage:app
+CMD exec /dataorc/app/restapi/bin/gunicorn -c gunicorn.conf.py manage:app
