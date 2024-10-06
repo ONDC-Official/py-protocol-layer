@@ -46,4 +46,4 @@ COPY . .
 # CMD ["supervisord", "-c", "/etc/supervisor.conf"]
 
 
-CMD exec /dataorc/app/restapi/bin/gunicorn -b 0.0.0.0:5555 -w 8 --no-sendfile manage:app --timeout 300
+CMD exec /dataorc/app/restapi/bin/gunicorn -c /path/to/gunicorn.conf.py manage:app
