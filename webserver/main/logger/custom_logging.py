@@ -12,6 +12,11 @@ formatter = logging.Formatter('%(process)d %(thread)d %(asctime)s [%(name)s][%(l
 handler.setFormatter(formatter)
 root.addHandler(handler)
 
+# Add werkzeug logs to the root logger
+werkzeug_logger = logging.getLogger('werkzeug')
+werkzeug_logger.setLevel(logging.INFO)  # Set to same level as root logger
+werkzeug_logger.addHandler(handler)
+
 
 def log(*args,**kwargs):
     logging.info(*args)

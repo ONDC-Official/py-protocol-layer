@@ -1,6 +1,7 @@
 import gc
 import json
 import timeit
+import hashlib
 from functools import wraps
 
 import requests
@@ -13,7 +14,7 @@ from main.logger.custom_logging import log
 
 
 # Initialize cache with a TTL of 1 day (86400 seconds)
-cache = TTLCache(maxsize=100, ttl=86400)
+lookup_cache = TTLCache(maxsize=100, ttl=get_config_by_name("TTL_IN_SECONDS"))
 
 
 # Custom cache decorator that caches only successful responses (status code 200)
@@ -96,10 +97,58 @@ def post_on_bg_or_bpp(url, payload, headers={}):
     return json.loads(response_text), status_code
 
 
-@cache_success(cache)
-def lookup_call(url, payload, headers=None):
+def hash_key(*args):
+    """Generate a hash key based on arguments."""
+    hasher = hashlib.md5()
+
+    for arg in args:
+        if isinstance(arg, dict):
+            # Convert dict to sorted tuple of items to ensure consistent order and hashable
+            arg = json.dumps(arg, sort_keys=True, separators=(',', ':')).encode('utf-8')
+        elif isinstance(arg, list):
+            # Convert list to tuple and then serialize it as a JSON string
+            arg = json.dumps(arg, separators=(',', ':')).encode('utf-8')
+        elif isinstance(arg, str):
+            # Directly encode strings as utf-8
+            arg = arg.encode('utf-8')
+        elif isinstance(arg, (int, float, bool)):
+            # Convert numbers and booleans to string, then encode
+            arg = str(arg).encode('utf-8')
+        else:
+            # For any other types, fall back to converting them to string, then encode
+            arg = str(arg).encode('utf-8')
+
+        # Update the hash with the encoded argument
+        hasher.update(arg)
+
+    return hasher.hexdigest()
+
+
+def lookup_call_function(url, payload, headers=None):
     try:
+        log(f"Making lookup call on registry for {payload}")
         response = requests.post(url, json=payload, headers=headers)
         return json.loads(response.text), response.status_code
     except Exception as e:
         return {"error": f"Something went wrong {e}!"}, 500
+
+
+def lookup_call(endpoint, payload, headers=None):
+    # Generate cache key
+    cache_key = hash_key(endpoint, payload, headers)
+
+    # Check if result is in cache
+    if cache_key in lookup_cache:
+        return lookup_cache[cache_key], 200
+
+    # Make the API request (replace with actual API call)
+    response, status_code = lookup_call_function(endpoint, payload, headers)
+
+    if status_code == 200 and len(response) > 0:
+        # Cache the response if status code is 200
+        lookup_cache[cache_key] = response
+        return response, 200
+    else:
+        # Do not cache the result if status code is not 200
+        return {"error": "API request failed"}, status_code
+
