@@ -16,7 +16,7 @@ threads = 4  # Number of threads per worker
 timeout = 600  # Worker timeout in seconds
 
 # Fetch PORT from environment variable, default to 8000 if not set
-port = os.getenv('PORT', '8000')
+port = os.getenv('PORT', '5555')
 bind = f"0.0.0.0:{port}"
 
 
