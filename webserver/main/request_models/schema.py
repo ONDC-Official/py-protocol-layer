@@ -533,6 +533,11 @@ class Scalar(BaseModel):
     unit: StrictStr
 
 
+class OnSearchCircleScalar(BaseModel):
+    value: Optional[str] = None
+
+
+
 class Schedule(BaseModel):
     frequency: Optional[Duration] = None
     holidays: Optional[List[str]] = None
@@ -609,7 +614,6 @@ class Time(BaseModel):
 class LocationTime(Time):
     label: str
     timestamp: datetime
-    days: str
     schedule: LocationSchedule
 
 
@@ -974,6 +978,11 @@ class Circle(BaseModel):
     radius: Scalar
 
 
+class OnSearchCircle(BaseModel):
+    gps: Gps
+    radius: Optional[OnSearchCircleScalar] = None
+
+
 class Contact(BaseModel):
     phone: Optional[str] = None
     email: Optional[str] = None
@@ -1335,9 +1344,9 @@ class OnSearchLocation(Location):
     id: StrictStr
     gps: Gps
     address: Address
-    time: Time
     rateable: Optional[Rateable] = None
     time: LocationTime
+    circle: Optional[OnSearchCircle] = None
 
 
 class Item2(Item):
