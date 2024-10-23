@@ -152,3 +152,30 @@ def lookup_call(endpoint, payload, headers=None):
         # Do not cache the result if status code is not 200
         return {"error": "API request failed"}, status_code
 
+
+def make_request_to_no_dashboard(payload, response=False):
+    dashboard_webhook_endpoint = get_config_by_name('NO_DASHBOARD_ENDPOINT')
+    action = payload.get("context", {}).get("action")
+    if action is None:
+        log("No action found hence not making request to NO Dashboard!")
+        return
+
+    data_type = f"{action}_response" if response else action
+    updated_payload = {
+        "type": data_type,
+        "data": payload
+    }
+
+    try:
+        token = get_config_by_name("NO_DASHBOARD_BEARER_TOKEN")
+        status_code = requests.post(f"{dashboard_webhook_endpoint}/v1/api/push-txn-logs",
+                                    headers={"Authorization": f"Bearer {token}"},
+                                    json=updated_payload)
+    except requests.exceptions.HTTPError:
+        status_code = 400
+    except requests.exceptions.ConnectionError:
+        status_code = 500
+    except:
+        status_code = 500
+    return status_code
+

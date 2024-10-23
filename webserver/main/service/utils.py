@@ -15,7 +15,7 @@ from main.repository import mongo
 from main.repository.ack_response import get_ack_response
 from main.utils.cryptic_utils import verify_authorisation_header
 from main.utils.lookup_utils import get_bpp_public_key_from_header
-
+from main.utils.webhook_utils import make_request_to_no_dashboard
 
 URL_SPLITTER = "?"
 
@@ -88,6 +88,7 @@ def validate_auth_header(func):
 
     def wrapper(*args, **kwargs):
         dump_all_request(request.get_json()) if get_config_by_name("DUMP_ALL_REQUESTS") else None
+        make_request_to_no_dashboard(request.get_json())
         if get_config_by_name("VERIFICATION_ENABLE"):
             auth_header = request.headers.get('Authorization')
             domain = request.get_json().get("context", {}).get("domain")
@@ -98,12 +99,16 @@ def validate_auth_header(func):
                 return func(*args, **kwargs)
             context = json.loads(request.data)[constant.CONTEXT]
             dump_auth_failure_request(auth_header, request.data.decode("utf-8"), context, public_key)
-            return get_ack_response(context=context, ack=False, error={
+            resp, status_code = get_ack_response(context=context, ack=False, error={
                 "code": "10001",
                 "message": "Invalid Signature"
             }), 401
+            make_request_to_no_dashboard(resp, response=True)
+            return resp, status_code
         else:
-            return func(*args, **kwargs)
+            resp, status_code = func(*args, **kwargs)
+            make_request_to_no_dashboard(resp, response=True)
+            return resp, status_code
 
     wrapper.__doc__ = func.__doc__
     wrapper.__name__ = func.__name__

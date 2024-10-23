@@ -72,6 +72,8 @@ class Config:
     IS_TEST = os.getenv("IS_TEST", "False") == "True"
     DOMAIN_LIST = [d.strip() for d in os.getenv("DOMAIN_LIST", all_domains_str).split(",")]
     CITY_LIST = [c.strip() for c in os.getenv("CITY_LIST", all_cities_str).split(",")]
+    NO_DASHBOARD_ENDPOINT = os.getenv("NO_DASHBOARD_ENDPOINT", "https://analytics-api-pre-prod.aws.ondc.org")
+    NO_DASHBOARD_BEARER_TOKEN = os.getenv("NO_DASHBOARD_BEARER_TOKEN", "token")
 
 
 class DevelopmentConfig(Config):
