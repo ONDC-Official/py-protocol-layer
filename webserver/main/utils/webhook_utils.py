@@ -144,7 +144,7 @@ def lookup_call(endpoint, payload, headers=None):
     # Make the API request (replace with actual API call)
     response, status_code = lookup_call_function(endpoint, payload, headers)
 
-    if status_code == 200 and len(response) > 0:
+    if status_code == 200:
         # Cache the response if status code is 200
         lookup_cache[cache_key] = response
         return response, 200
