@@ -17,6 +17,10 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
     domain_list = get_config_by_name("DOMAIN_LIST") if domains is None else domains
     end_time = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     start_time = (datetime.utcnow() - timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    payment_object = {
+        "@ondc/org/buyer_app_finder_fee_type": get_config_by_name("BAP_FINDER_FEE_TYPE"),
+        "@ondc/org/buyer_app_finder_fee_amount": get_config_by_name("BAP_FINDER_FEE_AMOUNT")
+    }
     if search_type == SearchType.FULL:
         city_list = get_config_by_name("CITY_LIST") if cities is None else cities
         message = {
@@ -25,11 +29,7 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
                     {
                         "type": "Delivery"
                     },
-                "payment":
-                    {
-                        "@ondc/org/buyer_app_finder_fee_type": "percent",
-                        "@ondc/org/buyer_app_finder_fee_amount": "3"
-                    }
+                "payment": payment_object
             }
         }
     else:
@@ -38,24 +38,20 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
             message = {
                 "intent":
                     {
-                        "payment":
-                            {
-                                "@ondc/org/buyer_app_finder_fee_type":"percent",
-                                "@ondc/org/buyer_app_finder_fee_amount":"3"
-                            },
+                        "payment": payment_object,
                         "tags":
                             [
                                 {
-                                    "code":"catalog_inc",
+                                    "code": "catalog_inc",
                                     "list":
                                         [
                                             {
-                                                "code":"start_time",
-                                                "value":start_time
+                                                "code": "start_time",
+                                                "value": start_time
                                             },
                                             {
-                                                "code":"end_time",
-                                                "value":end_time
+                                                "code": "end_time",
+                                                "value": end_time
                                             }
                                         ]
                                 }
@@ -65,11 +61,7 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
         else:
             message = {
                 "intent": {
-                    "payment":
-                        {
-                            "@ondc/org/buyer_app_finder_fee_type":"percent",
-                            "@ondc/org/buyer_app_finder_fee_amount":"3"
-                        },
+                    "payment": payment_object,
                     "tags":
                         [
                             {
@@ -77,8 +69,8 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
                                 "list":
                                     [
                                         {
-                                            "code":"mode",
-                                            "value":mode
+                                            "code": "mode",
+                                            "value": mode
                                         }
                                     ]
                             }
