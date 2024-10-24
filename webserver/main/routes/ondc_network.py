@@ -9,10 +9,9 @@ from main.models.catalog import SearchType
 from main.repository.ack_response import get_ack_response
 from main.service import send_message_to_queue_for_given_request, send_message_to_elastic_search_queue
 from main.service.common import add_bpp_response, dump_request_payload, update_dumped_request_with_response
-from main.service.search import add_search_catalogues, dump_on_search_payload, add_incremental_search_catalogues
+from main.service.search import dump_on_search_payload
 from main.service.utils import validate_auth_header, dump_validation_failure_request
 from main.utils.decorators import MeasureTime
-from main.utils.json_utils import clean_nones
 from main.utils.validation import validate_payload_schema_based_on_version
 
 ondc_network_namespace = Namespace('ondc_network', description='ONDC Network Namespace')
@@ -35,21 +34,15 @@ class GatewayOnSearch(Resource):
             # resp = validate_business_rules(request_payload, 'incr_on_search') if resp is None else resp
 
         if resp is None:
+            doc_id = dump_on_search_payload(request_payload)
             if get_config_by_name('QUEUE_ENABLE') or get_config_by_name('ELASTIC_SEARCH_QUEUE_ENABLE'):
-                doc_id = dump_on_search_payload(request_payload)
                 message = {
                     "doc_id": str(doc_id),
                     "request_type": request_type,
                 }
                 send_message_to_queue_for_given_request(message) if get_config_by_name('QUEUE_ENABLE') else None
                 send_message_to_elastic_search_queue(message) if get_config_by_name('ELASTIC_SEARCH_QUEUE_ENABLE') else None
-                return get_ack_response(request_payload[constant.CONTEXT], ack=True)
-            else:
-                request_payload = clean_nones(request_payload)
-                if request_type == SearchType.FULL.value:
-                    return add_search_catalogues(request_payload)
-                elif request_type == SearchType.INC.value:
-                    return add_incremental_search_catalogues(request_payload)
+            return get_ack_response(request_payload[constant.CONTEXT], ack=True), 200
         else:
             dump_validation_failure_request(request_payload, resp[0]["error"]["message"])
             return resp
@@ -66,7 +59,7 @@ class AddSelectResponse(Resource):
         resp = validate_business_rules(request_payload, 'on_select') if resp is None else resp
         entry_object_id = dump_request_payload("on_select", request_payload)
         if resp is None:
-            resp = add_bpp_response(request_payload, request_type="on_select")
+            resp = add_bpp_response(request_payload, request_type="on_select"), 200
         update_dumped_request_with_response(entry_object_id, resp)
         log(f"Got the on_select response {resp}!")
         return resp
@@ -83,7 +76,7 @@ class AddInitResponse(Resource):
         resp = validate_business_rules(request_payload, 'on_init') if resp is None else resp
         entry_object_id = dump_request_payload("on_init", request_payload)
         if resp is None:
-            resp = add_bpp_response(request_payload, request_type="on_init")
+            resp = add_bpp_response(request_payload, request_type="on_init"), 200
         update_dumped_request_with_response(entry_object_id, resp)
         log(f"Got the on_init response {resp}!")
         return resp
@@ -99,7 +92,7 @@ class AddConfirmResponse(Resource):
         resp = validate_payload_schema_based_on_version(request_payload, 'on_confirm')
         entry_object_id = dump_request_payload("on_confirm", request_payload)
         if resp is None:
-            resp = add_bpp_response(request_payload, request_type="on_confirm")
+            resp = add_bpp_response(request_payload, request_type="on_confirm"), 200
         update_dumped_request_with_response(entry_object_id, resp)
         log(f"Got the on_confirm response {resp}!")
         return resp
@@ -115,7 +108,7 @@ class AddCancelResponse(Resource):
         resp = validate_payload_schema_based_on_version(request_payload, 'on_cancel')
         entry_object_id = dump_request_payload("on_cancel", request_payload)
         if resp is None:
-            resp = add_bpp_response(request_payload, request_type="on_cancel")
+            resp = add_bpp_response(request_payload, request_type="on_cancel"), 200
         update_dumped_request_with_response(entry_object_id, resp)
         log(f"Got the on_cancel response {resp}!")
         return resp
@@ -131,7 +124,7 @@ class AddCancellationReasonsResponse(Resource):
         resp = validate_payload_schema_based_on_version(request_payload, 'on_cancellation_reasons')
         if resp is None:
             entry_object_id = dump_request_payload("on_cancellation_reasons", request_payload)
-            resp = add_bpp_response(request_payload, request_type="on_cancellation_reasons")
+            resp = add_bpp_response(request_payload, request_type="on_cancellation_reasons"), 200
             update_dumped_request_with_response(entry_object_id, resp)
             log(f"Got the cancellation_reasons response {resp}!")
             return resp
@@ -150,7 +143,7 @@ class AddIssueResponse(Resource):
         resp = validate_payload_schema_based_on_version(request_payload, 'on_issue')
         entry_object_id = dump_request_payload("on_issue", request_payload)
         if resp is None:
-            resp = add_bpp_response(request_payload, request_type="on_issue")
+            resp = add_bpp_response(request_payload, request_type="on_issue"), 200
         update_dumped_request_with_response(entry_object_id, resp)
         log(f"Got the on_issue response {resp}!")
         return resp
@@ -166,7 +159,7 @@ class AddIssueStatusResponse(Resource):
         resp = validate_payload_schema_based_on_version(request_payload, 'on_issue_status')
         entry_object_id = dump_request_payload("on_issue_status", request_payload)
         if resp is None:
-            resp = add_bpp_response(request_payload, request_type="on_issue_status")
+            resp = add_bpp_response(request_payload, request_type="on_issue_status"), 200
         update_dumped_request_with_response(entry_object_id, resp)
         log(f"Got the on_issue_status response {resp}!")
         return resp
@@ -182,7 +175,7 @@ class AddRatingResponse(Resource):
         resp = validate_payload_schema_based_on_version(request_payload, 'on_rating')
         entry_object_id = dump_request_payload("on_rating", request_payload)
         if resp is None:
-            resp = add_bpp_response(request_payload, request_type="on_rating")
+            resp = add_bpp_response(request_payload, request_type="on_rating"), 200
         update_dumped_request_with_response(entry_object_id, resp)
         log(f"Got the on_rating response {resp}!")
         return resp
@@ -198,7 +191,7 @@ class AddStatusResponse(Resource):
         resp = validate_payload_schema_based_on_version(request_payload, 'on_status')
         entry_object_id = dump_request_payload("on_status", request_payload)
         if resp is None:
-            resp = add_bpp_response(request_payload, request_type="on_status")
+            resp = add_bpp_response(request_payload, request_type="on_status"), 200
         update_dumped_request_with_response(entry_object_id, resp)
         log(f"Got the on_status response {resp}!")
         return resp
@@ -214,7 +207,7 @@ class AddSupportResponse(Resource):
         resp = validate_payload_schema_based_on_version(request_payload, 'on_support')
         entry_object_id = dump_request_payload("on_support", request_payload)
         if resp is None:
-            resp = add_bpp_response(request_payload, request_type="on_support")
+            resp = add_bpp_response(request_payload, request_type="on_support"), 200
         update_dumped_request_with_response(entry_object_id, resp)
         log(f"Got the on_support response {resp}!")
         return resp
@@ -230,7 +223,7 @@ class AddTrackResponse(Resource):
         resp = validate_payload_schema_based_on_version(request_payload, 'on_track')
         entry_object_id = dump_request_payload("on_track", request_payload)
         if resp is None:
-            resp = add_bpp_response(request_payload, request_type="on_track")
+            resp = add_bpp_response(request_payload, request_type="on_track"), 200
         update_dumped_request_with_response(entry_object_id, resp)
         log(f"Got the on_track response {resp}!")
         return resp
@@ -246,7 +239,7 @@ class AddUpdateResponse(Resource):
         resp = validate_payload_schema_based_on_version(request_payload, 'on_update')
         entry_object_id = dump_request_payload("on_update", request_payload)
         if resp is None:
-            resp = add_bpp_response(request_payload, request_type="on_update")
+            resp = add_bpp_response(request_payload, request_type="on_update"), 200
         update_dumped_request_with_response(entry_object_id, resp)
         log(f"Got the on_update response {resp}!")
         return resp
