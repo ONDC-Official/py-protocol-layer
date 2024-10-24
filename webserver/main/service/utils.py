@@ -1,3 +1,4 @@
+import copy
 import hashlib
 import json
 import re
@@ -76,7 +77,8 @@ def dump_validation_failure_request(payload, error):
                                                     "error": error})
 
 
-def dump_all_request(all_request):
+def dump_all_request(coming_request):
+    all_request = copy.deepcopy(coming_request)
     collection = get_mongo_collection('all_request_dump')
     all_request["created_at"] = datetime.utcnow()
     all_request["action"] = all_request.get("context", {}).get("action")
