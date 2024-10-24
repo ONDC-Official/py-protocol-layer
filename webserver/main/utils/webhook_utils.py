@@ -154,7 +154,6 @@ def lookup_call(endpoint, payload, headers=None):
 
 
 def make_request_to_no_dashboard(payload, response=False):
-    log(f'Making request to NO Dashboard with action: {payload.get("context", {}).get("action")}!')
     dashboard_webhook_endpoint = get_config_by_name('NO_DASHBOARD_ENDPOINT')
     action = payload.get("context", {}).get("action")
     if action is None:
@@ -167,8 +166,6 @@ def make_request_to_no_dashboard(payload, response=False):
         "data": payload
     }
 
-    log(f"Updated payload for NO Dashboard: {updated_payload}")
-
     try:
         token = get_config_by_name("NO_DASHBOARD_BEARER_TOKEN")
         status_code = requests.post(f"{dashboard_webhook_endpoint}/v1/api/push-txn-logs",
@@ -180,9 +177,7 @@ def make_request_to_no_dashboard(payload, response=False):
         status_code = 400
     except requests.exceptions.ConnectionError:
         status_code = 500
-    except Exception as e:
-        log(f"Got error while making no-dashboard as {e}")
+    except:
         status_code = 500
-    log(f'Request {data_type} sent to NO Dashboard with status-code {status_code}')
     return status_code
 
