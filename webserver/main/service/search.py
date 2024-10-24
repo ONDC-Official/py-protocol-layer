@@ -18,6 +18,7 @@ from main.repository.ack_response import get_ack_response
 from main import constant
 from main.repository.mongo import collection_find_one
 from main.utils.decorators import check_for_exception
+from main.utils.json_utils import make_serializable
 from main.utils.lookup_utils import fetch_subscriber_url_from_lookup
 from main.utils.cryptic_utils import create_authorisation_header
 from main.utils.math_utils import create_simple_circle_polygon
@@ -1115,7 +1116,7 @@ def get_last_request_dump(request_type, transaction_id):
     if catalog:
         catalog.pop("created_at")
         catalog.pop("updated_at")
-        return catalog
+        return make_serializable(catalog)
     else:
         return {"error": "No request found for given type and transaction_id!"}, 400
 
