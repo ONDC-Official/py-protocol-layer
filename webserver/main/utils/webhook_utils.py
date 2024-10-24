@@ -177,8 +177,9 @@ def make_request_to_no_dashboard(payload, response=False):
         status_code = 400
     except requests.exceptions.ConnectionError:
         status_code = 500
-    except:
+    except Exception as e:
+        log(f"Got error while making no-dashboard as {e}")
         status_code = 500
-    log(f'Request {payload.get("context", {}).get("action")} sent to NO Dashboard with status-code {status_code}')
+    log(f'Request {data_type} sent to NO Dashboard with status-code {status_code}')
     return status_code
 
