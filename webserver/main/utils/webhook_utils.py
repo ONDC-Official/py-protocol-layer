@@ -173,6 +173,7 @@ def make_request_to_no_dashboard(payload, response=False):
                                              "Content-Type": "application/json"},
                                     data=json.dumps(updated_payload),
                                     timeout=1)
+        log(f"Got {status_code} response for {data_type}!")
     except requests.exceptions.HTTPError:
         status_code = 400
     except requests.exceptions.ConnectionError:
@@ -180,4 +181,3 @@ def make_request_to_no_dashboard(payload, response=False):
     except:
         status_code = 500
     return status_code
-
