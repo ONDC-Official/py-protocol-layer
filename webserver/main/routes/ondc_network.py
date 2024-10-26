@@ -56,7 +56,7 @@ class AddSelectResponse(Resource):
         request_payload = request.get_json()
         log(f"Got the on_select request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_select')
-        resp = validate_business_rules(request_payload, 'on_select') if resp is None else resp
+        # resp = validate_business_rules(request_payload, 'on_select') if resp is None else resp
         entry_object_id = dump_request_payload("on_select", request_payload)
         if resp is None:
             resp = add_bpp_response(request_payload, request_type="on_select"), 200
