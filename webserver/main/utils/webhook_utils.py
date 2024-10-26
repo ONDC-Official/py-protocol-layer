@@ -168,18 +168,19 @@ def make_request_to_no_dashboard(payload, response=False):
 
     try:
         token = get_config_by_name("NO_DASHBOARD_BEARER_TOKEN")
-        log(f"Making request on {dashboard_webhook_endpoint}/v1/api/push-txn-logs")
-        log(f"Logging request payload: {json.dumps(updated_payload)}")
+        if action != "on_search":
+            log(f"Making request on {dashboard_webhook_endpoint}/v1/api/push-txn-logs")
+            log(f"Logging request payload: {json.dumps(updated_payload)}")
         status_code = requests.post(f"{dashboard_webhook_endpoint}/v1/api/push-txn-logs",
                                     headers={"Authorization": f"Bearer {token}",
                                              "Content-Type": "application/json"},
                                     data=json.dumps(updated_payload),
                                     timeout=1)
-        log(f"Got {status_code} response for {data_type}!")
     except requests.exceptions.HTTPError:
         status_code = 400
     except requests.exceptions.ConnectionError:
         status_code = 500
     except:
         status_code = 500
+    log(f"Got {status_code} response for {data_type}!")
     return status_code
