@@ -119,9 +119,8 @@ class DecimalValue(BaseModel):
         return value
 
 
-
 class Document(BaseModel):
-    url: Optional[AnyUrl] = None
+    url: Optional[str] = None
     label: Optional[str] = None
 
 
