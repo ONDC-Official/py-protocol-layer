@@ -155,7 +155,6 @@ def lookup_call(endpoint, payload, headers=None):
 
 def make_request_to_no_dashboard(payload, response=False):
     action = payload.get("context", {}).get("action")
-    log(f"Making {action} request to NO payload: {payload}")
     dashboard_webhook_endpoint = get_config_by_name('NO_DASHBOARD_ENDPOINT')
     if action is None:
         log("No action found hence not making request to NO Dashboard!")
@@ -169,9 +168,6 @@ def make_request_to_no_dashboard(payload, response=False):
 
     try:
         token = get_config_by_name("NO_DASHBOARD_BEARER_TOKEN")
-        if action != "on_search":
-            log(f"Making request on {dashboard_webhook_endpoint}/v1/api/push-txn-logs")
-            log(f"Logging request payload: {json.dumps(updated_payload)}")
         status_code = requests.post(f"{dashboard_webhook_endpoint}/v1/api/push-txn-logs",
                                     headers={"Authorization": f"Bearer {token}",
                                              "Content-Type": "application/json"},

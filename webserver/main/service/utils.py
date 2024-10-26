@@ -100,6 +100,7 @@ def validate_auth_header(func):
                                                           public_key=public_key):
                 resp, status_code = func(*args, **kwargs)
                 make_request_to_no_dashboard(resp, response=True)
+                return resp, status_code
             context = json.loads(request.data)[constant.CONTEXT]
             dump_auth_failure_request(auth_header, request.data.decode("utf-8"), context, public_key)
             resp, status_code = get_ack_response(context=context, ack=False, error={
@@ -110,7 +111,6 @@ def validate_auth_header(func):
             return resp, status_code
         else:
             resp, status_code = func(*args, **kwargs)
-            log("Got success for ondc request, now making call NO dashboard for response")
             make_request_to_no_dashboard(resp, response=True)
             return resp, status_code
 
