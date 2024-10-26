@@ -109,6 +109,7 @@ def validate_auth_header(func):
             return resp, status_code
         else:
             resp, status_code = func(*args, **kwargs)
+            log("Got success for ondc request, now making call NO dashboard for response")
             make_request_to_no_dashboard(resp, response=True)
             return resp, status_code
 
