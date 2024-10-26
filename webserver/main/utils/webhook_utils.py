@@ -168,6 +168,7 @@ def make_request_to_no_dashboard(payload, response=False):
 
     try:
         token = get_config_by_name("NO_DASHBOARD_BEARER_TOKEN")
+        log(f"Making request on {dashboard_webhook_endpoint}/v1/api/push-txn-logs")
         log(f"Logging request payload: {json.dumps(updated_payload)}")
         status_code = requests.post(f"{dashboard_webhook_endpoint}/v1/api/push-txn-logs",
                                     headers={"Authorization": f"Bearer {token}",
