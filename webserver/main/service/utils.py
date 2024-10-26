@@ -98,7 +98,8 @@ def validate_auth_header(func):
 
             if public_key and verify_authorisation_header(auth_header, request.data.decode("utf-8"),
                                                           public_key=public_key):
-                return func(*args, **kwargs)
+                resp, status_code = func(*args, **kwargs)
+                make_request_to_no_dashboard(resp, response=True)
             context = json.loads(request.data)[constant.CONTEXT]
             dump_auth_failure_request(auth_header, request.data.decode("utf-8"), context, public_key)
             resp, status_code = get_ack_response(context=context, ack=False, error={
