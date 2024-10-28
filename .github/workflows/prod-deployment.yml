@@ -1,0 +1,16 @@
+name: Deployment
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  use-reusable-workflow:
+    uses: navya-app/shared-cicd-pipeline/.github/workflows/deployment.yml@main  #Reference to the reusable workflow
+    with:  # Pass inputs
+      service_name: ondc-ref-app-protocol-service
+      branch_name: "master"
+      environment: "prod"
+    secrets:  # Pass secrets
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+      GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
