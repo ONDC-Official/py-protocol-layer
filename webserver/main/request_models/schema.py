@@ -578,15 +578,15 @@ class TagChild(BaseModel):
     code: StrictStr
     value: StrictStr
 
-    @validator("value")
-    def check_color_format(cls, value, values):
-        if values.get("code") == "colour" and not value.startswith("#"):
-            raise ValueError("Colour value should start with '#'")
-        if values.get("code") == "colour" and len(value) != 7:
-            raise ValueError("Colour value should contain exactly six alphanumeric characters after '#'")
-        if values.get("code") == "colour" and not value[1:].isalnum():
-            raise ValueError("Colour value should contain only alphanumeric characters after '#'")
-        return value
+    # @validator("value")
+    # def check_color_format(cls, value, values):
+    #     if values.get("code") == "colour" and not value.startswith("#"):
+    #         raise ValueError("Colour value should start with '#'")
+    #     if values.get("code") == "colour" and len(value) != 7:
+    #         raise ValueError("Colour value should contain exactly six alphanumeric characters after '#'")
+    #     if values.get("code") == "colour" and not value[1:].isalnum():
+    #         raise ValueError("Colour value should contain only alphanumeric characters after '#'")
+    #     return value
 
 
 class Tag(BaseModel):
