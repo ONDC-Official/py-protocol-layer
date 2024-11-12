@@ -56,12 +56,14 @@ class Config:
     VERIFICATION_ENABLE = os.getenv("VERIFICATION_ENABLE", "True") == "True"
     RABBITMQ_QUEUE_NAME = os.getenv("RABBITMQ_QUEUE_NAME", "bpp_protocol")
     ELASTIC_SEARCH_QUEUE_NAME = os.getenv("ELASTIC_SEARCH_QUEUE_NAME", "catalog_indexing")
+    NACK_MESSAGE_QUEUE_NAME = os.getenv("NACK_MESSAGE_QUEUE_NAME", "nack_message_queue")
     RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
     RABBITMQ_CREDS = os.getenv("RABBITMQ_CREDS", "False") == "True"
     RABBITMQ_USERNAME = os.getenv("RABBITMQ_USERNAME", "username")
     RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "password")
     QUEUE_ENABLE = os.getenv("QUEUE_ENABLE", "False") == "True"
     ELASTIC_SEARCH_QUEUE_ENABLE = os.getenv("ELASTIC_SEARCH_QUEUE_ENABLE", "False") == "True"
+    NACK_MESSAGE_QUEUE_ENABLE = os.getenv("NACK_MESSAGE_QUEUE_ENABLE", "False") == "True"
     DUMP_ALL_REQUESTS = os.getenv("DUMP_ALL_REQUESTS", "False") == "True"
     API_TOKEN = os.getenv("API_TOKEN", "testing_random_123")
     MAX_CONSUME_MESSAGE_TIME = int(os.getenv("MAX_CONSUME_MESSAGE_TIME", "30"))

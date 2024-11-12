@@ -12,8 +12,10 @@ from main import constant
 from main.config import get_config_by_name
 from main.logger.custom_logging import log
 from main.models import get_mongo_collection
+from main.models.catalog import SearchType
 from main.repository import mongo
 from main.repository.ack_response import get_ack_response
+from main.service import send_message_to_nack_message_queue
 from main.utils.cryptic_utils import verify_authorisation_header
 from main.utils.lookup_utils import get_bpp_public_key_from_header
 from main.utils.webhook_utils import make_request_to_no_dashboard
@@ -102,7 +104,17 @@ def validate_auth_header(func):
                 make_request_to_no_dashboard(resp, response=True)
                 return resp, status_code
             context = json.loads(request.data)[constant.CONTEXT]
-            dump_auth_failure_request(auth_header, request.data.decode("utf-8"), context, public_key)
+            doc_id = dump_auth_failure_request(auth_header, request.data.decode("utf-8"), context, public_key)
+
+            # Nack message forwarding so that it can be forwarded to Kafka
+            if request.headers.get("X-ONDC-Search-Response", "full") == SearchType.FULL.value:
+                message = {
+                    "doc_id": str(doc_id),
+                    "request_type": SearchType.FULL.value,
+                    "error_type": "AUTH_FAILURE"
+                }
+                send_message_to_nack_message_queue(message) if get_config_by_name('NACK_MESSAGE_QUEUE_ENABLE') else None
+
             resp, status_code = get_ack_response(context=context, ack=False, error={
                 "code": "10001",
                 "message": "Invalid Signature"
