@@ -99,6 +99,7 @@ class AddConfirmResponse(Resource):
         request_payload = request.get_json()
         log(f"Got the on_confirm request payload {request_payload} \n headers: {dict(request.headers)}!")
         resp = validate_payload_schema_based_on_version(request_payload, 'on_confirm')
+        resp = validate_business_rules(request_payload, 'on_confirm') if resp is None else resp
         entry_object_id = dump_request_payload("on_confirm", request_payload)
         if resp is None:
             resp = add_bpp_response(request_payload, request_type="on_confirm"), 200
