@@ -1,5 +1,6 @@
 from retry import retry
 
+from main.config import get_config_by_name
 from main.logger.custom_logging import log_error
 from main.models import get_mongo_collection
 from main.repository import mongo
@@ -62,3 +63,20 @@ def validate_request_and_callback_breakup_items(callback_payload):
         return f"Order items (id, parent_item_id) should be same in request and callback: {request_order_items} != {callback_order_items}"
     else:
         return None
+
+
+def validate_buyer_finder_fee(payload):
+    order = payload["message"]["order"]
+    order_bff_type = order.get("payment", {}).get("@ondc/org/buyer_app_finder_fee_type", "")
+    order_bff_amount = order.get("payment", {}).get("@ondc/org/buyer_app_finder_fee_amount", "")
+    configured_bff_type = get_config_by_name("BAP_FINDER_FEE_TYPE")
+    configured_bff_amount = get_config_by_name("BAP_FINDER_FEE_AMOUNT")
+    if order_bff_type != configured_bff_type:
+        return f"Order Buyer finder fee type '{order_bff_type}' is different from search finder fee type " \
+               f"'{configured_bff_type}'!"
+    elif float(order_bff_amount) != float(configured_bff_amount):
+        return f"Order Buyer finder fee amount '{order_bff_amount}' is different from search finder fee amount " \
+               f"'{configured_bff_amount}'!"
+    else:
+        return None
+
