@@ -137,6 +137,8 @@ class Domain(Enum):
     ONDC_RET19 = 'ONDC:RET19'
     ONDC_RET20 = 'ONDC:RET20'
     ONDC_AGR10 = 'ONDC:AGR10'
+    ONDC_RET1A = 'ONDC:RET1A'
+    ONDC_RET1B = 'ONDC:RET1B'
 
 
 class Duration(BaseModel):
