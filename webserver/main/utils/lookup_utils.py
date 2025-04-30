@@ -13,7 +13,7 @@ def fetch_subscriber_url_from_lookup(request_type, subscriber_id=None, domain=No
     payload.update({"domain": domain}) if domain and domain != '*' else None
     payload.update({"subscriber_id": subscriber_id}) if subscriber_id else None
     updated_payload = format_registry_request_for_pre_prod(payload) if os.getenv("ENV") == "pre_prod" else payload
-    response, status_code = lookup_call(f"{get_config_by_name('REGISTRY_BASE_URL')}/lookup",
+    response, status_code = lookup_call(f"{get_config_by_name('REGISTRY_BASE_URL')}/v2.0/lookup",
                                         payload=updated_payload)
     if status_code == 200 and len(response) > 0:
         if response[0].get('network_participant'):
