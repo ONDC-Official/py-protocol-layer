@@ -42,7 +42,8 @@ def verify_response(signature, signing_key, public_key):
         public_key64 = base64.b64decode(public_key)
         VerifyKey(public_key64).verify(bytes(signing_key, 'utf8'), base64.b64decode(signature))
         return True
-    except Exception:
+    except Exception as e:
+        print(f"Signature verification failed ==>>>>", e)
         return False
 
 
