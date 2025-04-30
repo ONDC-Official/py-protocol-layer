@@ -10,6 +10,7 @@ from cachetools.keys import hashkey
 from retry import retry
 
 from main.config import get_config_by_name
+from main.utils.cryptic_utils import create_authorisation_header
 from main.logger.custom_logging import log
 
 
@@ -126,6 +127,10 @@ def hash_key(*args):
 
 def lookup_call_function(url, payload, headers=None):
     try:
+        authorization_header = create_authorisation_header(payload)
+        if headers is None:
+            headers = {}
+        headers['Authorization'] = authorization_header
         log(f"Making lookup call on registry for {payload}")
         response = requests.post(url, json=payload, headers=headers)
         return json.loads(response.text), response.status_code
