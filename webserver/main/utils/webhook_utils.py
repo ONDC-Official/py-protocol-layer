@@ -127,15 +127,14 @@ def hash_key(*args):
 
 def lookup_call_function(url, payload, headers=None):
     try:
-        authorization_header = create_authorisation_header(payload)
-        if headers is None:
-            headers = {}
-        headers['Authorization'] = authorization_header
-        log(f"Making lookup call on registry for {payload}")
-        response = requests.post(url, json=payload, headers=headers)
+        payload_str = json.dumps(payload, separators=(',', ':'), ensure_ascii=False)
+        headers = {} if headers is None else headers.copy()
+        headers['Content-Type'] = 'application/json'
+        headers['Authorization'] = create_authorisation_header(payload)
+        response = requests.post(url, data=payload_str.encode('utf-8'), headers=headers)
         return json.loads(response.text), response.status_code
     except Exception as e:
-        return {"error": f"Something went wrong {e}!"}, 500
+        return {"error": f"Something went wrong: {e}!"}, 500
 
 
 def lookup_call(endpoint, payload, headers=None):
