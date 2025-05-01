@@ -36,7 +36,7 @@ def get_bpp_public_key_from_header(auth_header, domain):
         "subscriber_id": subscriber_id,
         "ukId": unique_key_id
     }
-    response, status_code = lookup_call(f"{get_config_by_name('REGISTRY_BASE_URL')}/lookup",
+    response, status_code = lookup_call(f"{get_config_by_name('REGISTRY_BASE_URL')}/v2.0/lookup",
                                         payload=payload)
 
     if status_code == 200 and len(response) > 0:
