@@ -21,6 +21,25 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
         "@ondc/org/buyer_app_finder_fee_type": get_config_by_name("BAP_FINDER_FEE_TYPE"),
         "@ondc/org/buyer_app_finder_fee_amount": get_config_by_name("BAP_FINDER_FEE_AMOUNT")
     }
+    tags_array = [
+        {
+    "code": "bap_terms",
+    "list": [
+      {
+        "code": "static_terms",
+        "value": ""
+      },
+      {
+        "code": "static_terms_new",
+        "value": "https://github.com/ONDC-Official/NP-Static-Terms/buyerNP_BNP/1.0/tc.pdf"
+      },
+      {
+        "code": "effective_date",
+        "value": datetime.now()
+      }
+    ]
+        }
+    ]
     if search_type == SearchType.FULL:
         city_list = get_config_by_name("CITY_LIST") if cities is None else cities
         message = {
@@ -30,7 +49,8 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
                         "type": "Delivery"
                     },
                 "payment": payment_object
-            }
+            },
+            "tags":tags_array
         }
     else:
         city_list = ["*"] if cities is None else cities
