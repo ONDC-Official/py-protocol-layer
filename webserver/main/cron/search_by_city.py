@@ -10,7 +10,6 @@ from main.models.catalog import SearchType
 from main.repository import mongo
 from main.service.common import dump_request_payload, update_dumped_request_with_response
 from main.service.search import gateway_search
-from main.constant import EFFECTIVE_DATE
 
 
 def make_http_requests_for_search_by_city(search_type: SearchType, domains=None, cities=None, mode="start"):
