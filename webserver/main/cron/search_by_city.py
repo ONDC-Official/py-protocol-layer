@@ -18,7 +18,7 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
     domain_list = get_config_by_name("DOMAIN_LIST") if domains is None else domains
     end_time = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     start_time = (datetime.utcnow() - timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-    effective_date = EFFECTIVE_DATE
+    effective_date = datetime.utcnow() + timedelta(days=15)
     payment_object = {
         "@ondc/org/buyer_app_finder_fee_type": get_config_by_name("BAP_FINDER_FEE_TYPE"),
         "@ondc/org/buyer_app_finder_fee_amount": get_config_by_name("BAP_FINDER_FEE_AMOUNT")
@@ -29,11 +29,11 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
     "list": [
       {
         "code": "static_terms",
-        "value": ""
+        "value": "https://github.com/ONDC-Official/NP-Static-Terms/buyerNP_BNP/v1.0/tc.pdf"
       },
       {
         "code": "static_terms_new",
-        "value": "https://github.com/ONDC-Official/NP-Static-Terms/buyerNP_BNP/1.0/tc.pdf"
+        "value": "https://github.com/ONDC-Official/NP-Static-Terms/buyerNP_BNP/v1.5/tc.pdf"
       },
       {
         "code": "effective_date",
