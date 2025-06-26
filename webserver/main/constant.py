@@ -28,3 +28,4 @@ LOCATION_DETAILS = 'location_details'
 CATEGORY_DETAILS = 'category_details'
 FULFILLMENT_DETAILS = 'fulfillment_details'
 
+EFFECTIVE_DATE = "2025-06-26T10:48:23.849Z"

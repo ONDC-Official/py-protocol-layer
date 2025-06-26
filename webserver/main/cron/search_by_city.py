@@ -10,6 +10,7 @@ from main.models.catalog import SearchType
 from main.repository import mongo
 from main.service.common import dump_request_payload, update_dumped_request_with_response
 from main.service.search import gateway_search
+from main.constant import EFFECTIVE_DATE
 
 
 def make_http_requests_for_search_by_city(search_type: SearchType, domains=None, cities=None, mode="start"):
@@ -17,6 +18,7 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
     domain_list = get_config_by_name("DOMAIN_LIST") if domains is None else domains
     end_time = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     start_time = (datetime.utcnow() - timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    effective_date = EFFECTIVE_DATE
     payment_object = {
         "@ondc/org/buyer_app_finder_fee_type": get_config_by_name("BAP_FINDER_FEE_TYPE"),
         "@ondc/org/buyer_app_finder_fee_amount": get_config_by_name("BAP_FINDER_FEE_AMOUNT")
@@ -35,7 +37,7 @@ def make_http_requests_for_search_by_city(search_type: SearchType, domains=None,
       },
       {
         "code": "effective_date",
-        "value": datetime.now()
+        "value": effective_date
       }
     ]
         }
