@@ -91,36 +91,103 @@ def get_bpp_response_for_message_id(**kwargs):
 #     auth_header = create_authorisation_header(request_payload)
 #     return post_on_bg_or_bpp(bpp_url_with_route, payload=request_payload, headers={'Authorization': auth_header})
 
+# def bpp_post_call(request_type, request_payload):
+#     subscriber_id = request_payload[constant.CONTEXT][constant.BPP_ID]
+
+#     # 🔹 Special override for issue
+#     if request_type == "issue":
+#         base_url = "https://ondc-uat-api.kellton.net/api/plan/grievance"
+#         bpp_url_with_route = f"{base_url}/{request_type}"
+#     else:
+#         bpp_url = (
+#             request_payload[constant.CONTEXT].get("bpp_uri")
+#             or fetch_subscriber_url_from_lookup(
+#                 request_type,
+#                 subscriber_id=subscriber_id,
+#                 domain=request_payload[constant.CONTEXT][constant.DOMAIN],
+#             )
+#         )
+
+#         bpp_url_with_route = (
+#             f"{bpp_url}{request_type}"
+#             if bpp_url.endswith("/")
+#             else f"{bpp_url}/{request_type}"
+#         )
+
+#     auth_header = create_authorisation_header(request_payload)
+
+#     return post_on_bg_or_bpp(
+#         bpp_url_with_route,
+#         payload=request_payload,
+#         headers={'Authorization': auth_header}
+#     )
+
 def bpp_post_call(request_type, request_payload):
     subscriber_id = request_payload[constant.CONTEXT][constant.BPP_ID]
-
-    # 🔹 Special override for issue
-    if request_type == "issue":
-        base_url = "https://ondc-uat-api.kellton.net/api/plan/grievance"
-        bpp_url_with_route = f"{base_url}/{request_type}"
-    else:
-        bpp_url = (
-            request_payload[constant.CONTEXT].get("bpp_uri")
-            or fetch_subscriber_url_from_lookup(
-                request_type,
-                subscriber_id=subscriber_id,
-                domain=request_payload[constant.CONTEXT][constant.DOMAIN],
-            )
-        )
-
-        bpp_url_with_route = (
-            f"{bpp_url}{request_type}"
-            if bpp_url.endswith("/")
-            else f"{bpp_url}/{request_type}"
-        )
-
     auth_header = create_authorisation_header(request_payload)
+
+    if request_type == "issue":
+        test_base_url = "https://ondc-uat-api.kellton.net/api/plan/grievance"
+        test_url = f"{test_base_url}/{request_type}"
+
+        #  First call to Kellton endpoint
+        response, status_code = post_on_bg_or_bpp(
+            test_url,
+            payload=request_payload,
+            headers={'Authorization': auth_header}
+        )
+
+        # Check for NACK or 403
+        if (
+            status_code == 403
+            or response.get("message", {}).get("ack", {}).get("status") == "NACK"
+        ):
+            # Fallback logic
+            bpp_url = (
+                request_payload[constant.CONTEXT].get("bpp_uri")
+                or fetch_subscriber_url_from_lookup(
+                    request_type,
+                    subscriber_id=subscriber_id,
+                    domain=request_payload[constant.CONTEXT][constant.DOMAIN],
+                )
+            )
+
+            bpp_url_with_route = (
+                f"{bpp_url}{request_type}"
+                if bpp_url.endswith("/")
+                else f"{bpp_url}/{request_type}"
+            )
+
+            return post_on_bg_or_bpp(
+                bpp_url_with_route,
+                payload=request_payload,
+                headers={'Authorization': auth_header}
+            )
+
+        return response, status_code
+
+    # Normal flow for other request types
+    bpp_url = (
+        request_payload[constant.CONTEXT].get("bpp_uri")
+        or fetch_subscriber_url_from_lookup(
+            request_type,
+            subscriber_id=subscriber_id,
+            domain=request_payload[constant.CONTEXT][constant.DOMAIN],
+        )
+    )
+
+    bpp_url_with_route = (
+        f"{bpp_url}{request_type}"
+        if bpp_url.endswith("/")
+        else f"{bpp_url}/{request_type}"
+    )
 
     return post_on_bg_or_bpp(
         bpp_url_with_route,
         payload=request_payload,
         headers={'Authorization': auth_header}
     )
+
 
 def dump_request_payload(action, payload):
     collection = get_mongo_collection('request_dump')
